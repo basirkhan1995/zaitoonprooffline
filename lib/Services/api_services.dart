@@ -4,8 +4,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'localization_services.dart';
 
 class ApiServices {
-  static const String baseUrl = "http://52.202.21.195/rapi";
-  static const String imageUrl = "http://ec2-52-202-21-195.compute-1.amazonaws.com/images/personal/";
+  static const String baseUrl = "http://localhost/rapi";
+  static const String imageUrl = "http://localhost/images/personal/";
   ApiServices() {
     _dio = Dio(
       BaseOptions(
@@ -92,7 +92,7 @@ class ApiServices {
     CancelToken? cancelToken,
   }) async {
     try {
-      await _checkConnectivity();
+     await _checkConnectivity();
       return await _dio.get(
         endpoint,
         queryParameters: queryParams,
@@ -115,7 +115,7 @@ class ApiServices {
     CancelToken? cancelToken,
   }) async {
     try {
-      await _checkConnectivity();
+      //await _checkConnectivity();
       return await _dio.post(
         endpoint,
         data: data,
@@ -138,7 +138,7 @@ class ApiServices {
     CancelToken? cancelToken,
   }) async {
     try {
-      await _checkConnectivity();
+      //await _checkConnectivity();
       return await _dio.put(
         endpoint,
         data: data,
@@ -211,7 +211,7 @@ class ApiServices {
     ProgressCallback? onReceiveProgress,
   }) async {
     try {
-      await _checkConnectivity();
+       await _checkConnectivity();
       return await _dio.download(
         endpoint,
         savePath,
