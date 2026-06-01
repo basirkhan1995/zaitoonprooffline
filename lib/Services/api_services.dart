@@ -2,7 +2,6 @@
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'localization_services.dart';
-
 class ApiServices {
   static const String baseUrl = "http://localhost/rapi";
   static const String imageUrl = "http://localhost/images/personal/";
