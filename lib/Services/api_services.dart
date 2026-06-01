@@ -6,6 +6,7 @@ class ApiServices {
   static const String baseUrl = "http://localhost/rapi";
   static const String imageUrl = "http://localhost/images/personal/";
   ApiServices() {
+
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
