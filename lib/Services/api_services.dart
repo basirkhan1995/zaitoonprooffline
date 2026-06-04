@@ -2,28 +2,56 @@
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'localization_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class ApiServices {
-  static const String baseUrl = "http://localhost/rapi";
-  static const String imageUrl = "http://localhost/images/personal/";
-  ApiServices() {
 
-    _dio = Dio(
-      BaseOptions(
-        baseUrl: baseUrl,
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Cache-Control": "no-cache",
-        },
-      ),
-    );
+  static final ApiServices _instance = ApiServices._internal();
+  factory ApiServices() => _instance;
+  ApiServices._internal();
+
+  late Dio _dio;
+
+  // Default fallback - keeps your original working URL
+  static const String defaultBaseUrl = "http://localhost/rapi";
+  static const String defaultImageUrl = "http://localhost/images/personal/";
+
+  // Initialize with default
+  void init({String? baseUrl}) {
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl ?? defaultBaseUrl,
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+    ));
   }
 
-  late final Dio _dio;
-
   Dio get client => _dio;
+
+  // Simple method to change server
+  Future<void> setServerIP(String ip, {String port = '80'}) async {
+    final newUrl = 'http://$ip:$port/rapi';
+    _dio.options.baseUrl = newUrl;
+
+    // Save for next app launch
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('server_ip', ip);
+    await prefs.setString('server_port', port);
+  }
+
+  // Get saved server on startup
+  Future<String?> getSavedServerIP() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('server_ip');
+  }
+
+  // Get image URL based on current server
+  String get imageUrl {
+    final base = _dio.options.baseUrl;
+    return base.replaceAll('/rapi', '/images/personal/');
+  }
 
   /* -------------------------------------------------------------------------- */
   /*                            Connectivity Check                               */

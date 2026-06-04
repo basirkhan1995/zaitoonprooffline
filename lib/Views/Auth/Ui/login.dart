@@ -13,6 +13,7 @@ import '../../../Features/Widgets/textfield_entitled.dart';
 import '../../../Localizations/l10n/translations/app_localizations.dart';
 import '../../../Localizations/locale_selector.dart';
 import '../../../Themes/Ui/theme_selector.dart';
+import '../server_dialog.dart';
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
@@ -769,6 +770,24 @@ class _DesktopState extends State<_Desktop> {
                           Utils.goto(context, ForgotPasswordView());
                         },
                         child: Text(locale.forgotPassword),
+                      ),
+                    ),
+
+                    Align(
+                      alignment: Alignment.center,
+                      child: TextButton(
+                        onPressed: () async {
+                          final result = await showDialog(
+                            context: context,
+                            builder: (context) => const ServerConnectDialog(),
+                          );
+
+                          if (result == true) {
+                            // Refresh UI or reconnect
+                            setState(() {});
+                          }
+                        },
+                        child: Text(locale.connectToServer),
                       ),
                     ),
                   ],

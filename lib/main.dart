@@ -123,6 +123,17 @@ void main() async {
     await windowManager.ensureInitialized();
     windowManager.setMinimumSize(const Size(900, 700));
   }
+
+
+  final api = ApiServices();
+  final savedIP = await api.getSavedServerIP();
+
+  if (savedIP != null) {
+    api.init(baseUrl: 'http://$savedIP:80/rapi');
+  } else {
+    api.init();
+  }
+
   runApp(const MyApp());
 }
 

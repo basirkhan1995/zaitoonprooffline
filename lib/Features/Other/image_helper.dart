@@ -56,7 +56,7 @@ class ImageHelper {
       );
     } else {
       mainImage = CachedNetworkImage(
-        imageUrl: "${ApiServices.imageUrl}$imageName",
+        imageUrl: "${ApiServices.defaultImageUrl}$imageName",
         fit: fit,
         placeholder: (_, _) => Center(
           child: SizedBox(
@@ -238,7 +238,7 @@ class ImageHelper {
         width: double.infinity,
         height: double.infinity,
         child: CachedNetworkImage(
-          imageUrl: "${ApiServices.imageUrl}$imageName",
+          imageUrl: "${ApiServices.defaultImageUrl}$imageName",
           fit: BoxFit.contain,
           width: double.infinity,
           height: double.infinity,
