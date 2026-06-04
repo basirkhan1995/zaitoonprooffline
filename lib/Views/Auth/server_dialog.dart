@@ -22,8 +22,24 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
   @override
   void initState() {
     super.initState();
-    _loadSavedIP();
-    _getMyIP();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    // Get fresh IP every time dialog opens
+    await _getMyIP();
+    await _loadSavedIP();
+
+    // If this device's IP changed, update the saved IP hint
+    if (_myIP != null && _myIP != ipController.text) {
+      // Check if current device might be the server
+      final isServer = await _checkIfServer(_myIP!);
+      if (isServer && mounted) {
+        setState(() {
+          ipController.text = _myIP!;
+        });
+      }
+    }
   }
 
   Future<void> _loadSavedIP() async {
@@ -39,6 +55,21 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
       setState(() {
         _myIP = ip;
       });
+    }
+  }
+
+  // Quick check if an IP is running the server
+  Future<bool> _checkIfServer(String ip) async {
+    try {
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 1),
+        receiveTimeout: const Duration(seconds: 1),
+        validateStatus: (status) => status != null && status < 500,
+      ));
+      final response = await dio.get('http://$ip/rapi/get_ip.php');
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -69,7 +100,6 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
             name.contains('wireless') ||
             name.contains('ethernet') ||
             name.contains('lan')) {
-
           for (var addr in interface.addresses) {
             if (addr.type == InternetAddressType.IPv4 &&
                 !addr.isLoopback &&
@@ -124,54 +154,54 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     setState(() {
       autoFinding = true;
       loading = true;
-      _scanStatus = 'Getting your IP...';
+      _scanStatus = 'Detecting network...';
     });
 
     try {
+      // FIRST: Try current device IP (most likely the server if running on this PC)
+      final currentIP = await _getLocalIP();
+      if (currentIP != null) {
+        setState(() => _scanStatus = 'Checking this device: $currentIP');
+        final connected = await _tryConnect(currentIP);
+        if (connected) return;
+      }
+
+      // SECOND: Try saved IP
       final savedIP = await ApiServices().getSavedServerIP();
-      if (savedIP != null && savedIP.isNotEmpty) {
+      if (savedIP != null && savedIP.isNotEmpty && savedIP != currentIP) {
         setState(() => _scanStatus = 'Trying saved server: $savedIP');
         final connected = await _tryConnect(savedIP);
         if (connected) return;
       }
 
-      final localIP = await _getLocalIP();
-
-      if (localIP != null) {
-        setState(() => _scanStatus = 'Trying this device: $localIP');
-
-        final connected = await _tryConnect(localIP);
-        if (connected) return;
-
-        final parts = localIP.split('.');
+      if (currentIP != null) {
+        final parts = currentIP.split('.');
         if (parts.length == 4) {
           final subnet = '${parts[0]}.${parts[1]}.${parts[2]}';
+          final gateway = '$subnet.1';
 
+          // THIRD: Try gateway first (some setups have server on .1)
+          if (gateway != currentIP && gateway != savedIP) {
+            setState(() => _scanStatus = 'Checking gateway: $gateway');
+            final connected = await _tryConnect(gateway);
+            if (connected) return;
+          }
+
+          // FOURTH: Try different subnets
           final subnetsToTry = <String>[subnet];
           if (subnet != '192.168.0') subnetsToTry.add('192.168.0');
           if (subnet != '192.168.1') subnetsToTry.add('192.168.1');
+          if (subnet != '10.0.0') subnetsToTry.add('10.0.0');
 
           for (final currentSubnet in subnetsToTry) {
-            final priorityIPs = <String>[
-              '$currentSubnet.109',
-              '$currentSubnet.100',
-              '$currentSubnet.50',
-              '$currentSubnet.10',
-              '$currentSubnet.20',
-              '$currentSubnet.30',
-            ];
+            setState(() => _scanStatus = 'Scanning $currentSubnet.x...');
 
-            for (final ip in priorityIPs) {
-              if (ip == localIP) continue;
-              setState(() => _scanStatus = 'Checking $ip...');
-              final connected = await _tryConnect(ip);
-              if (connected) return;
-            }
+            // Quick scan common IPs
+            final commonIPs = [2, 5, 6, 10, 20, 30, 50, 100, 109, 150, 200];
+            for (final lastOctet in commonIPs) {
+              final ip = '$currentSubnet.$lastOctet';
+              if (ip == currentIP || ip == savedIP) continue;
 
-            for (int i = 2; i <= 254; i++) {
-              final ip = '$currentSubnet.$i';
-              if (priorityIPs.contains(ip) || ip == localIP) continue;
-              setState(() => _scanStatus = 'Scanning $ip...');
               final connected = await _tryConnect(ip);
               if (connected) return;
             }
@@ -181,12 +211,22 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
 
       if (mounted) {
         setState(() => _scanStatus = null);
-        ToastManager.show(context: context,title: "Connection Failed",  message: "No server found", type: ToastType.error);
+        ToastManager.show(
+          context: context,
+          title: "No Server Found",
+          message: "Make sure XAMPP is running and firewall allows connections",
+          type: ToastType.error,
+        );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _scanStatus = null);
-        ToastManager.show(context: context,title: "Scan Failed",  message: "No server found", type: ToastType.error);
+        ToastManager.show(
+          context: context,
+          title: "Scan Failed",
+          message: "Please try manual entry",
+          type: ToastType.error,
+        );
       }
     } finally {
       if (mounted) {
@@ -203,13 +243,14 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     final urls = [
       'http://$ip/rapi/get_ip.php',
       'http://$ip:80/rapi/get_ip.php',
+      'http://$ip:8080/rapi/get_ip.php',
     ];
 
     for (final url in urls) {
       try {
         final dio = Dio(BaseOptions(
-          connectTimeout: const Duration(seconds: 2),
-          receiveTimeout: const Duration(seconds: 2),
+          connectTimeout: const Duration(seconds: 1),
+          receiveTimeout: const Duration(seconds: 1),
           validateStatus: (status) => status != null && status < 500,
         ));
 
@@ -218,11 +259,17 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
         if (response.statusCode == 200 && response.data is Map) {
           final data = response.data;
           if (data['success'] == true) {
-            await ApiServices().setServerIP(ip, port: '80');
+            final port = Uri.parse(url).port.toString();
+            await ApiServices().setServerIP(ip, port: port);
 
             if (mounted) {
               ipController.text = ip;
-              ToastManager.show(context: context,title: "Connection Succeed",  message: "Connected to $ip", type: ToastType.success);
+              ToastManager.show(
+                context: context,
+                title: "Connected",
+                message: "Server found at $ip",
+                type: ToastType.success,
+              );
               Navigator.pop(context, true);
             }
             return true;
@@ -239,46 +286,77 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     final ip = ipController.text.trim();
 
     if (ip.isEmpty) {
-      ToastManager.show(context: context,title: "IP REQUIRED",  message: "Please enter the server address.", type: ToastType.warning);
+      ToastManager.show(
+        context: context,
+        title: "IP Required",
+        message: "Please enter the server address",
+        type: ToastType.warning,
+      );
       return;
     }
 
     setState(() => loading = true);
 
     try {
-      final url = 'http://$ip/rapi/get_ip.php';
+      // Try multiple URLs
+      final urls = [
+        'http://$ip/rapi/get_ip.php',
+        'http://$ip:80/rapi/get_ip.php',
+        'http://$ip:8080/rapi/get_ip.php',
+      ];
 
-      final dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 3),
-        receiveTimeout: const Duration(seconds: 3),
-        validateStatus: (status) => status != null && status < 500,
-      ));
+      bool connected = false;
 
-      final response = await dio.get(url);
+      for (final url in urls) {
+        try {
+          final dio = Dio(BaseOptions(
+            connectTimeout: const Duration(seconds: 3),
+            receiveTimeout: const Duration(seconds: 3),
+            validateStatus: (status) => status != null && status < 500,
+          ));
 
-      if (response.statusCode == 200 && response.data is Map) {
-        final data = response.data;
+          final response = await dio.get(url);
 
-        if (data['success'] == true) {
-          await ApiServices().setServerIP(ip, port: '80');
+          if (response.statusCode == 200 && response.data is Map) {
+            final data = response.data;
+            if (data['success'] == true) {
+              final port = Uri.parse(url).port.toString();
+              await ApiServices().setServerIP(ip, port: port);
 
-          if (mounted) {
-            ToastManager.show(context: context,title: "Connection Succeed",  message: "Connected to $ip", type: ToastType.success);
-            Navigator.pop(context, true);
+              if (mounted) {
+                ToastManager.show(
+                  context: context,
+                  title: "Connected",
+                  message: "Successfully connected to $ip",
+                  type: ToastType.success,
+                );
+                Navigator.pop(context, true);
+              }
+              connected = true;
+              break;
+            }
           }
-        } else {
-          throw Exception('Server returned error');
+        } catch (e) {
+          continue;
         }
-      } else {
-        throw Exception('Invalid response');
       }
-    } on DioException catch (e) {
-      if (mounted) {
-        ToastManager.show(context: context,title: "Connection Failed",  message: "Failed to connect ${e.message}", type: ToastType.error);
+
+      if (!connected && mounted) {
+        ToastManager.show(
+          context: context,
+          title: "Connection Failed",
+          message: "Cannot reach server at $ip. Check if XAMPP is running.",
+          type: ToastType.error,
+        );
       }
     } catch (e) {
       if (mounted) {
-        ToastManager.show(context: context,title: "Connection Failed",  message: "Failed to connect $ip", type: ToastType.error);
+        ToastManager.show(
+          context: context,
+          title: "Error",
+          message: "Failed to connect to $ip",
+          type: ToastType.error,
+        );
       }
     } finally {
       if (mounted) setState(() => loading = false);
@@ -326,8 +404,15 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
                     children: [
                       Icon(Icons.phone_android, size: 16, color: Colors.blue.shade700),
                       const SizedBox(width: 8),
-                      Text('This device IP: ', style: TextStyle(fontSize: 12, color: Colors.blue.shade700)),
+                      Text('This device: ', style: TextStyle(fontSize: 12, color: Colors.blue.shade700)),
                       Text(_myIP!, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
+                      const Spacer(),
+                      IconButton(
+                        icon: Icon(Icons.refresh, size: 18, color: Colors.blue.shade700),
+                        onPressed: _getMyIP,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
                     ],
                   ),
                 ),
@@ -341,8 +426,8 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
                   onPressed: loading ? null : _quickConnect,
                   icon: autoFinding
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.wifi, size: 18),
-                  label: Text(autoFinding ? 'Searching...' : 'Auto Scan'),
+                      : const Icon(Icons.wifi_find, size: 18),
+                  label: Text(autoFinding ? 'Scanning...' : 'Auto Find Server'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -376,8 +461,16 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
               TextField(
                 controller: ipController,
                 decoration: InputDecoration(
-                  hintText: 'e.g. 192.168.0.109',
+                  hintText: 'e.g. 192.168.1.6',
                   prefixIcon: const Icon(Icons.computer, size: 20),
+                  suffixIcon: _myIP != null && _myIP != ipController.text
+                      ? TextButton(
+                    onPressed: () {
+                      ipController.text = _myIP!;
+                    },
+                    child: const Text('Use mine', style: TextStyle(fontSize: 11)),
+                  )
+                      : null,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   isDense: true,
@@ -415,7 +508,7 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
                     const Text('3. Find IPv4 Address under Wi-Fi', style: TextStyle(fontSize: 11, color: Colors.grey)),
                     if (_myIP != null) ...[
                       const SizedBox(height: 4),
-                      Text('If this is the server, use: $_myIP', style: const TextStyle(fontSize: 11, color: Colors.blue, fontWeight: FontWeight.w600)),
+                      Text('Your IP: $_myIP', style: const TextStyle(fontSize: 11, color: Colors.blue, fontWeight: FontWeight.w600)),
                     ],
                   ],
                 ),
