@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:zaitoonpro/Features/Other/toast.dart';
+import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'dart:io';
 import '../../Services/api_services.dart';
 
@@ -179,20 +181,12 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
 
       if (mounted) {
         setState(() => _scanStatus = null);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No server found. Make sure XAMPP Apache is running and firewall allows connections.'),
-            backgroundColor: Colors.orange,
-            duration: Duration(seconds: 5),
-          ),
-        );
+        ToastManager.show(context: context,title: "Connection Failed",  message: "No server found", type: ToastType.error);
       }
     } catch (e) {
       if (mounted) {
         setState(() => _scanStatus = null);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Scan error: $e'), backgroundColor: Colors.red),
-        );
+        ToastManager.show(context: context,title: "Scan Failed",  message: "No server found", type: ToastType.error);
       }
     } finally {
       if (mounted) {
@@ -228,13 +222,7 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
 
             if (mounted) {
               ipController.text = ip;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Connected to $ip'),
-                  backgroundColor: Colors.green,
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+              ToastManager.show(context: context,title: "Connection Succeed",  message: "Connected to $ip", type: ToastType.success);
               Navigator.pop(context, true);
             }
             return true;
@@ -251,12 +239,7 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     final ip = ipController.text.trim();
 
     if (ip.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter the server address'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      ToastManager.show(context: context,title: "IP REQUIRED",  message: "Please enter the server address.", type: ToastType.warning);
       return;
     }
 
@@ -280,13 +263,7 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
           await ApiServices().setServerIP(ip, port: '80');
 
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Connected to server!'),
-                backgroundColor: Colors.green,
-                duration: Duration(seconds: 2),
-              ),
-            );
+            ToastManager.show(context: context,title: "Connection Succeed",  message: "Connected to $ip", type: ToastType.success);
             Navigator.pop(context, true);
           }
         } else {
@@ -297,23 +274,11 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
       }
     } on DioException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Cannot connect: ${e.message}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
+        ToastManager.show(context: context,title: "Connection Failed",  message: "Failed to connect ${e.message}", type: ToastType.error);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Cannot connect to $ip. Check server.'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
+        ToastManager.show(context: context,title: "Connection Failed",  message: "Failed to connect $ip", type: ToastType.error);
       }
     } finally {
       if (mounted) setState(() => loading = false);
@@ -340,7 +305,7 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Connect to Server',
+                      AppLocalizations.of(context)!.connectToServer,
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -376,8 +341,8 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
                   onPressed: loading ? null : _quickConnect,
                   icon: autoFinding
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.wifi_find, size: 18),
-                  label: Text(autoFinding ? 'Searching...' : 'Auto Find Server'),
+                      : const Icon(Icons.wifi, size: 18),
+                  label: Text(autoFinding ? 'Searching...' : 'Auto Scan'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
