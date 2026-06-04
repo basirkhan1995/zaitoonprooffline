@@ -355,7 +355,6 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
               ],
 
               const SizedBox(height: 16),
-
               // Auto Scan Button
               SizedBox(
                 width: double.infinity,
