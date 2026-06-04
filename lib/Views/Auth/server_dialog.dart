@@ -363,7 +363,7 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
                   onPressed: loading ? null : _quickConnect,
                   icon: autoFinding
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.wifi_find, size: 18),
+                      : const Icon(Icons.wifi_rounded, size: 18),
                   label: Text(autoFinding ? 'Searching...' : 'Auto Find Server'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
