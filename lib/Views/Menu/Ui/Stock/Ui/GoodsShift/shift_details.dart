@@ -129,8 +129,6 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
           actions: [
             ZOutlineButton(
               icon: Icons.print,
-              width: 110,
-              height: 38,
               label: Text(tr.print),
               onPressed: () {},
             ),
@@ -138,8 +136,6 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
             ZOutlineButton(
               isActive: true,
               backgroundHover: Theme.of(context).colorScheme.error,
-              width: 110,
-              height: 38,
               icon: Icons.delete,
               label: _isDeleting
                   ? SizedBox(
@@ -282,33 +278,47 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
             columnWidths: const {
               0: FixedColumnWidth(40), // #
               1: FlexColumnWidth(2), // Type
-              2: FlexColumnWidth(3), // Product
+              2: FlexColumnWidth(4), // Product
               3: FlexColumnWidth(3), // Storage
               4: FlexColumnWidth(2), // Quantity
-              5: FlexColumnWidth(2), // Cost/Unit
-              6: FlexColumnWidth(2), // Total
             },
             border: TableBorder.all(
               color: color.outline.withValues(alpha: .1),
               width: 1,
             ),
             children: [
-              // Table header
+              // Header Row
               TableRow(
                 decoration: BoxDecoration(
                   color: color.primary.withValues(alpha: .9),
                 ),
                 children: [
-                  _buildTableCell('#', isHeader: true, center: true),
-                  _buildTableCell(tr.typeTitle, isHeader: true),
-                  _buildTableCell(tr.productName, isHeader: true),
-                  _buildTableCell(tr.storage, isHeader: true),
-                  _buildTableCell(tr.qty, isHeader: true, center: true),
-                  _buildTableCell(tr.costPrice, isHeader: true, center: true),
-                  _buildTableCell(tr.totalTitle, isHeader: true, center: true),
+                  _buildTableCell(
+                    '#',
+                    isHeader: true,
+                    center: true,
+                  ),
+                  _buildTableCell(
+                    tr.typeTitle,
+                    isHeader: true,
+                  ),
+                  _buildTableCell(
+                    tr.productName,
+                    isHeader: true,
+                  ),
+                  _buildTableCell(
+                    tr.storage,
+                    isHeader: true,
+                  ),
+                  _buildTableCell(
+                    tr.qty,
+                    isHeader: true,
+                    center: true,
+                  ),
                 ],
               ),
-              // Table rows
+
+              // Data Rows
               ...records.asMap().entries.map((entry) {
                 final index = entry.key;
                 final record = entry.value;
@@ -317,24 +327,36 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
                 return TableRow(
                   decoration: BoxDecoration(
                     color: isOut
-                        ? Theme.of(context).colorScheme.error.withValues(alpha: .03)
+                        ? Theme.of(context)
+                        .colorScheme
+                        .error
+                        .withValues(alpha: .03)
                         : Colors.transparent,
                   ),
                   children: [
-                    _buildTableCell((index + 1).toString(), center: true),
+                    _buildTableCell(
+                      (index + 1).toString(),
+                      center: true,
+                    ),
+
                     _buildTableCell(
                       isOut ? tr.outTitle : tr.inTitle,
                       color: isOut ? Colors.red : Colors.green,
                       fontWeight: FontWeight.bold,
                     ),
-                    _buildTableCell(record.proName?.toString() ?? 'N/A'),
+
                     _buildTableCell(
-                      isOut ? (record.fromStorageName?.toString() ?? 'N/A')
-                          : (record.toStorageName?.toString() ?? 'N/A'),
+                      record.proName ?? 'N/A',
                     ),
-                    _buildTableCell(record.quantity.toAmount(), center: true),
-                    _buildTableCell(record.purchasePrice.toAmount(), center: true),
-                    _buildTableCell(record.totalValue.toAmount(), center: true),
+
+                    _buildTableCell(
+                      record.storageName ?? 'N/A',
+                    ),
+
+                    _buildTableCell(
+                      (record.quantity ?? 0).toAmount(),
+                      center: true,
+                    ),
                   ],
                 );
               }),
@@ -370,7 +392,7 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
   Widget _buildSummaryCard(GoodShiftModel shift, AppLocalizations tr) {
     final color = Theme.of(context).colorScheme;
     final totalItems = shift.records?.length ?? 0;
-    final totalProductValue = shift.totalProductValue;
+
 
     return ZCover(
       child: Padding(
@@ -378,21 +400,9 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              tr.summary,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            _buildSummaryRow(tr.totalItems, totalItems.toString()),
-            _buildSummaryRow(tr.outRecords, shift.outCount.toString()),
-            _buildSummaryRow(tr.inRecords, shift.inCount.toString()),
-            Divider(color: color.outline.withValues(alpha: .2)),
-            _buildSummaryRow(
-              tr.totalProductValue,
-              '${totalProductValue.toAmount()} $baseCurrency',
-              isBold: true,
-              color: color.primary,
-            ),
+            _buildSummaryRow(tr.totalItems, totalItems.toString(),isBold: true),
+            _buildSummaryRow(tr.outRecords, shift.outCount.toString(),isBold: true),
+            _buildSummaryRow(tr.inRecords, shift.inCount.toString(),isBold: true),
 
             // Show expense separately if exists
             if (shift.hasExpense) ...[
@@ -402,12 +412,7 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
                 '${shift.totalAmount.toAmount()} $baseCurrency',
                 color: Colors.orange,
               ),
-              _buildSummaryRow(
-                tr.totalProductExpense,
-                '${(totalProductValue + shift.totalAmount).toAmount()} $baseCurrency',
-                isBold: true,
-                color: Colors.blue,
-              ),
+
             ],
           ],
         ),
@@ -430,6 +435,7 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
             label,
             style: TextStyle(
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              fontSize: isBold ? 18 : 16,
               color: color,
             ),
           ),
@@ -438,7 +444,7 @@ class _GoodsShiftDetailViewState extends State<GoodsShiftDetailView> {
             style: TextStyle(
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
               color: color ?? Theme.of(context).colorScheme.onSurface,
-              fontSize: isBold ? 16 : 14,
+              fontSize: isBold ? 18 : 16,
             ),
           ),
         ],

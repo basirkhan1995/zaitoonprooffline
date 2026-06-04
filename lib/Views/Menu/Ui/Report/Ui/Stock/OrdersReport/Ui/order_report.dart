@@ -9,6 +9,7 @@ import 'package:zaitoonpro/Features/Widgets/textfield_entitled.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/HR/Ui/Users/features/branch_dropdown.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/OrdersReport/bloc/order_report_bloc.dart';
 import '../../../../../../../../Features/Date/z_generic_date.dart';
+import '../../../../../../../../Features/Date/z_range_picker.dart';
 import '../../../../../../../../Features/Generic/rounded_searchable_textfield.dart';
 import '../../../../../../../../Features/Other/utils.dart';
 import '../../../../../../../../Features/Widgets/outline_button.dart';
@@ -1187,7 +1188,6 @@ class _DesktopState extends State<_Desktop> {
           ),
         ],
       ),
-
       body: Column(
         children: [
           Padding(
@@ -1264,25 +1264,35 @@ class _DesktopState extends State<_Desktop> {
                   ),
                 ),
                 Expanded(
-                  child: ZDatePicker(
-                    label: tr.fromDate,
-                    value: fromDate,
-                    onDateChanged: (v) {
+                  child: ZRangeDatePicker(
+                    label: tr.selectDate,
+                    initialStartDate: DateTime.tryParse(fromDate),
+                    initialEndDate: DateTime.tryParse(toDate),
+                    startValue: fromDate,
+                    endValue: toDate,
+                    onStartDateChanged: (startDate) {
                       setState(() {
-                        fromDate = v;
+                        fromDate = startDate;
                       });
                     },
-                  ),
-                ),
-                Expanded(
-                  child: ZDatePicker(
-                    label: tr.toDate,
-                    value: toDate,
-                    onDateChanged: (v) {
+                    onEndDateChanged: (endDate) {
                       setState(() {
-                        toDate = v;
+                        toDate = endDate;
                       });
+                      if(widget.orderName !=null){
+                        context.read<OrderReportBloc>().add(LoadOrderReportEvent(
+                            fromDate: fromDate,
+                            toDate: toDate,
+                            branchId: branchId,
+                            orderId: int.tryParse(orderId.text),
+                            customerId: customerId,
+                            orderName: widget.orderName
+                        ));
+                      }
                     },
+                    disablePastDate: false,
+                    minYear: 2000,
+                    maxYear: 2100,
                   ),
                 ),
               ],

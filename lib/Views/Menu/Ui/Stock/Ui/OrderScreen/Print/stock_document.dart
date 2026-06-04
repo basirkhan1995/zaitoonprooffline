@@ -278,13 +278,13 @@ class StockDocumentPrintService extends PrintServices {
               children: [
                 zText(
                   text: DateTime.now().shamsiDateFormatted,
-                  fontSize: 10,
+                  fontSize: 11,
                   color: pw.PdfColors.grey800,
                 ),
                 verticalDivider(height: 8, width: 1),
                 zText(
                   text: DateTime.now().toDateTime,
-                  fontSize: 9,
+                  fontSize: 10,
                   fontWeight: pw.FontWeight.normal,
                 ),
 
@@ -320,14 +320,14 @@ class StockDocumentPrintService extends PrintServices {
             children: [
               zText(
                 text: "$title:",
-                fontSize: 9,
+                fontSize: 12,
                 fontWeight: pw.FontWeight.bold,
                 color: pw.PdfColors.grey800,
               ),
               pw.SizedBox(width: 3),
               zText(
                 text: customerSupplierName,
-                fontSize: 9,
+                fontSize: 12,
                 fontWeight: pw.FontWeight.normal,
               ),
             ],
@@ -343,13 +343,13 @@ class StockDocumentPrintService extends PrintServices {
               children: [
                 zText(
                   text: "${tr(text: 'totalBox', tr: language)}:",
-                  fontSize: 9,
+                  fontSize: 12,
                   fontWeight: pw.FontWeight.bold,
                 ),
                 pw.SizedBox(width: 5),
                 zText(
                   text: totalQuantity.toStringAsFixed(0),
-                  fontSize: 9,
+                  fontSize: 12,
                   fontWeight: pw.FontWeight.bold,
                 ),
               ],
@@ -358,19 +358,19 @@ class StockDocumentPrintService extends PrintServices {
           pw.SizedBox(width: 10),
           zText(
             text: "${tr(text: 'documentNumber', tr: language)}: $documentNumber",
-            fontSize: 9,
+            fontSize: 12,
             fontWeight: pw.FontWeight.bold,
           ),
           pw.SizedBox(width: 15),
           zText(
             text: "${tr(text: "invoiceDate", tr: language)}:",
-            fontSize: 9,
+            fontSize: 12,
             fontWeight: pw.FontWeight.bold,
           ),
           pw.SizedBox(width: 5),
           zText(
             text: documentDate.toFormattedDate(),
-            fontSize: 9,
+            fontSize: 11,
             fontWeight: pw.FontWeight.normal,
           ),
         ],
@@ -486,7 +486,7 @@ class StockDocumentPrintService extends PrintServices {
       children: [
         // Header Row
         pw.TableRow(
-          decoration: pw.BoxDecoration(color: pw.PdfColors.grey100),
+          decoration: pw.BoxDecoration(color: pw.PdfColors.blue50),
           children: headers.map((header) {
             return pw.Container(
               padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 6),

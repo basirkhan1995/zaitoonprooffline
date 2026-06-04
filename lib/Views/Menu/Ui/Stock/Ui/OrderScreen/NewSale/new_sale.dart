@@ -12,6 +12,7 @@ import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Other/shortcut.dart';
 import 'package:zaitoonpro/Features/Other/toast.dart';
 import 'package:zaitoonpro/Features/Widgets/section_title.dart';
+import 'package:zaitoonpro/Views/Auth/models/login_model.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Reminder/add_edit_reminders.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Stakeholders/Ui/Individuals/bloc/individuals_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Stakeholders/Ui/Individuals/model/individual_model.dart';
@@ -607,8 +608,8 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                     fetchAllFunction: (bloc) => bloc.add(const LoadIndividualsEvent()),
                                     searchFunction: (bloc, query) => bloc.add(LoadIndividualsEvent(search: query)),
                                     itemBuilder: (context, ind) => Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text("${ind.perName ?? ''} ${ind.perLastName ?? ''}"),
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Text("${ind.perName ?? ''} ${ind.perLastName ?? ''}",style: Theme.of(context).textTheme.titleSmall,),
                                     ),
                                     itemToString: (individual) => "${individual.perName} ${individual.perLastName}",
                                     stateToLoading: (state) => state is IndividualLoadingState,
@@ -1735,7 +1736,12 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     final color = Theme.of(context).colorScheme;
     final tr = AppLocalizations.of(context)!;
     final visibility = context.read<SettingsVisibleBloc>().state;
+    final state = context.watch<AuthBloc>().state;
 
+    if (state is! AuthenticatedState) {
+      return const SizedBox();
+    }
+    final login = state.loginData;
     return BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
       builder: (context, state) {
         if (state is SaleInvoiceLoaded || state is SaleInvoiceSaving) {
@@ -1914,7 +1920,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
 
                           ],
 
-                          if (visibility.benefit && current.totalPurchaseCost > 0) ...[
+                          if (visibility.benefit && current.totalPurchaseCost > 0 && login.hasPermission(8) == true) ...[
                             const SizedBox(height: 8),
                             _buildProfitSection(
                               current: current,

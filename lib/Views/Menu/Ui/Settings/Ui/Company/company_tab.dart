@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zaitoonpro/Views/Auth/Subscription/Ui/subscription.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Company/Storage/storage.dart';
 import '../../../../../../Features/Generic/generic_menu.dart';
 import '../../../../../../Localizations/l10n/translations/app_localizations.dart';
@@ -51,13 +50,6 @@ class _CompanyTabsViewState extends State<CompanyTabsView> {
           label: AppLocalizations.of(context)!.storages,
           screen: const StorageView(),
           icon: Icons.inventory_2_rounded,
-        ),
-      if (login.hasPermission(64) ?? false)
-        MenuDefinition(
-          value: CompanySettingsMenuName.subscriptions,
-          label: "Subscription",
-          screen: const SubscriptionView(),
-          icon: Icons.subscriptions,
         ),
     ];
 

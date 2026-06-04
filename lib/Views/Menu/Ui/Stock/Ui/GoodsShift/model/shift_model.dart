@@ -99,14 +99,7 @@ class GoodShiftModel {
   int get outCount => records?.where((r) => r.stkEntryType == "OUT").length ?? 0;
   int get inCount => records?.where((r) => r.stkEntryType == "IN").length ?? 0;
 
-  double get totalProductValue {
-    if (records == null) return 0;
-    double total = 0;
-    for (final record in records!) {
-      total += record.totalValue;
-    }
-    return total;
-  }
+
 }
 
 class ShiftRecord {
@@ -119,18 +112,21 @@ class ShiftRecord {
   final int? toStorageId;
   final String? fromStorageName;
   final String? toStorageName;
-  final String? stkQuantity;
+  final double? stkQuantity;
   final String? stkPurPrice;
   final String? stkSalePrice;
   final String? stkLandedPurPrice;
-  final String? stkQtyInBatch;
-
+  final int? stkQtyInBatch;
+  final int? storageId;
+  final String? storageName;
   ShiftRecord({
     this.stkID,
     this.stkOrder,
     this.stkProduct,
     this.stkEntryType,
     this.proName,
+    this.storageId,
+    this.storageName,
     this.fromStorageName,
     this.toStorageName,
     this.fromStorageId,
@@ -149,11 +145,11 @@ class ShiftRecord {
     String? stkEntryType,
     int? fromStorage,
     int? toStorage,
-    String? stkQuantity,
+    double? stkQuantity,
     String? stkPurPrice,
     String? stkSalePrice,
     String? stkLandedPurPrice,
-    String? stkQtyInBatch,
+    int? stkQtyInBatch,
   }) => ShiftRecord(
     stkID: stkID ?? this.stkID,
     stkOrder: stkOrder ?? this.stkOrder,
@@ -170,19 +166,16 @@ class ShiftRecord {
 
   factory ShiftRecord.fromMap(Map<String, dynamic> json) => ShiftRecord(
     stkID: json["stkID"],
-    stkOrder: json["stkOrder"],
     stkProduct: json["stkProduct"],
-    stkEntryType: json["stkEntryType"],
-    fromStorageId: json["fromStorage"] ?? json["stkStorage"],
-    toStorageId: json["toStorage"] ?? json["stkStorage"],
-    fromStorageName: json["fromStorageName"] ?? json["stgName"],
-    toStorageName: json["toStorageName"] ?? json["stgName"],
     proName: json["proName"],
-    stkQuantity: json["stkQuantity"],
-    stkPurPrice: json["stkPurPrice"],
-    stkSalePrice: json["stkSalePrice"],
-    stkLandedPurPrice: json["stkLandedPurPrice"],
-    stkQtyInBatch: json["stkQtyInBatch"]?.toString(),
+    stkEntryType: json["stkEntryType"],
+    storageId: json["stkStorage"],
+    storageName: json["stgName"],
+    stkQuantity: (json["stkQuantity"] as num?)?.toDouble(),
+    stkQtyInBatch: json["stkQtyInBatch"],
+    stkPurPrice: json["stkPurPrice"]?.toString(),
+    stkSalePrice: json["stkSalePrice"]?.toString(),
+    stkLandedPurPrice: json["stkLandedPurPrice"]?.toString(),
   );
 
   Map<String, dynamic> toMap() => {
@@ -198,12 +191,12 @@ class ShiftRecord {
     "stkQtyInBatch": stkQtyInBatch,
   };
 
-  double get quantity => double.tryParse(stkQuantity ?? "0") ?? 0;
-  double get purchasePrice => double.tryParse(stkPurPrice ?? "0") ?? 0;
-  double get salePrice => double.tryParse(stkSalePrice ?? "0") ?? 0;
-  double get landedPurPrice => double.tryParse(stkLandedPurPrice ?? "0") ?? 0;
-  int get qtyInBatch => int.tryParse(stkQtyInBatch ?? "0") ?? 0;
-  double get totalValue => quantity * purchasePrice;
+  double? get quantity => stkQuantity ?? 0.0;
+
+  int get qtyInBatch => stkQtyInBatch ?? 0;
+
   bool get isOutEntry => stkEntryType == "OUT";
   bool get isInEntry => stkEntryType == "IN";
 }
+
+

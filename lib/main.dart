@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:zaitoonpro/Features/Other/shortcut.dart';
 import 'package:zaitoonpro/Features/Other/znavigator.dart';
 import 'package:zaitoonpro/Features/PrintSettings/bloc/Language/print_language_cubit.dart';
@@ -116,10 +119,10 @@ import 'package:flutter/services.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PrintServices.initializeFonts();
-  // if (Platform.isWindows || Platform.isMacOS) {
-  //   await windowManager.ensureInitialized();
-  //   windowManager.setMinimumSize(const Size(900, 700));
-  // }
+  if (Platform.isWindows || Platform.isMacOS) {
+    await windowManager.ensureInitialized();
+    windowManager.setMinimumSize(const Size(900, 700));
+  }
   runApp(const MyApp());
 }
 

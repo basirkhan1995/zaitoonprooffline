@@ -111,10 +111,10 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
       stkProduct: 0,
       fromStorageId: 0,
       toStorageId: 0,
-      stkQuantity: "1",
+      stkQuantity: 1,
       stkPurPrice: "0.00",
       stkLandedPurPrice: "0.00",
-      stkQtyInBatch: "0",
+      stkQtyInBatch: 0,
     ));
 
     // Add focus nodes for new row (product, qty, toStorage)
@@ -159,10 +159,10 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
       stkProduct: productId ?? record.stkProduct,
       fromStorage: fromStorage ?? record.fromStorageId,
       toStorage: toStorage ?? record.toStorageId,
-      stkQuantity: quantity?.toStringAsFixed(2) ?? record.stkQuantity,
+      stkQuantity: quantity ?? record.stkQuantity,
       stkPurPrice: purchasePrice?.toStringAsFixed(2) ?? record.stkPurPrice,
       stkLandedPurPrice: landedPurPrice?.toStringAsFixed(2) ?? record.stkLandedPurPrice,
-      stkQtyInBatch: qtyInBatch?.toString() ?? record.stkQtyInBatch,
+      stkQtyInBatch: qtyInBatch ?? record.stkQtyInBatch,
     );
 
     setState(() {});
@@ -171,7 +171,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
   double get _totalQuantity {
     double total = 0.0;
     for (final record in _records) {
-      total += record.quantity;
+      total += record.quantity!;
     }
     return total;
   }
@@ -776,17 +776,11 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
       }
 
       final qty = record.quantity;
-      if (qty <= 0) {
+      if (qty! <= 0) {
         Utils.showOverlayMessage(context, message: 'Please enter a valid quantity for item ${i + 1}', isError: true);
         return;
       }
 
-      // Validate purchase price
-      final price = record.purchasePrice;
-      if (price <= 0) {
-        Utils.showOverlayMessage(context, message: 'Please enter a valid purchase price for item ${i + 1}', isError: true);
-        return;
-      }
     }
 
     // Log the records being sent for debugging

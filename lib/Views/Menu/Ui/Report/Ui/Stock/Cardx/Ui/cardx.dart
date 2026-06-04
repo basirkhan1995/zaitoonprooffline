@@ -677,7 +677,7 @@ class _DesktopState extends State<_Desktop> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Expanded(
-                  flex: 4,
+                  flex: 5,
                   child:
                       GenericTextField<ProductsModel, ProductsBloc, ProductsState>(
                         controller: _productController,
@@ -703,7 +703,7 @@ class _DesktopState extends State<_Desktop> {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              "${ind.proCode} | ${ind.proName ?? ''}",
+                              "${ind.proId} | ${ind.proName ?? ''}",
                             ),
                           );
                         },
@@ -757,7 +757,7 @@ class _DesktopState extends State<_Desktop> {
                   ),
                 ),
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: BranchDropdown(
                     showAllOption: true,
                     title: tr.branch,
@@ -769,7 +769,7 @@ class _DesktopState extends State<_Desktop> {
                   ),
                 ),
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: StorageDropDown(
                     title: tr.storage,
                     onChanged: (e) {
