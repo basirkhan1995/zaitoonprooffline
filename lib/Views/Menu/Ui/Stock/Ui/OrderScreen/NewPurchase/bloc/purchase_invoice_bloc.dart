@@ -766,6 +766,7 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
       );
 
       final message = response['msg']?.toString() ?? 'No response message';
+      print(message);
 
       if (message.toLowerCase().contains('success') || message.toLowerCase().contains('authorized')) {
         String invoiceNumber = response['invoiceNo']?.toString() ??
