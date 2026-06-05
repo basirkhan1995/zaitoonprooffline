@@ -1,4 +1,3 @@
-// api_services.dart
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +25,7 @@ class ApiServices {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
+        "Cache-Control": "no-cache",
       },
     ));
   }
