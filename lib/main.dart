@@ -125,13 +125,25 @@ void main() async {
   }
 
 
-  final api = ApiServices();
-  final savedIP = await api.getSavedServerIP();
+  // Initialize API with localhost first
+  ApiServices().init();
 
-  if (savedIP != null) {
-    api.init(baseUrl: 'http://$savedIP:80/rapi');
+  // Check if this device is the server
+  final isServer = await ApiServices().isServerDevice();
+
+  if (!isServer) {
+    // Not the server - try to connect to saved server
+    final savedIP = await ApiServices().getSavedServerIP();
+    final savedPort = await ApiServices().getSavedServerPort();
+
+    if (savedIP != null) {
+      await ApiServices().setServerIP(savedIP, port: savedPort ?? '80');
+    }
+    // If no saved IP, the app will show connection dialog later
   } else {
-    api.init();
+    // This is the server - use localhost
+    await ApiServices().setServerIP('localhost');
+    debugPrint('Running as server on localhost');
   }
 
   runApp(const MyApp());

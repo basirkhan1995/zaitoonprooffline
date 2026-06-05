@@ -1,21 +1,23 @@
-
+// api_services.dart
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'localization_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-class ApiServices {
+import 'localization_services.dart';
 
+class ApiServices {
   static final ApiServices _instance = ApiServices._internal();
   factory ApiServices() => _instance;
   ApiServices._internal();
 
   late Dio _dio;
 
-  // Default fallback - keeps your original working URL
   static const String defaultBaseUrl = "http://localhost/rapi";
   static const String defaultImageUrl = "http://localhost/images/personal/";
 
-  // Initialize with default
+  String? _savedIP;
+  bool _isLocalhost = true;
+
+  // Initialize with localhost by default
   void init({String? baseUrl}) {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl ?? defaultBaseUrl,
@@ -30,27 +32,92 @@ class ApiServices {
 
   Dio get client => _dio;
 
-  // Simple method to change server
-  Future<void> setServerIP(String ip, {String port = '80'}) async {
-    final newUrl = 'http://$ip:$port/rapi';
-    _dio.options.baseUrl = newUrl;
+  bool get isLocalhost => _isLocalhost;
+  String? get savedIP => _savedIP;
 
-    // Save for next app launch
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('server_ip', ip);
-    await prefs.setString('server_port', port);
+  // Check if current device is the server
+  Future<bool> isServerDevice() async {
+    try {
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 1),
+        receiveTimeout: const Duration(seconds: 1),
+        validateStatus: (status) => status != null && status < 500,
+      ));
+
+      final response = await dio.get('http://localhost/rapi/get_ip.php');
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data is Map && data['success'] == true) {
+          _isLocalhost = true;
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      _isLocalhost = false;
+      return false;
+    }
   }
 
-  // Get saved server on startup
+  // Set server IP and update base URL
+  Future<void> setServerIP(String ip, {String port = '80'}) async {
+    _savedIP = ip;
+    _isLocalhost = (ip == 'localhost' || ip == '127.0.0.1' || ip == '::1');
+
+    final newUrl = _isLocalhost
+        ? 'http://localhost/rapi'
+        : 'http://$ip:$port/rapi';
+
+    _dio.options.baseUrl = newUrl;
+
+    final prefs = await SharedPreferences.getInstance();
+    if (!_isLocalhost) {
+      await prefs.setString('server_ip', ip);
+      await prefs.setString('server_port', port);
+    } else {
+      // Clear saved IP when using localhost
+      await prefs.remove('server_ip');
+      await prefs.remove('server_port');
+    }
+  }
+
+  // Get saved server IP for display
   Future<String?> getSavedServerIP() async {
+    if (_isLocalhost) return null;
+
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('server_ip');
   }
 
+  // Get saved server port
+  Future<String?> getSavedServerPort() async {
+    if (_isLocalhost) return null;
+
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('server_port');
+  }
+
   // Get image URL based on current server
   String get imageUrl {
+    if (_isLocalhost) {
+      return 'http://localhost/images/personal/';
+    }
+
     final base = _dio.options.baseUrl;
     return base.replaceAll('/rapi', '/images/personal/');
+  }
+
+  // Build complete image URL for a specific image
+  String getImageUrl(String imagePath) {
+    // Remove any leading slash
+    final cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+
+    if (_isLocalhost) {
+      return 'http://localhost/images/personal/$cleanPath';
+    }
+
+    final ip = _savedIP ?? 'localhost';
+    return 'http://$ip/images/personal/$cleanPath';
   }
 
   /* -------------------------------------------------------------------------- */
@@ -120,7 +187,7 @@ class ApiServices {
     CancelToken? cancelToken,
   }) async {
     try {
-     await _checkConnectivity();
+      await _checkConnectivity();
       return await _dio.get(
         endpoint,
         queryParameters: queryParams,
@@ -143,7 +210,6 @@ class ApiServices {
     CancelToken? cancelToken,
   }) async {
     try {
-      //await _checkConnectivity();
       return await _dio.post(
         endpoint,
         data: data,
@@ -166,7 +232,6 @@ class ApiServices {
     CancelToken? cancelToken,
   }) async {
     try {
-      //await _checkConnectivity();
       return await _dio.put(
         endpoint,
         data: data,
@@ -226,11 +291,9 @@ class ApiServices {
     }
   }
 
-  // Add this method to your ApiServices class after the uploadFile method:
-
-/* -------------------------------------------------------------------------- */
-/*                              FILE DOWNLOAD                                 */
-/* -------------------------------------------------------------------------- */
+  /* -------------------------------------------------------------------------- */
+  /*                              FILE DOWNLOAD                                 */
+  /* -------------------------------------------------------------------------- */
 
   Future<Response> downloadFile({
     required String endpoint,
@@ -239,7 +302,7 @@ class ApiServices {
     ProgressCallback? onReceiveProgress,
   }) async {
     try {
-       await _checkConnectivity();
+      await _checkConnectivity();
       return await _dio.download(
         endpoint,
         savePath,
@@ -252,7 +315,4 @@ class ApiServices {
       throw e.toString();
     }
   }
-
 }
-
-
