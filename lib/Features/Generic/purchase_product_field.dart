@@ -14,13 +14,14 @@ typedef OnProductSelected = void Function(ProductsModel? product);
 typedef ProductListItemBuilder = Widget Function(BuildContext context, ProductsModel product);
 typedef ProductDetailsBuilder = Widget Function(BuildContext context, ProductsModel product);
 
-class PurchaseProductSearchField extends StatefulWidget {
+class ProductsSearchField extends StatefulWidget {
   final TextEditingController controller;
   final TextEditingController? headerSearchController;
   final String? hintText;
   final bool enabled;
   final FocusNode? focusNode;
   final void Function()? onSubmitted;
+  final bool showBorder;
   final ProductsBloc bloc;
   final OnProductSelected? onProductSelected;
   final ProductListItemBuilder? customListItemBuilder;
@@ -32,10 +33,11 @@ class PurchaseProductSearchField extends StatefulWidget {
   final bool showAllOnFocus;
   final bool openOverlayOnFocus;
 
-  const PurchaseProductSearchField({
+  const ProductsSearchField({
     super.key,
     required this.controller,
     required this.bloc,
+    this.showBorder = false,
     this.headerSearchController,
     this.onProductSelected,
     this.focusNode,
@@ -53,10 +55,10 @@ class PurchaseProductSearchField extends StatefulWidget {
   });
 
   @override
-  State<PurchaseProductSearchField> createState() => _PurchaseProductSearchFieldState();
+  State<ProductsSearchField> createState() => _ProductsSearchFieldState();
 }
 
-class _PurchaseProductSearchFieldState extends State<PurchaseProductSearchField> {
+class _ProductsSearchFieldState extends State<ProductsSearchField> {
   int _highlightedIndex = -1;
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
@@ -1048,7 +1050,7 @@ class _PurchaseProductSearchFieldState extends State<PurchaseProductSearchField>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: widget.padding ?? const EdgeInsets.symmetric(vertical: 8),
+      padding: widget.padding ?? const EdgeInsets.symmetric(vertical: 0),
       child: SizedBox(
         width: widget.width ?? double.infinity,
         child: Column(
@@ -1113,6 +1115,42 @@ class _PurchaseProductSearchFieldState extends State<PurchaseProductSearchField>
                     suffixIcon: _buildSuffixIcon(),
                     isDense: true,
                     hintText: widget.hintText,
+                    disabledBorder: widget.showBorder ? OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(3),
+                      borderSide: BorderSide(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withValues(alpha: .3),
+                      ),
+                    ) : null,
+                    enabledBorder: widget.showBorder ? OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(3),
+                      borderSide: BorderSide(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withValues(alpha: .3),
+                      ),
+                    ) : null,
+                    focusedBorder: widget.showBorder ? OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(3),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ) : null,
+                    focusedErrorBorder: widget.showBorder ? OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ) : null,
+                    errorBorder: widget.showBorder ? OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(3),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ) : null,
                   ),
                 ),
               ),

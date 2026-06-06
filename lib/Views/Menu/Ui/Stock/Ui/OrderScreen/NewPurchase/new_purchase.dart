@@ -2356,7 +2356,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
 
                 /// Product Search Field
                 Expanded(
-                  child: PurchaseProductSearchField(
+                  child: ProductsSearchField(
                     controller: _productController,
                     headerSearchController: _headerProductController,
                     focusNode: safeNode(0),

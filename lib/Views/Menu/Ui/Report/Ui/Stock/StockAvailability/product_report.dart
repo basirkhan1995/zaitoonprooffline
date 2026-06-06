@@ -13,6 +13,7 @@ import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/StockAvailability/bloc/
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/StockAvailability/features/storage_drop.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/StockAvailability/print_stock.dart';
+import '../../../../../../../Features/Generic/purchase_product_field.dart';
 import '../../../../../../../Features/Generic/rounded_searchable_textfield.dart';
 import '../../../../../../../Features/PrintSettings/print_preview.dart';
 import '../../../../../../../Features/PrintSettings/report_model.dart';
@@ -1053,7 +1054,7 @@ class _DesktopState extends State<_Desktop> {
   int? productId;
   int? isNoStock;
   int? _selectedCategory;
-
+  final FocusNode _searchFocusNode = FocusNode();
   String? _getBaseCurrency() {
     try {
       final authState = context.read<AuthBloc>().state;
@@ -1065,35 +1066,55 @@ class _DesktopState extends State<_Desktop> {
       return "";
     }
   }
+
   @override
   void initState() {
     super.initState();
     baseCcy = _getBaseCurrency();
     myLocale = context.read<LocalizationBloc>().state.languageCode;
     context.read<ProductReportBloc>().add(ResetProductReportEvent());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          _searchFocusNode.requestFocus();
+        }
+      });
+    });
   }
+  @override
+  void dispose() {
 
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
   bool get hasAnyFilter {
     return isNoStock != null ||
         storageId != null ||
-        productId != null;
+        productId != null ||
+        _selectedCategory != null;
   }
 
   final productController = TextEditingController();
+
   void _clearFilters() {
     setState(() {
       isNoStock = null;
       productId = null;
       storageId = null;
-      productController.clear(); // Clear the textfield
+      _selectedCategory = null;
+      productController.clear();
     });
     context.read<ProductReportBloc>().add(ResetProductReportEvent());
   }
+
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
 
-    TextStyle? titleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.surface);
+    TextStyle? titleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
+        color: Theme.of(context).colorScheme.surface
+    );
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -1119,10 +1140,10 @@ class _DesktopState extends State<_Desktop> {
               isActive: true,
               onPressed: (){
                 context.read<ProductReportBloc>().add(LoadProductsReportEvent(
-                  isNoStock: isNoStock,
-                  storageId: storageId,
-                  productId: productId,
-                  categoryId: _selectedCategory
+                    isNoStock: isNoStock,
+                    storageId: storageId,
+                    productId: productId,
+                    categoryId: _selectedCategory
                 ));
               },
               label: Text(tr.applyFilter)),
@@ -1137,55 +1158,77 @@ class _DesktopState extends State<_Desktop> {
               crossAxisAlignment: CrossAxisAlignment.end,
               spacing: 8,
               children: [
-                // Product Selection
+
                 Expanded(
-                  child: GenericTextField<ProductsModel, ProductsBloc, ProductsState>(
-                    title: tr.products,
+                  child: ProductsSearchField(
+                    showBorder: true,
+
                     controller: productController,
-                    hintText: tr.products,
                     bloc: context.read<ProductsBloc>(),
-                    fetchAllFunction: (bloc) => bloc.add(LoadProductsEvent()),
-                    searchFunction: (bloc, query) => bloc.add(LoadProductsEvent(input: query)),
-                    itemBuilder: (context, product) {
-                      // Check if this is the "All" option
-                      if (product.proId == null) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            tr.all,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(product.proName ?? ''),
-                      );
+                    hintText: tr.searchProducts,
+                    showClearButton: true,
+                    focusNode: _searchFocusNode,
+                    onSubmitted: (){
+                      context.read<ProductReportBloc>().add(LoadProductsReportEvent(
+                          isNoStock: isNoStock,
+                          storageId: storageId,
+                          productId: productId,
+                          categoryId: _selectedCategory
+                      ));
                     },
-                    itemToString: (product) => product.proName ?? (product.proId == null ? tr.all : ''),
-                    stateToLoading: (state) => state is ProductsLoadingState,
-                    stateToItems: (state) {
-                      if (state is ProductsLoadedState) return state.products;
-                      return [];
-                    },
-                    onSelected: (product) {
+                    openOverlayOnFocus: true,
+                    showAllOnFocus: true,
+                    onProductSelected: (product) {
                       setState(() {
-                        // product will be null when "All" is selected
-                        productId = product.proId; // This will be null for "All"
+                        productId = product?.proId;
                       });
                     },
-                    // Add "All" option configuration
-                    showAllOption: true,
-                    allOption: ProductsModel(
-                      proId: null,
-                      proName: tr.all,
-                      proCode: '',
+                  ),
+                ),
+
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: .3),
+                    ),
+                    color: Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: .3),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(3),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(3),
+                      onTap: () {
+                        setState(() {
+                          productId = null;
+                          productController.clear();
+                        });
+                        if(productId == null && productController.text.isEmpty){
+                          context.read<ProductReportBloc>().add(LoadProductsReportEvent(
+                              isNoStock: isNoStock,
+                              storageId: storageId,
+                              productId: productId,
+                              categoryId: _selectedCategory
+                          ));
+                        }
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.clear_all, size: 16),
+                            SizedBox(width: 4),
+                            Text(tr.all, style: TextStyle(fontSize: 14)),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
+
                 SizedBox(
                   width: 250,
                   child: ProductCategoryDropdown(
@@ -1229,8 +1272,9 @@ class _DesktopState extends State<_Desktop> {
             ),
           ),
           SizedBox(height: 5),
+          // Table Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
             margin: const EdgeInsets.symmetric(horizontal: 15.0),
             decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary.withValues(alpha: .8)
@@ -1239,59 +1283,60 @@ class _DesktopState extends State<_Desktop> {
               children: [
                 SizedBox(
                     width: 50,
-                    child: Text("#",style: titleStyle)),
+                    child: Text("#", style: titleStyle)),
                 Expanded(
-                    child: Text(tr.productName,style: titleStyle)),
+                    child: Text(tr.productName, style: titleStyle)),
                 SizedBox(
                     width: 120,
-                    child: Text(tr.storage,style: titleStyle)),
+                    child: Text(tr.storage, style: titleStyle)),
                 SizedBox(
                     width: 120,
-                    child: Text(tr.recentPriceTitle,style: titleStyle)),
+                    child: Text(tr.recentPriceTitle, style: titleStyle)),
                 SizedBox(
                     width: 120,
-                    child: Text(tr.salePrice,style: titleStyle)),
+                    child: Text(tr.salePrice, style: titleStyle)),
                 SizedBox(
                     width: 120,
-                    child: Text(tr.averagePriceTitle,style: titleStyle)),
+                    child: Text(tr.averagePriceTitle, style: titleStyle)),
                 SizedBox(
                     width: 120,
-                    child: Text(tr.qty,style: titleStyle)),
+                    child: Text(tr.qty, style: titleStyle)),
                 SizedBox(
                     width: 120,
-                    child: Text(tr.batchTitle,style: titleStyle)),
+                    child: Text(tr.batchTitle, style: titleStyle)),
                 SizedBox(
                     width: 80,
-                    child: Text(tr.unit,style: titleStyle)),
+                    child: Text(tr.unit, style: titleStyle)),
                 SizedBox(
                     width: 150,
-                    child: Text(tr.totalAmount,style: titleStyle)),
+                    child: Text(tr.totalAmount, style: titleStyle)),
               ],
             ),
           ),
           SizedBox(height: 5),
+          // Table Body
           Expanded(
             child: BlocBuilder<ProductReportBloc, ProductReportState>(
               builder: (context, state) {
-                if(state is ProductReportErrorState){
+                if (state is ProductReportErrorState) {
                   return NoDataWidget(
                     title: tr.accessDenied,
                     message: state.message,
                     enableAction: false,
                   );
                 }
-                if(state is ProductReportInitial){
+                if (state is ProductReportInitial) {
                   return NoDataWidget(
                     title: "Inventory Overview",
                     message: "Stock Availability Summary",
                     enableAction: false,
                   );
                 }
-                if(state is ProductReportLoadingState){
+                if (state is ProductReportLoadingState) {
                   return Center(child: CircularProgressIndicator());
                 }
-                if(state is ProductReportLoadedState){
-                  // ✅ ADD THIS: Calculate totals
+                if (state is ProductReportLoadedState) {
+                  // Calculate totals
                   final totalItems = state.stock.length;
                   final totalQuantity = state.stock.fold<int>(0, (sum, item) {
                     final qty = int.tryParse(item.available ?? "0") ?? 0;
@@ -1302,9 +1347,7 @@ class _DesktopState extends State<_Desktop> {
                     return sum + value;
                   });
 
-
-
-                  if(state.stock.isEmpty){
+                  if (state.stock.isEmpty) {
                     return NoDataWidget(
                       title: tr.noData,
                       message: tr.noDataFound,
@@ -1317,10 +1360,10 @@ class _DesktopState extends State<_Desktop> {
                       Expanded(
                         child: ListView.builder(
                           itemCount: state.stock.length,
-                          itemBuilder: (context, index){
+                          itemBuilder: (context, index) {
                             final stk = state.stock[index];
                             final color = Theme.of(context).colorScheme;
-                            final qty = int.tryParse(stk.available??"");
+                            final qty = int.tryParse(stk.available ?? "");
 
                             TextStyle? style = TextStyle(
                                 color: qty == 0 || qty! < 0 ? Colors.red : color.onSurface,
@@ -1338,20 +1381,27 @@ class _DesktopState extends State<_Desktop> {
                                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                                 margin: EdgeInsets.symmetric(horizontal: 15),
                                 decoration: BoxDecoration(
-                                    color: index.isEven ? Theme.of(context).colorScheme.primary.withValues(alpha: .05) : Colors.transparent
+                                    color: index.isEven
+                                        ? Theme.of(context).colorScheme.primary.withValues(alpha: .05)
+                                        : Colors.transparent
                                 ),
                                 child: Row(
                                   children: [
                                     SizedBox(width: 50, child: Text((index + 1).toString())),
-                                    Expanded(child: Text(stk.proName ?? "",style: style)),
-                                    SizedBox(width: 120, child: Text(stk.stgName ?? "",style: Theme.of(context).textTheme.titleSmall,)),
+                                    Expanded(child: Text(stk.proName ?? "", style: style)),
+                                    SizedBox(width: 120, child: Text(stk.stgName ?? "", style: Theme.of(context).textTheme.titleSmall)),
                                     SizedBox(width: 120, child: Text("${stk.recentPurPrice.toAmount()} $baseCcy")),
                                     SizedBox(width: 120, child: Text("${stk.sellPrice.toAmount()} $baseCcy")),
                                     SizedBox(width: 120, child: Text("${stk.averagePrice.toAmount()} $baseCcy")),
-                                    SizedBox(width: 120, child: Text(stk.available.toAmount(decimal: 0) == "0"? "No Stock" : stk.available.toAmount(decimal: 0),style: style)),
-                                    SizedBox(width: 120, child: Text(stk.batch.toAmount(decimal: 0),style: Theme.of(context).textTheme.titleMedium)),
-                                    SizedBox(width: 80, child: Text(stk.proUnit??"",style: Theme.of(context).textTheme.titleMedium)),
-                                    SizedBox(width: 150, child: Text("${stk.totalValue.toAmount(decimal: 2)} $baseCcy",style: Theme.of(context).textTheme.titleMedium)),
+                                    SizedBox(width: 120, child: Text(
+                                        stk.available.toAmount(decimal: 0) == "0"
+                                            ? "No Stock"
+                                            : stk.available.toAmount(decimal: 0),
+                                        style: style
+                                    )),
+                                    SizedBox(width: 120, child: Text(stk.batch.toAmount(decimal: 0), style: Theme.of(context).textTheme.titleMedium)),
+                                    SizedBox(width: 80, child: Text(stk.proUnit ?? "", style: Theme.of(context).textTheme.titleMedium)),
+                                    SizedBox(width: 150, child: Text("${stk.totalValue.toAmount(decimal: 2)} $baseCcy", style: Theme.of(context).textTheme.titleMedium)),
                                   ],
                                 ),
                               ),
@@ -1360,7 +1410,7 @@ class _DesktopState extends State<_Desktop> {
                         ),
                       ),
 
-
+                      // Footer Totals
                       Container(
                         margin: const EdgeInsets.all(10),
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -1463,6 +1513,7 @@ class _DesktopState extends State<_Desktop> {
       ),
     );
   }
+
   Future<void> _printProductReport() async {
     final state = context.read<ProductReportBloc>().state;
 
@@ -1505,7 +1556,6 @@ class _DesktopState extends State<_Desktop> {
               company: company,
               pageFormat: pageFormat,
               baseCurrency: baseCcy,
-              // REMOVED: storageId, storageName, productId, productName, stockStatus, statusName
             );
           },
           onPrint: ({
@@ -1527,7 +1577,6 @@ class _DesktopState extends State<_Desktop> {
               copies: copies,
               pages: pages,
               baseCurrency: baseCcy,
-              // REMOVED: storageId, storageName, productId, productName, stockStatus, statusName
             );
           },
           onSave: ({
@@ -1543,14 +1592,18 @@ class _DesktopState extends State<_Desktop> {
               company: company,
               pageFormat: pageFormat,
               baseCurrency: baseCcy,
-              // REMOVED: storageId, storageName, productId, productName, stockStatus, statusName
             );
           },
         ),
       );
     } else {
       if (!mounted) return;
-      ToastManager.show(context: context, title: "Attention", message: "Please load the data first.", type: ToastType.warning);
+      ToastManager.show(
+          context: context,
+          title: "Attention",
+          message: "Please load the data first.",
+          type: ToastType.warning
+      );
     }
   }
 }

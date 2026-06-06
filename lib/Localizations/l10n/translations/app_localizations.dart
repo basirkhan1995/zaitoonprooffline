@@ -6663,6 +6663,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Label Print'**
   String get printLabel;
+
+  /// No description provided for @evenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Even'**
+  String get evenTitle;
+
+  /// No description provided for @oddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Odd'**
+  String get oddTitle;
 }
 
 class _AppLocalizationsDelegate

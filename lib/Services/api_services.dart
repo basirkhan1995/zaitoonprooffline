@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'localization_services.dart';
 
 class ApiServices {
   static final ApiServices _instance = ApiServices._internal();
@@ -10,13 +9,16 @@ class ApiServices {
 
   late Dio _dio;
 
-  static const String defaultBaseUrl = "http://localhost/rapi";
-  static const String defaultImageUrl = "http://localhost/images/personal/";
+  // IMPORTANT: Use 127.0.0.1 instead of localhost
+  static const String defaultBaseUrl = "http://127.0.0.1/rapi";
+  static const String defaultImageUrl = "http://127.0.0.1/images/personal/";
 
   String? _savedIP;
+  String? _savedPort;
   bool _isLocalhost = true;
+  bool _skipConnectivityCheck = false;
 
-  // Initialize with localhost by default
+  // Initialize with 127.0.0.1 by default
   void init({String? baseUrl}) {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl ?? defaultBaseUrl,
@@ -27,34 +29,51 @@ class ApiServices {
         "Accept": "application/json",
         "Cache-Control": "no-cache",
       },
+      validateStatus: (status) => status != null && status < 500,
+    ));
+
+    // Add logging interceptor for debugging
+    _dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+      error: true,
     ));
   }
 
   Dio get client => _dio;
-
   bool get isLocalhost => _isLocalhost;
   String? get savedIP => _savedIP;
+  String? get savedPort => _savedPort;
 
   // Check if current device is the server
   Future<bool> isServerDevice() async {
     try {
       final dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 1),
-        receiveTimeout: const Duration(seconds: 1),
+        connectTimeout: const Duration(seconds: 2),
+        receiveTimeout: const Duration(seconds: 2),
         validateStatus: (status) => status != null && status < 500,
       ));
 
-      final response = await dio.get('http://localhost/rapi/get_ip.php');
-      if (response.statusCode == 200) {
-        final data = response.data;
-        if (data is Map && data['success'] == true) {
-          _isLocalhost = true;
-          return true;
+      // Try both 127.0.0.1 and localhost
+      for (final host in ['127.0.0.1', 'localhost']) {
+        try {
+          final response = await dio.get('http://$host/rapi/get_ip.php');
+          if (response.statusCode == 200) {
+            final data = response.data;
+            if (data is Map && data['success'] == true) {
+              _isLocalhost = true;
+              _skipConnectivityCheck = true;
+              return true;
+            }
+          }
+        } catch (e) {
+          continue;
         }
       }
       return false;
     } catch (e) {
       _isLocalhost = false;
+      _skipConnectivityCheck = false;
       return false;
     }
   }
@@ -62,13 +81,17 @@ class ApiServices {
   // Set server IP and update base URL
   Future<void> setServerIP(String ip, {String port = '80'}) async {
     _savedIP = ip;
+    _savedPort = port;
     _isLocalhost = (ip == 'localhost' || ip == '127.0.0.1' || ip == '::1');
 
     final newUrl = _isLocalhost
-        ? 'http://localhost/rapi'
+        ? 'http://127.0.0.1/rapi'  // Always use 127.0.0.1 for local connections
         : 'http://$ip:$port/rapi';
 
     _dio.options.baseUrl = newUrl;
+
+    // Skip connectivity checks for localhost
+    _skipConnectivityCheck = _isLocalhost;
 
     final prefs = await SharedPreferences.getInstance();
     if (!_isLocalhost) {
@@ -79,7 +102,10 @@ class ApiServices {
       await prefs.remove('server_ip');
       await prefs.remove('server_port');
     }
+
   }
+
+  // ==================== THESE METHODS WERE MISSING ====================
 
   // Get saved server IP for display
   Future<String?> getSavedServerIP() async {
@@ -97,10 +123,12 @@ class ApiServices {
     return prefs.getString('server_port');
   }
 
+  // ===================================================================
+
   // Get image URL based on current server
   String get imageUrl {
     if (_isLocalhost) {
-      return 'http://localhost/images/personal/';
+      return 'http://127.0.0.1/images/personal/';
     }
 
     final base = _dio.options.baseUrl;
@@ -113,11 +141,12 @@ class ApiServices {
     final cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 
     if (_isLocalhost) {
-      return 'http://localhost/images/personal/$cleanPath';
+      return 'http://127.0.0.1/images/personal/$cleanPath';
     }
 
-    final ip = _savedIP ?? 'localhost';
-    return 'http://$ip/images/personal/$cleanPath';
+    final ip = _savedIP ?? '127.0.0.1';
+    final port = _savedPort ?? '80';
+    return 'http://$ip:$port/images/personal/$cleanPath';
   }
 
   /* -------------------------------------------------------------------------- */
@@ -125,11 +154,26 @@ class ApiServices {
   /* -------------------------------------------------------------------------- */
 
   Future<void> _checkConnectivity() async {
-    final locale = localizationService.loc;
-    final connectivityResult = await Connectivity().checkConnectivity();
+    // Skip connectivity check for localhost connections
+    if (_skipConnectivityCheck || _isLocalhost) {
+      return;
+    }
 
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      throw locale.noInternet;
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult.contains(ConnectivityResult.none)) {
+        // Check if we're trying to connect to localhost
+        if (_dio.options.baseUrl.contains('127.0.0.1') ||
+            _dio.options.baseUrl.contains('localhost')) {
+          return;
+        }
+        throw Exception('No internet connection');
+      }
+    } catch (e) {
+      // Don't throw for localhost connections
+      if (!_isLocalhost) {
+        rethrow;
+      }
     }
   }
 
@@ -138,42 +182,39 @@ class ApiServices {
   /* -------------------------------------------------------------------------- */
 
   String _handleError(DioException e) {
-    final tr = localizationService.loc;
 
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
+        return 'Connection timed out. Please check if XAMPP is running.';
       case DioExceptionType.receiveTimeout:
+        return 'Server took too long to respond. Please try again.';
       case DioExceptionType.sendTimeout:
-        return tr.timeOutMessage;
-
+        return 'Request timed out while sending data.';
       case DioExceptionType.cancel:
-        return tr.requestCancelMessage;
-
+        return 'Request was cancelled.';
       case DioExceptionType.connectionError:
-        return tr.noInternet;
-
+        return 'Cannot connect to server. Is XAMPP running?';
       case DioExceptionType.badResponse:
         switch (e.response?.statusCode) {
           case 400:
-            return tr.badRequest;
+            return 'Bad request. Please check the data sent.';
           case 401:
-            return tr.unAuthorized;
+            return 'Unauthorized access. Please login again.';
           case 403:
-            return tr.forbidden;
+            return 'Access forbidden.';
           case 404:
-            return tr.url404;
+            return 'Requested resource not found.';
           case 405:
-            return tr.notAllowedError;
+            return 'Method not allowed.';
           case 500:
-            return tr.internalServerError;
+            return 'Internal server error. Please try again later.';
           case 503:
-            return tr.serviceUnavailable;
+            return 'Service unavailable. Please try again later.';
           default:
-            return "${tr.serverError}: ${e.response?.statusCode}";
+            return 'Server error: ${e.response?.statusCode}';
         }
-
       default:
-        return tr.networkError;
+        return 'Network error occurred. Please check your connection.';
     }
   }
 
@@ -210,6 +251,7 @@ class ApiServices {
     CancelToken? cancelToken,
   }) async {
     try {
+      await _checkConnectivity();
       return await _dio.post(
         endpoint,
         data: data,
@@ -232,6 +274,7 @@ class ApiServices {
     CancelToken? cancelToken,
   }) async {
     try {
+      await _checkConnectivity();
       return await _dio.put(
         endpoint,
         data: data,

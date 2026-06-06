@@ -15,6 +15,7 @@ import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Stock/Ui/Products/bloc/prod
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Stock/Ui/Products/model/product_model.dart';
 import '../../../../../../../../Features/Date/z_generic_date.dart';
 import '../../../../../../../../Features/Date/z_range_picker.dart';
+import '../../../../../../../../Features/Generic/purchase_product_field.dart';
 import '../../../../../../../../Features/Generic/rounded_searchable_textfield.dart';
 import '../../../../../../../../Features/Widgets/outline_button.dart';
 import '../../../../../../../../Features/Widgets/z_dragable_sheet.dart';
@@ -553,6 +554,8 @@ class _DesktopState extends State<_Desktop> {
   String? myLocale;
   String? baseCcy;
   int? partyId;
+  final FocusNode _searchFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -566,8 +569,20 @@ class _DesktopState extends State<_Desktop> {
     toDate = lastMonthEnd.toFormattedDate();
     myLocale = context.read<LocalizationBloc>().state.languageCode;
     context.read<StockRecordBloc>().add(ResetStockRecordEvent());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          _searchFocusNode.requestFocus();
+        }
+      });
+    });
   }
+  @override
+  void dispose() {
 
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
   bool get hasFilter {
     return storageId != null ||
         productId != null ||
@@ -678,51 +693,39 @@ class _DesktopState extends State<_Desktop> {
               children: [
                 Expanded(
                   flex: 5,
-                  child:
-                      GenericTextField<ProductsModel, ProductsBloc, ProductsState>(
-                        controller: _productController,
-                        title: tr.products,
-                        hintText: tr.products,
-                        isRequired: true,
-                        bloc: context.read<ProductsBloc>(),
-                        fetchAllFunction: (bloc) => bloc.add(LoadProductsEvent()),
-                        searchFunction: (bloc, query) => bloc.add(LoadProductsEvent(input: query)),
-                        itemBuilder: (context, ind) {
-                          if (ind.proId == null) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                tr.all,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "${ind.proId} | ${ind.proName ?? ''}",
-                            ),
-                          );
-                        },
-                        itemToString: (pro) => "${pro.proCode} | ${pro.proName ?? ''}",
-                        stateToLoading: (state) => state is ProductsLoadingState,
-                        stateToItems: (state) {
-                          if (state is ProductsLoadedState) {
-                            return state.products;
-                          }
-                          return [];
-                        },
-                        onSelected: (value) {
-                          setState(() {
-                            productId = value.proId;
-                          });
-                        },
-                        showClearButton: true,
-                      ),
+                  child: ProductsSearchField(
+                    showBorder: true,
+                    focusNode: _searchFocusNode,
+                    controller: _productController,
+                    bloc: context.read<ProductsBloc>(),
+                    hintText: tr.searchProducts,
+                    showClearButton: true,
+
+                    onSubmitted: (){
+                      if(productId !=null && _productController.text.isNotEmpty){
+                        context.read<StockRecordBloc>().add(LoadStockRecordEvent(
+                            fromDate: fromDate,
+                            toDate: toDate,
+                            productId: productId,
+                            storageId: storageId,
+                            partyId: partyId
+                        ));
+                      }else{
+                        ToastManager.show(context: context,
+                            title: tr.noProductSelectedTitle,
+                            message: tr.noProductSelectedMsg, type: ToastType.info);
+                      }
+                    },
+                    openOverlayOnFocus: true,
+                    showAllOnFocus: true,
+                    onProductSelected: (product) {
+                      setState(() {
+                        productId = product?.proId;
+                      });
+                    },
+                  ),
                 ),
+
                 Expanded(
                   flex: 4,
                   child: GenericTextField<IndividualsModel, IndividualsBloc, IndividualsState>(
