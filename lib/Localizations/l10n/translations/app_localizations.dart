@@ -4615,7 +4615,7 @@ abstract class AppLocalizations {
   /// No description provided for @downloadLatestBackup.
   ///
   /// In en, this message translates to:
-  /// **'Download Latest Backup'**
+  /// **'Download Backup'**
   String get downloadLatestBackup;
 
   /// No description provided for @downloading.

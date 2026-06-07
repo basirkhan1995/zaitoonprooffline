@@ -2322,7 +2322,7 @@ class AppLocalizationsFa extends AppLocalizations {
       'برای حفظ امنیت اطلاعات خود، یک نسخهٔ محلی از پایگاه داده دانلود کنید.';
 
   @override
-  String get downloadLatestBackup => 'دانلود آخرین نسخهٔ';
+  String get downloadLatestBackup => 'تهیه پشتیبانی';
 
   @override
   String get downloading => 'در حال دانلود…';

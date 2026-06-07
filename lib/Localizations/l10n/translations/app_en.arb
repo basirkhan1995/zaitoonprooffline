@@ -772,7 +772,7 @@
   "backupTitle": "Backup",
   "databaseBackup": "Database Backup",
   "downloadBackupMsg": "Download a local copy of your database to keep your data safe.",
-  "downloadLatestBackup": "Download Latest Backup",
+  "downloadLatestBackup": "Download Backup",
   "downloading": "Downloading...",
   "existingBackups": "Existing Backups",
   "attendance": "Attendance",

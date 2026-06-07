@@ -314,7 +314,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
             children: [
               SizedBox(
                 width: 70,
-                child: Text(tr.id, style: titleStyle),
+                child: Text(tr.productCode, style: titleStyle),
               ),
 
               Expanded(
@@ -333,10 +333,6 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                 child: Text(tr.category, style: titleStyle),
               ),
 
-              SizedBox(
-                width: 100,
-                child: Text(tr.productBrands, style: titleStyle),
-              ),
               SizedBox(
                 width: 90,
                 child: Text(tr.status, style: titleStyle),
@@ -528,11 +524,6 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
               SizedBox(
                 width: 100,
                 child: Text(product.pcName.toString()),
-              ),
-
-              SizedBox(
-                width: 100,
-                child: Text(product.proBrand.toString()),
               ),
 
               SizedBox(

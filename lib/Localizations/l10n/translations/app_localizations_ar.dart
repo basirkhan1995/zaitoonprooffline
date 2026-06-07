@@ -2325,7 +2325,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'د معلوماتو د خوندي ساتلو لپاره د خپل ډیټابېس محلي کاپي ډاونلوډ کړئ.';
 
   @override
-  String get downloadLatestBackup => 'وروستی بیکاپ ډاونلوډ';
+  String get downloadLatestBackup => 'تهیه پشتیبانی';
 
   @override
   String get downloading => 'ډاونلوډ کېدونکی دی…';

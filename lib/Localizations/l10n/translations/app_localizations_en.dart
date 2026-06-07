@@ -2331,7 +2331,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Download a local copy of your database to keep your data safe.';
 
   @override
-  String get downloadLatestBackup => 'Download Latest Backup';
+  String get downloadLatestBackup => 'Download Backup';
 
   @override
   String get downloading => 'Downloading...';
