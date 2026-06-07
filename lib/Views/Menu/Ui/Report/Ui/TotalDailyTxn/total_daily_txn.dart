@@ -118,7 +118,6 @@ class _DesktopState extends State<_Desktop> {
                           ),
                         ],
                       ),
-
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
