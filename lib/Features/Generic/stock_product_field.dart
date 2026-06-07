@@ -477,7 +477,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
     panelHeight = panelHeight.clamp(minPanelHeight, maxPanelHeight);
     final isRTL = Directionality.of(context) == TextDirection.rtl;
     final tr = AppLocalizations.of(context)!;
-    TextStyle? titleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.outline);
+    TextStyle? titleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 16, color: Theme.of(context).colorScheme.outline);
     _shouldKeepOverlayOpen = true;
 
     _overlayEntry = OverlayEntry(
@@ -598,7 +598,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                                   ),
                                   child: Row(
                                     children: [
-                                      Expanded(child: Text(tr.productName, style: titleStyle?.copyWith(fontSize: 15))),
+                                      Expanded(child: Text(tr.productName, style: titleStyle?.copyWith(fontSize: 16))),
                                       SizedBox(width: 80, child: Text(tr.unit, textAlign: TextAlign.center, style: titleStyle)),
                                       SizedBox(width: 120, child: Text(tr.available, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
                                       SizedBox(width: 100, child: Text(tr.batchTitle, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
@@ -774,12 +774,13 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
 
   Widget _buildDefaultListItem(T product) {
     final isRTL = Directionality.of(context) == TextDirection.rtl;
+    Color? fontColor = widget.getAvailable(product).toDoubleAmount() <= 0 ? Colors.red : null;
     return Row(
       children: [
         Expanded(
           child: Text(
             widget.getProductName(product) ?? '',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17,color: fontColor),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -800,7 +801,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
             textAlign: isRTL ? TextAlign.center : TextAlign.center,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 15,
+              fontSize: 17,
               color: _getAvailabilityColor(widget.getAvailable(product) ?? '0'),
             ),
           ),
@@ -812,7 +813,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
             textAlign: isRTL ? TextAlign.center : TextAlign.center,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 15,
+              fontSize: 17,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
@@ -822,7 +823,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
           child: Text(
             widget.getSellPrice(product).toAmount(),
             textAlign: isRTL ? TextAlign.center : TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
           ),
         ),
       ],

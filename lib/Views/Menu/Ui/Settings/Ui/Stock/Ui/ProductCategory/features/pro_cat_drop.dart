@@ -30,6 +30,7 @@ class ProductCategoryDropdown extends StatefulWidget {
 class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
   ProCategoryModel? _selectedCategory;
   List<ProCategoryModel> _categories = [];
+  bool _hasNotifiedInitial = false; // Track if initial notification was sent
 
   @override
   void initState() {
@@ -49,43 +50,84 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
     if (widget.selectedCategoryId == null && oldWidget.selectedCategoryId != null) {
       setState(() {
         _selectedCategory = null;
-        widget.onCategorySelected(null);
       });
+      widget.onCategorySelected(null);
     }
     // When external selectedCategoryId changes to a new value, find and select it
     else if (widget.selectedCategoryId != null &&
         widget.selectedCategoryId != oldWidget.selectedCategoryId &&
         _categories.isNotEmpty) {
-      setState(() {
-        _selectedCategory = _categories.firstWhere(
-              (c) => c.pcId == widget.selectedCategoryId,
-          orElse: () {
-            if (widget.showAllOption) {
-              return _categories.firstWhere(
-                    (c) => c.pcId == null,
-                orElse: () => _categories.first,
-              );
-            }
-            return _categories.first;
-          },
-        );
-      });
-
-      if (_selectedCategory != null) {
-        widget.onCategorySelected(
-            (widget.showAllOption && _selectedCategory!.pcId == null)
-                ? null
-                : _selectedCategory
-        );
-      }
+      _selectCategoryById(widget.selectedCategoryId!);
     }
   }
+
+  void _selectCategoryById(int categoryId) {
+    final found = _categories.firstWhere(
+          (c) => c.pcId == categoryId,
+      orElse: () {
+        if (widget.showAllOption) {
+          return _categories.firstWhere(
+                (c) => c.pcId == null,
+            orElse: () => _categories.first,
+          );
+        }
+        return _categories.first;
+      },
+    );
+
+    if (found != _selectedCategory) {
+      setState(() {
+        _selectedCategory = found;
+      });
+
+      // Notify with null for "All" option
+      final valueToSend = (widget.showAllOption && found.pcId == null) ? null : found;
+      widget.onCategorySelected(valueToSend);
+    }
+  }
+
+  void _selectDefaultCategory() {
+    if (_categories.isEmpty) return;
+
+    ProCategoryModel? defaultCategory;
+
+    if (widget.selectedCategoryId != null) {
+      // Find by ID
+      defaultCategory = _categories.firstWhere(
+            (c) => c.pcId == widget.selectedCategoryId,
+        orElse: () => _categories.first,
+      );
+    } else if (widget.showAllOption) {
+      // Select "All" option
+      defaultCategory = _categories.firstWhere(
+            (c) => c.pcId == null,
+        orElse: () => _categories.first,
+      );
+    } else {
+      // Select first category
+      defaultCategory = _categories.first;
+    }
+
+    setState(() {
+      _selectedCategory = defaultCategory;
+    });
+
+    // Notify with null for "All" option
+    final valueToSend = (widget.showAllOption && defaultCategory.pcId == null)
+        ? null
+        : defaultCategory;
+
+    if (!_hasNotifiedInitial || _selectedCategory != defaultCategory) {
+      widget.onCategorySelected(valueToSend);
+      _hasNotifiedInitial = true;
+    }
+    }
 
   void _onSelect(ProCategoryModel cat) {
     setState(() => _selectedCategory = cat);
     // Pass null when "All" is selected and showAllOption is true
     widget.onCategorySelected(
-        (widget.showAllOption && cat.pcId == null) ? null : cat
+      (widget.showAllOption && cat.pcId == null) ? null : cat,
     );
   }
 
@@ -110,50 +152,11 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
             // Add actual categories
             _categories.addAll(state.proCategory);
 
-            if (_categories.isEmpty) {
-              _selectedCategory = null;
-              return;
-            }
-
-            // EDIT mode → map ID to model
-            if (widget.selectedCategoryId != null) {
-              _selectedCategory = _categories.firstWhere(
-                    (c) => c.pcId == widget.selectedCategoryId,
-                orElse: () {
-                  if (widget.showAllOption) {
-                    return _categories.firstWhere(
-                          (c) => c.pcId == null,
-                      orElse: () => _categories.first,
-                    );
-                  }
-                  return _categories.first;
-                },
-              );
-            }
-            // ADD mode → select first item (or "All" if enabled)
-            else if (widget.selectedCategoryId == null && !widget.showAllOption) {
-              // When no "All" option and no selectedCategoryId, keep null to show title
-              _selectedCategory = null;
-            }
-            else {
-              if (widget.showAllOption) {
-                _selectedCategory = _categories.firstWhere(
-                      (c) => c.pcId == null,
-                  orElse: () => _categories.first,
-                );
-              } else {
-                _selectedCategory = _categories.first;
-              }
+            // Select default category after loading
+            if (_categories.isNotEmpty) {
+              _selectDefaultCategory();
             }
           });
-
-          if (_selectedCategory != null) {
-            widget.onCategorySelected(
-                (widget.showAllOption && _selectedCategory!.pcId == null)
-                    ? null
-                    : _selectedCategory
-            );
-          }
         }
       },
       child: ZDropdown<ProCategoryModel>(
