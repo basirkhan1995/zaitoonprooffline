@@ -72,16 +72,24 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     try {
       final interfaces = await NetworkInterface.list();
 
-      // Priority 1: WiFi or Ethernet
+      // Debug: Print all interfaces to see what's available
+      for (var interface in interfaces) {
+        debugPrint('Interface: ${interface.name}');
+        for (var addr in interface.addresses) {
+          debugPrint('  - ${addr.address} (${addr.type})');
+        }
+      }
+
+      // Priority 1: WiFi (usually the correct one for LAN)
       for (var interface in interfaces) {
         final name = interface.name.toLowerCase();
 
+        // Skip virtual/non-physical interfaces
         if (name.contains('virtual') ||
             name.contains('vmware') ||
             name.contains('virtualbox') ||
             name.contains('bluetooth') ||
             name.contains('loopback') ||
-            name.contains('local area connection*') ||
             name.contains('hyper-v') ||
             name.contains('wsl') ||
             name.contains('docker') ||
@@ -90,23 +98,58 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
           continue;
         }
 
+        // Check for WiFi/Wireless first
         if (name.contains('wi-fi') ||
             name.contains('wifi') ||
             name.contains('wireless') ||
-            name.contains('ethernet') ||
-            name.contains('lan')) {
+            name.contains('wlan')) {
 
           for (var addr in interface.addresses) {
             if (addr.type == InternetAddressType.IPv4 &&
                 !addr.isLoopback &&
-                !addr.address.startsWith('169.254')) {
+                !addr.address.startsWith('169.254') &&  // Skip APIPA
+                !addr.address.startsWith('0.')) {
+              debugPrint('Found WiFi IP: ${addr.address}');
               return addr.address;
             }
           }
         }
       }
 
-      // Priority 2: Any non-virtual adapter
+      // Priority 2: Ethernet
+      for (var interface in interfaces) {
+        final name = interface.name.toLowerCase();
+
+        if (name.contains('virtual') ||
+            name.contains('vmware') ||
+            name.contains('virtualbox') ||
+            name.contains('bluetooth') ||
+            name.contains('loopback') ||
+            name.contains('hyper-v') ||
+            name.contains('wsl') ||
+            name.contains('docker') ||
+            name.contains('vpn') ||
+            name.contains('tunnel')) {
+          continue;
+        }
+
+        if (name.contains('ethernet') ||
+            name.contains('lan') ||
+            name.contains('eth')) {
+
+          for (var addr in interface.addresses) {
+            if (addr.type == InternetAddressType.IPv4 &&
+                !addr.isLoopback &&
+                !addr.address.startsWith('169.254') &&
+                !addr.address.startsWith('0.')) {
+              debugPrint('Found Ethernet IP: ${addr.address}');
+              return addr.address;
+            }
+          }
+        }
+      }
+
+      // Priority 3: Any other non-virtual adapter
       for (var interface in interfaces) {
         final name = interface.name.toLowerCase();
 
@@ -126,22 +169,15 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
         for (var addr in interface.addresses) {
           if (addr.type == InternetAddressType.IPv4 &&
               !addr.isLoopback &&
-              !addr.address.startsWith('169.254')) {
-            return addr.address;
-          }
-        }
-      }
-
-      // Last resort
-      for (var interface in interfaces) {
-        for (var addr in interface.addresses) {
-          if (addr.type == InternetAddressType.IPv4 && !addr.isLoopback) {
+              !addr.address.startsWith('169.254') &&
+              !addr.address.startsWith('0.')) {
+            debugPrint('Found other IP: ${addr.address}');
             return addr.address;
           }
         }
       }
     } catch (e) {
-      // Silently fail
+      debugPrint('Error getting IP: $e');
     }
     return null;
   }

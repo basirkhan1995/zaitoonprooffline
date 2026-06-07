@@ -199,7 +199,13 @@ class _Desktop extends StatelessWidget {
                         DashboardStatsView(),
                       ],
                     ],
-
+                    if (login.hasPermission(5) ?? false) ...[
+                      SizedBox(height: 5),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: const TotalDailyTxnView(),
+                      ),
+                    ],
                       //Exchange Rate Graph
                       if (login.hasPermission(3) ?? false) ...[
                         SizedBox(height: 400, child: FxRateDashboardChart()),
@@ -209,9 +215,7 @@ class _Desktop extends StatelessWidget {
                         TotalDailyColumnView(),
                       ],
 
-                    if (login.hasPermission(5) ?? false) ...[
-                      const TotalDailyTxnView(),
-                    ],
+
 
                   ],
                 ),

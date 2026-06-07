@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiServices {
@@ -85,24 +86,30 @@ class ApiServices {
     _isLocalhost = (ip == 'localhost' || ip == '127.0.0.1' || ip == '::1');
 
     final newUrl = _isLocalhost
-        ? 'http://127.0.0.1/rapi'  // Always use 127.0.0.1 for local connections
+        ? 'http://127.0.0.1/rapi'
         : 'http://$ip:$port/rapi';
 
-    _dio.options.baseUrl = newUrl;
+    // Update Dio base URL
+    if (_dio.options.baseUrl != newUrl) {
+      _dio.options.baseUrl = newUrl;
+      debugPrint('Base URL updated to: $newUrl');
+    }
 
-    // Skip connectivity checks for localhost
     _skipConnectivityCheck = _isLocalhost;
 
     final prefs = await SharedPreferences.getInstance();
-    if (!_isLocalhost) {
-      await prefs.setString('server_ip', ip);
-      await prefs.setString('server_port', port);
-    } else {
+
+    if (_isLocalhost) {
       // Clear saved IP when using localhost
       await prefs.remove('server_ip');
       await prefs.remove('server_port');
+      debugPrint('Cleared saved server IP (using localhost)');
+    } else {
+      // Save the IP for future reconnection
+      await prefs.setString('server_ip', ip);
+      await prefs.setString('server_port', port);
+      debugPrint('Saved server IP: $ip:$port');
     }
-
   }
 
   // ==================== THESE METHODS WERE MISSING ====================
@@ -125,20 +132,26 @@ class ApiServices {
 
   // ===================================================================
 
-  // Get image URL based on current server
+// Replace the image getter and methods in ApiServices class:
+
+// Get image URL based on current connection
   String get imageUrl {
     if (_isLocalhost) {
       return 'http://127.0.0.1/images/personal/';
     }
 
-    final base = _dio.options.baseUrl;
-    return base.replaceAll('/rapi', '/images/personal/');
+    // For remote connections, use the saved IP
+    final ip = _savedIP ?? '127.0.0.1';
+    final port = _savedPort ?? '80';
+    return 'http://$ip:$port/images/personal/';
   }
 
-  // Build complete image URL for a specific image
+// Build complete image URL for a specific image
   String getImageUrl(String imagePath) {
     // Remove any leading slash
-    final cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+    final cleanPath = imagePath.startsWith('/')
+        ? imagePath.substring(1)
+        : imagePath;
 
     if (_isLocalhost) {
       return 'http://127.0.0.1/images/personal/$cleanPath';
@@ -146,7 +159,22 @@ class ApiServices {
 
     final ip = _savedIP ?? '127.0.0.1';
     final port = _savedPort ?? '80';
-    return 'http://$ip:$port/images/personal/$cleanPath';
+
+    // Debug the URL being constructed
+    final url = 'http://$ip:$port/images/personal/$cleanPath';
+    debugPrint('Constructed image URL: $url');
+
+    return url;
+  }
+
+// Add method to get base URL without /rapi path
+  String get baseUrl {
+    if (_isLocalhost) {
+      return 'http://127.0.0.1';
+    }
+    final ip = _savedIP ?? '127.0.0.1';
+    final port = _savedPort ?? '80';
+    return 'http://$ip:$port';
   }
 
   /* -------------------------------------------------------------------------- */

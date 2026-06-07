@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:zaitoonpro/Features/Other/shortcut.dart';
 import 'package:zaitoonpro/Features/Other/znavigator.dart';
@@ -119,11 +120,11 @@ import 'package:flutter/services.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PrintServices.initializeFonts();
+
   if (Platform.isWindows || Platform.isMacOS) {
     await windowManager.ensureInitialized();
     windowManager.setMinimumSize(const Size(900, 700));
   }
-
 
   // Initialize API with localhost first
   ApiServices().init();
@@ -136,13 +137,28 @@ void main() async {
     final savedIP = await ApiServices().getSavedServerIP();
     final savedPort = await ApiServices().getSavedServerPort();
 
-    if (savedIP != null) {
+    if (savedIP != null && savedIP.isNotEmpty) {
+      debugPrint('Attempting to reconnect to saved server: $savedIP');
       await ApiServices().setServerIP(savedIP, port: savedPort ?? '80');
+
+      // Verify connection to saved server
+      try {
+        final response = await ApiServices().client.get('/get_ip.php');
+        if (response.statusCode == 200) {
+          debugPrint('Successfully reconnected to saved server');
+        }
+      } catch (e) {
+        debugPrint('Failed to connect to saved server: $e');
+        // Reset to localhost if saved server is unreachable
+        await ApiServices().setServerIP('localhost');
+      }
     }
-    // If no saved IP, the app will show connection dialog later
+    // If no saved IP or connection failed, the app will show connection dialog
   } else {
-    // This is the server - use localhost
+    // This is the server - use localhost and save as server device
     await ApiServices().setServerIP('localhost');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_server_device', true);
     debugPrint('Running as server on localhost');
   }
 

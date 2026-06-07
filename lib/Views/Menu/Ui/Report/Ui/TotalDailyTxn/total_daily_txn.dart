@@ -57,7 +57,7 @@ class _DesktopState extends State<_Desktop> {
       context.read<TotalDailyBloc>().add(
         LoadTotalDailyEvent(
           fromDate: widget.fromDate ?? fromDate,
-         toDate:  widget.toDate ?? toDate,
+          toDate: widget.toDate ?? toDate,
         ),
       );
     });
@@ -85,93 +85,140 @@ class _DesktopState extends State<_Desktop> {
             return const Center(child: SizedBox());
           }
 
-          return Wrap(
-            spacing: 6,
-            runSpacing: 10,
-            children: data.map((item) {
-              // Use percentage only, no isNew
-              final percentText = "${item.percentage.toStringAsFixed(1)} %";
-              final percentColor = item.isIncrease ? Colors.green : Colors.red;
-              final icon = item.isIncrease ? Icons.trending_up : Icons.trending_down;
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: data.map((item) {
+                  final percentText = "${item.percentage.toStringAsFixed(1)} %";
+                  final percentColor = item.isIncrease ? Colors.green : Colors.red;
+                  final icon = item.isIncrease ? Icons.trending_up : Icons.trending_down;
 
-              return Container(
-                width: 190,
-                padding: const EdgeInsets.all(8),
-                margin: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(
-                    color: theme.colorScheme.outline.withValues(alpha: .15),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // TXN NAME
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          item.today.txnName ?? '',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: theme.colorScheme.outline.withValues(alpha: .5),
-                          ),
+                  // Calculate width: always expand to fill row
+                  // 1 card = full width, 2 cards = half width each, 3 = third, 4 = quarter
+                  final cardWidth = _calculateCardWidth(constraints.maxWidth, data.length);
+
+                  return SizedBox(
+                    width: cardWidth,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(alpha: .25),
+                          strokeAlign: BorderSide.strokeAlignInside,
                         ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 3),
-
-                    // AMOUNT
-                    Text(
-                      item.today.totalAmount.toAmount(),
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: .04),
+                            blurRadius: 1,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    // PERCENTAGE + ICON + COUNT
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              icon,
-                              size: 16,
-                              color: percentColor,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // TXN NAME
+                          Text(
+                            item.today.txnName ?? '',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: theme.colorScheme.outline.withValues(alpha: .6),
+                              fontWeight: FontWeight.w600,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              percentText,
-                              style: TextStyle(
-                                color: percentColor,
+                          ),
+
+                          const SizedBox(height: 4),
+
+                          // AMOUNT
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              (item.today.totalAmount ?? 0).toAmount(),
+                              style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                                color: theme.colorScheme.primary,
                               ),
                             ),
-                          ],
-                        ),
-                        Text(
-                          '${item.today.totalCount}',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                              color: theme.colorScheme.outline.withValues(alpha: .5)),
-                        ),
-                      ],
+                          ),
+
+                          const SizedBox(height: 4),
+
+                          // PERCENTAGE + ICON + COUNT
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Percentage with icon
+                              Flexible(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      icon,
+                                      size: 18,
+                                      color: percentColor,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        percentText,
+                                        style: TextStyle(
+                                          color: percentColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Transaction count
+                              Text(
+                                '${item.today.totalCount ?? 0}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                  color: theme.colorScheme.outline.withValues(alpha: .7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  );
+                }).toList(),
               );
-            }).toList(),
+            },
           );
         }
 
         return const Center(child: CircularProgressIndicator());
       },
     );
+  }
+
+  // Calculate card width: always fill the row (max 4 cards per row)
+  double _calculateCardWidth(double availableWidth, int itemCount) {
+    const spacing = 8.0;
+    const maxCardsPerRow = 4;
+
+    // Determine how many cards will be in the current row
+    final cardsInRow = itemCount.clamp(1, maxCardsPerRow);
+
+    // Calculate total spacing for this row
+    final totalSpacing = spacing * (cardsInRow - 1);
+
+    // Calculate width: (available space - total spacing) / number of cards
+    final cardWidth = (availableWidth - totalSpacing) / cardsInRow;
+
+    return cardWidth;
   }
 }
 
