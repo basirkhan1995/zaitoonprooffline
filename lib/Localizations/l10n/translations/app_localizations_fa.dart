@@ -2852,7 +2852,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get accountsReport => 'گزارش حسابها';
 
   @override
-  String get editProfile => 'بروزرسانی پروفایل';
+  String get editProfile => 'اصلاح کردن';
 
   @override
   String get workInformation => 'معلومات شغل';
@@ -3364,4 +3364,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get oddTitle => 'تاق';
+
+  @override
+  String get transactionSummaryToday => 'خلاصه معاملات امروز';
 }

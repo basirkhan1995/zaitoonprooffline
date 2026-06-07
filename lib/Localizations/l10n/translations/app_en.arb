@@ -1115,5 +1115,6 @@
   "colorTitle": "Color",
   "printLabel": "Label Print",
   "evenTitle": "Even",
-  "oddTitle": "Odd"
+  "oddTitle": "Odd",
+  "transactionSummaryToday": "Today's Transactions Summary"
 }

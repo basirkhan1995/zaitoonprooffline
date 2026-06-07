@@ -277,12 +277,14 @@ class Utils{
     }
   }
 
-  static String getInvoiceType({required String txn, required BuildContext context}) {
+  static String getTransactionNames({required String txn, required BuildContext context}) {
     switch (txn) {
       case "Purchase":return AppLocalizations.of(context)!.purchaseTitle;
       case "Sale":return AppLocalizations.of(context)!.saleTitle;
-      case "Return Sale":return AppLocalizations.of(context)!.returnGoods;
-      default: return "";
+      case "Cash Deposit":return AppLocalizations.of(context)!.deposit;
+      case "Cash Withdraw":return AppLocalizations.of(context)!.withdraw;
+      case "Fund Transfer":return AppLocalizations.of(context)!.accountTransfer;
+      default: return txn;
     }
   }
 

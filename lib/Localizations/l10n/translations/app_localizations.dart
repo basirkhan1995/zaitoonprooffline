@@ -6675,6 +6675,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Odd'**
   String get oddTitle;
+
+  /// No description provided for @transactionSummaryToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Transactions Summary'**
+  String get transactionSummaryToday;
 }
 
 class _AppLocalizationsDelegate

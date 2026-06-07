@@ -3,6 +3,8 @@ import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zaitoonpro/Features/Other/utils.dart';
+import 'package:zaitoonpro/Views/Menu/Ui/Dashboard/Views/Stats/stats.dart';
 import 'bloc/total_daily_bloc.dart';
 
 class TotalDailyTxnView extends StatelessWidget {
@@ -98,98 +100,100 @@ class _DesktopState extends State<_Desktop> {
                   // Calculate width: always expand to fill row
                   // 1 card = full width, 2 cards = half width each, 3 = third, 4 = quarter
                   final cardWidth = _calculateCardWidth(constraints.maxWidth, data.length);
-
-                  return SizedBox(
-                    width: cardWidth,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(alpha: .25),
-                          strokeAlign: BorderSide.strokeAlignInside,
+                  final color = Theme.of(context).colorScheme;
+                  return HoverCard(
+                    child: SizedBox(
+                      width: cardWidth,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.lightBlueAccent.withValues(alpha: .06),
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(
+                            color: color.primary.withValues(alpha: .3),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: .05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: .04),
-                            blurRadius: 1,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // TXN NAME
-                          Text(
-                            item.today.txnName ?? '',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: theme.colorScheme.outline.withValues(alpha: .6),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-
-                          const SizedBox(height: 4),
-
-                          // AMOUNT
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              (item.today.totalAmount ?? 0).toAmount(),
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
-                                color: theme.colorScheme.primary,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // TXN NAME
+                            Text(
+                              Utils.getTransactionNames(txn: item.today.txnName ?? '', context: context),
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: theme.colorScheme.outline.withValues(alpha: .6),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ),
 
-                          const SizedBox(height: 4),
+                            const SizedBox(height: 4),
 
-                          // PERCENTAGE + ICON + COUNT
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Percentage with icon
-                              Flexible(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      icon,
-                                      size: 18,
-                                      color: percentColor,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Flexible(
-                                      child: Text(
-                                        percentText,
-                                        style: TextStyle(
-                                          color: percentColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                            // AMOUNT
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                (item.today.totalAmount ?? 0).toAmount(),
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            // PERCENTAGE + ICON + COUNT
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Percentage with icon
+                                Flexible(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        icon,
+                                        size: 15,
+                                        color: percentColor,
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          percentText,
+                                          style: TextStyle(
+                                            color: percentColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
 
-                              // Transaction count
-                              Text(
-                                '${item.today.totalCount ?? 0}',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18,
-                                  color: theme.colorScheme.outline.withValues(alpha: .7),
+                                // Transaction count
+                                Text(
+                                  '${item.today.totalCount ?? 0}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18,
+                                    color: theme.colorScheme.outline.withValues(alpha: .7),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );

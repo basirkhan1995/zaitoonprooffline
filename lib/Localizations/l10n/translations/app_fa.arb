@@ -946,7 +946,7 @@
   "totalCashBalancesAllBranch": "موجودی نقدی - همه شعبات",
   "activeFilters": "فلتر های فعال",
   "accountsReport": "گزارش حسابها",
-  "editProfile": "بروزرسانی پروفایل",
+  "editProfile": "اصلاح کردن",
   "workInformation": "معلومات شغل",
   "memberSince": "عضویت",
   "securityTitle": "امنیت",
@@ -1115,5 +1115,6 @@
   "colorTitle": "رنگ",
   "printLabel": "چاپ برچسپ",
   "evenTitle": "جفت",
-  "oddTitle": "تاق"
+  "oddTitle": "تاق",
+  "transactionSummaryToday": "خلاصه معاملات امروز"
 }

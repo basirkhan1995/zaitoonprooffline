@@ -3375,4 +3375,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get oddTitle => 'Odd';
+
+  @override
+  String get transactionSummaryToday => 'Today\'s Transactions Summary';
 }

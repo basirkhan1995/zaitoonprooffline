@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
+import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'package:zaitoonpro/Views/Auth/models/login_model.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Dashboard/Views/DailyGross/daily_gross.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Dashboard/Views/Stats/stats.dart';
@@ -200,6 +201,14 @@ class _Desktop extends StatelessWidget {
                       ],
                     ],
                     if (login.hasPermission(5) ?? false) ...[
+                      SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Icon(Icons.ssid_chart),
+                          SizedBox(width: 5),
+                          Text(AppLocalizations.of(context)!.transactionSummaryToday,style: Theme.of(context).textTheme.titleMedium,),
+                        ],
+                      ),
                       SizedBox(height: 5),
                       Padding(
                         padding: const EdgeInsets.all(5.0),

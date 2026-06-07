@@ -2856,7 +2856,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get accountsReport => 'حسابهانه گزارش';
 
   @override
-  String get editProfile => 'بروزرسانی پروفایل';
+  String get editProfile => 'اصلاح کول';
 
   @override
   String get workInformation => 'دنده معلومات';
@@ -3367,4 +3367,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get oddTitle => 'تاق';
+
+  @override
+  String get transactionSummaryToday => 'خلاصه معاملات امروز';
 }

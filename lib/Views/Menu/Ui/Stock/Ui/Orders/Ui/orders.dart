@@ -303,7 +303,7 @@ class _MobileOrdersViewState extends State<_MobileOrdersView> {
                                           borderRadius: BorderRadius.circular(16),
                                         ),
                                         child: Text(
-                                          Utils.getInvoiceType(
+                                          Utils.getTransactionNames(
                                             txn: ord.ordName ?? "",
                                             context: context,
                                           ),
@@ -1505,7 +1505,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                                       width: 100,
 
                                       child: Text(
-                                        Utils.getInvoiceType(
+                                        Utils.getTransactionNames(
                                           txn: ord.ordName ?? "",
                                           context: context,
                                         ),

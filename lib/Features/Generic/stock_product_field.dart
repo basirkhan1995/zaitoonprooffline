@@ -526,6 +526,22 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                             margin: const EdgeInsets.all(8),
                             child: Column(
                               children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Wrap(
+                                        children: [
+                                          Icon(Icons.shopify_rounded),
+                                          Text(tr.products,style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.bold
+                                          )),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(vertical: 8),
                                   decoration: BoxDecoration(
