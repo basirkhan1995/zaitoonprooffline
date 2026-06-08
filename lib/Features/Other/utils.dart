@@ -230,7 +230,6 @@ class Utils{
     }
   }
 
-
   static Future<void> copyToClipboard(String text) async {
     if (text.isNotEmpty) {
       await Clipboard.setData(ClipboardData(text: text));
@@ -284,6 +283,7 @@ class Utils{
       case "Cash Deposit":return AppLocalizations.of(context)!.deposit;
       case "Cash Withdraw":return AppLocalizations.of(context)!.withdraw;
       case "Fund Transfer":return AppLocalizations.of(context)!.accountTransfer;
+      case "Post Expense":return AppLocalizations.of(context)!.expenses;
       default: return txn;
     }
   }

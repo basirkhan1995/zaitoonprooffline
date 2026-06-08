@@ -5,6 +5,7 @@ import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Other/utils.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Dashboard/Views/Stats/stats.dart';
+import '../../../../../Auth/bloc/auth_bloc.dart';
 import 'bloc/total_daily_bloc.dart';
 
 class TotalDailyTxnView extends StatelessWidget {
@@ -51,9 +52,13 @@ class _Desktop extends StatefulWidget {
 class _DesktopState extends State<_Desktop> {
   String fromDate = DateTime.now().toFormattedDate();
   String toDate = DateTime.now().toFormattedDate();
-
+  String? ccyCode;
   @override
   void initState() {
+    final auth = context.read<AuthBloc>().state;
+    if(auth is AuthenticatedState){
+      ccyCode = auth.loginData.company?.comLocalCcy == "USD"? "\$" : auth.loginData.company?.comLocalCcy == "AFN"? "؋" : auth.loginData.company?.comLocalCcy;
+    }
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TotalDailyBloc>().add(
@@ -89,18 +94,43 @@ class _DesktopState extends State<_Desktop> {
 
           return LayoutBuilder(
             builder: (context, constraints) {
+              const spacing = 8.0;
+              const maxCardsPerRow = 4;
+
+              // Calculate how many cards per row based on available width
+              int cardsPerRow;
+              if (constraints.maxWidth > 900) {
+                cardsPerRow = 4;
+              } else if (constraints.maxWidth > 650) {
+                cardsPerRow = 3;
+              } else if (constraints.maxWidth > 400) {
+                cardsPerRow = 2;
+              } else {
+                cardsPerRow = 1;
+              }
+
+              cardsPerRow = cardsPerRow.clamp(1, maxCardsPerRow);
+
+              final color = Theme.of(context).colorScheme;
+
               return Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: data.map((item) {
+                spacing: spacing,
+                runSpacing: spacing,
+                children: List.generate(data.length, (index) {
+                  final item = data[index];
                   final percentText = "${item.percentage.toStringAsFixed(1)} %";
                   final percentColor = item.isIncrease ? Colors.green : Colors.red;
                   final icon = item.isIncrease ? Icons.trending_up : Icons.trending_down;
 
-                  // Calculate width: always expand to fill row
-                  // 1 card = full width, 2 cards = half width each, 3 = third, 4 = quarter
-                  final cardWidth = _calculateCardWidth(constraints.maxWidth, data.length);
-                  final color = Theme.of(context).colorScheme;
+                  // Calculate width for this specific card based on its row
+                  final cardWidth = _calculateCardWidthForIndex(
+                    index: index,
+                    totalItems: data.length,
+                    availableWidth: constraints.maxWidth,
+                    cardsPerRow: cardsPerRow,
+                    spacing: spacing,
+                  );
+
                   return HoverCard(
                     child: SizedBox(
                       width: cardWidth,
@@ -140,7 +170,7 @@ class _DesktopState extends State<_Desktop> {
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                (item.today.totalAmount ?? 0).toAmount(),
+                                "${(item.today.totalAmount ?? 0).toAmount()}$ccyCode",
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 22,
@@ -197,7 +227,7 @@ class _DesktopState extends State<_Desktop> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
               );
             },
           );
@@ -208,21 +238,36 @@ class _DesktopState extends State<_Desktop> {
     );
   }
 
-  // Calculate card width: always fill the row (max 4 cards per row)
-  double _calculateCardWidth(double availableWidth, int itemCount) {
-    const spacing = 8.0;
-    const maxCardsPerRow = 4;
+  // Calculate card width based on its position (row-aware)
+  double _calculateCardWidthForIndex({
+    required int index,
+    required int totalItems,
+    required double availableWidth,
+    required int cardsPerRow,
+    required double spacing,
+  }) {
+    // Calculate which row this item is in (0-based)
+    final rowIndex = index ~/ cardsPerRow;
 
-    // Determine how many cards will be in the current row
-    final cardsInRow = itemCount.clamp(1, maxCardsPerRow);
+    // Calculate total number of rows
+    final totalRows = (totalItems / cardsPerRow).ceil();
 
-    // Calculate total spacing for this row
-    final totalSpacing = spacing * (cardsInRow - 1);
+    // Check if this is the last row
+    final isLastRow = rowIndex == totalRows - 1;
 
-    // Calculate width: (available space - total spacing) / number of cards
-    final cardWidth = (availableWidth - totalSpacing) / cardsInRow;
+    // Calculate items in the last row
+    final itemsInLastRow = totalItems % cardsPerRow;
 
-    return cardWidth;
+    // If it's the last row and has fewer items than cardsPerRow
+    if (isLastRow && itemsInLastRow > 0 && itemsInLastRow < cardsPerRow) {
+      // Calculate width based on actual items in the last row
+      final lastRowSpacing = spacing * (itemsInLastRow - 1);
+      return (availableWidth - lastRowSpacing) / itemsInLastRow;
+    }
+
+    // For all other rows, use standard calculation
+    final fullRowSpacing = spacing * (cardsPerRow - 1);
+    return (availableWidth - fullRowSpacing) / cardsPerRow;
   }
 }
 
