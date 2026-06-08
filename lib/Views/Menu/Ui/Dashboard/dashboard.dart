@@ -174,6 +174,11 @@ class _Desktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.select((AuthBloc bloc) => bloc.state);
+    if (authState is! AuthenticatedState) return const SizedBox();
+    final String adminName = authState.loginData.usrFullName ?? "";
+    final String usrRole = authState.loginData.usrRole ?? "";
+    
     final visibility = context.read<SettingsVisibleBloc>().state;
     final state = context.watch<AuthBloc>().state;
 
@@ -194,6 +199,18 @@ class _Desktop extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
+                    Row(
+                      children: [
+                       Column(
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           Text(AppLocalizations.of(context)!.hello(adminName),style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold,fontSize: 22)),
+                           Text(usrRole)
+                         ],
+                       )
+                      ],
+                    ),
+                    
                     //Stats Count - Total Accounts, Total Stakeholders ...
                     if (login.hasPermission(2) ?? false) ...[
                       if (visibility.statsCount) ...[
