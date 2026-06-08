@@ -1116,5 +1116,8 @@
   "printLabel": "چاپ برچسپ",
   "evenTitle": "جفت",
   "oddTitle": "تاق",
-  "transactionSummaryToday": "خلاصه معاملات امروز"
+  "transactionSummaryToday": "خلاصه معاملات امروز",
+  "highestTitle": "بلندترین",
+  "mostFrequent": "پر تکرارترین",
+  "totalVolume": "مجموعه کل"
 }

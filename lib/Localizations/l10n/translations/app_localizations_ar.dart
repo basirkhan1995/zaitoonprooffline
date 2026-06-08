@@ -3370,4 +3370,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get transactionSummaryToday => 'خلاصه معاملات امروز';
+
+  @override
+  String get highestTitle => 'بلندترین';
+
+  @override
+  String get mostFrequent => 'ډېر تکرارېدونکی';
+
+  @override
+  String get totalVolume => 'ټول  پیسې';
 }

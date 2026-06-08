@@ -6681,6 +6681,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today\'s Transactions Summary'**
   String get transactionSummaryToday;
+
+  /// No description provided for @highestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest'**
+  String get highestTitle;
+
+  /// No description provided for @mostFrequent.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Frequent'**
+  String get mostFrequent;
+
+  /// No description provided for @totalVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Volume'**
+  String get totalVolume;
 }
 
 class _AppLocalizationsDelegate

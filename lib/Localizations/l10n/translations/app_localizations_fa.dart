@@ -3367,4 +3367,13 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get transactionSummaryToday => 'خلاصه معاملات امروز';
+
+  @override
+  String get highestTitle => 'بلندترین';
+
+  @override
+  String get mostFrequent => 'پر تکرارترین';
+
+  @override
+  String get totalVolume => 'مجموعه کل';
 }

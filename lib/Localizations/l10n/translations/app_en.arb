@@ -1116,5 +1116,8 @@
   "printLabel": "Label Print",
   "evenTitle": "Even",
   "oddTitle": "Odd",
-  "transactionSummaryToday": "Today's Transactions Summary"
+  "transactionSummaryToday": "Today's Transactions Summary",
+  "highestTitle": "Highest",
+  "mostFrequent": "Most Frequent",
+  "totalVolume": "Total Volume"
 }

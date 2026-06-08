@@ -3378,4 +3378,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionSummaryToday => 'Today\'s Transactions Summary';
+
+  @override
+  String get highestTitle => 'Highest';
+
+  @override
+  String get mostFrequent => 'Most Frequent';
+
+  @override
+  String get totalVolume => 'Total Volume';
 }
