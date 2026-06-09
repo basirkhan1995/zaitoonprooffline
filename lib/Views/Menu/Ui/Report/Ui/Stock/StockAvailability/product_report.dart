@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
@@ -1130,10 +1131,16 @@ class _DesktopState extends State<_Desktop> {
             SizedBox(width: 8),
           ],
           ZOutlineButton(
-              icon: Icons.print,
+              icon: FontAwesomeIcons.file,
+              backgroundHover: Colors.green,
+              onPressed: _printProductReport,
+              label: Text("EXCEL")),
+          SizedBox(width: 8),
+          ZOutlineButton(
+              icon: FontAwesomeIcons.solidFilePdf,
               backgroundHover: Theme.of(context).colorScheme.error,
               onPressed: _printProductReport,
-              label: Text(tr.print)),
+              label: Text("PDF")),
           SizedBox(width: 8),
           ZOutlineButton(
               icon: Icons.filter_alt,
