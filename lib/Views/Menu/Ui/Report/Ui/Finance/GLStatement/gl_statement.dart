@@ -680,12 +680,8 @@ class _DesktopState extends State<_Desktop> {
                                 hintText: tr.accNameOrNumber,
                                 isRequired: true,
                                 bloc: context.read<GlAccountsBloc>(),
-                                fetchAllFunction: (bloc) => bloc.add(
-                                  const LoadGlAccountEvent(),
-                                ),
-                                searchFunction: (bloc, query) => bloc.add(
-                                  LoadGlAccountEvent(query: query),
-                                ),
+                                fetchAllFunction: (bloc) => bloc.add(const LoadGlAccountEvent()),
+                                searchFunction: (bloc, query) => bloc.add(LoadGlAccountEvent(query: query)),
                                 validator: (value) {
                                   if (value == null && value!.isEmpty) {
                                     return tr.required(tr.accounts);
