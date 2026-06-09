@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
@@ -14,6 +15,7 @@ import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/StockAvailability/bloc/
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/StockAvailability/features/storage_drop.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/StockAvailability/print_stock.dart';
+import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/StockAvailability/stock_excel.dart';
 import '../../../../../../../Features/Generic/purchase_product_field.dart';
 import '../../../../../../../Features/Generic/rounded_searchable_textfield.dart';
 import '../../../../../../../Features/PrintSettings/print_preview.dart';
@@ -1131,10 +1133,28 @@ class _DesktopState extends State<_Desktop> {
             SizedBox(width: 8),
           ],
           ZOutlineButton(
-              icon: FontAwesomeIcons.file,
-              backgroundHover: Colors.green,
-              onPressed: _printProductReport,
-              label: Text("EXCEL")),
+            icon: FontAwesomeIcons.file,
+            backgroundHover: Colors.green,
+            onPressed: () {
+              final state = context.read<ProductReportBloc>().state;
+              if (state is ProductReportLoadedState) {
+                ProductReportExcelService.exportToExcel(
+                  productList: state.stock,
+                  baseCurrency: baseCcy ?? '',
+                  fileName: 'Product_Report_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.xlsx',
+                  context: context,
+                );
+              } else {
+                ToastManager.show(
+                  context: context,
+                  title: "Attention",
+                  message: "Please load the data first.",
+                  type: ToastType.warning,
+                );
+              }
+            },
+            label: Text("EXCEL"),
+          ),
           SizedBox(width: 8),
           ZOutlineButton(
               icon: FontAwesomeIcons.solidFilePdf,
