@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
@@ -29,6 +30,7 @@ import '../../../../Stakeholders/Ui/Accounts/model/stk_acc_model.dart';
 import '../../../../Stock/Ui/OrderScreen/NewPurchase/new_purchase.dart';
 import '../../../../Stock/Ui/OrderScreen/NewSale/new_sale.dart';
 import '../../TransactionRef/transaction_ref.dart';
+import 'PDF/account_excel.dart';
 import 'PDF/pdf.dart';
 import 'bloc/acc_statement_bloc.dart';
 import 'model/stmt_model.dart';
@@ -574,8 +576,6 @@ class _DesktopState extends State<_Desktop> {
     double amountWidth = 130;
     double balanceWidth =  160;
 
-
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: BlocBuilder<AuthBloc, AuthState>(
@@ -638,8 +638,34 @@ class _DesktopState extends State<_Desktop> {
                         Row(
                           children: [
                             ZOutlineButton(
-                              icon: Icons.print_rounded,
-                              label: Text(tr.print),
+                              icon: FontAwesomeIcons.fileExcel, // or Icons.table_chart_outlined
+                              backgroundHover: Colors.green,
+                              onPressed: () {
+                                if (accountStatementModel != null &&
+                                    accountStatementModel!.records != null &&
+                                    accountStatementModel!.records!.isNotEmpty) {
+                                  AccountStatementExcelService.exportToExcel(
+                                    accountStatement: accountStatementModel!,
+                                    fromDate: fromDate,
+                                    toDate: toDate,
+                                    fileName: 'Account_Statement_${accountStatementModel!.accNumber}_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.xlsx',
+                                    context: context,
+                                  );
+                                } else {
+                                  ToastManager.show(
+                                    context: context,
+                                    title: "No Data",
+                                    message: "Please load account statement first.",
+                                    type: ToastType.warning,
+                                  );
+                                }
+                              },
+                              label: Text("EXCEL"),
+                            ),
+                            SizedBox(width: 8),
+                            ZOutlineButton(
+                              icon: FontAwesomeIcons.solidFilePdf,
+                              label: Text("PDF"),
                               onPressed: _onPrint
                             ),
                             SizedBox(width: 8),

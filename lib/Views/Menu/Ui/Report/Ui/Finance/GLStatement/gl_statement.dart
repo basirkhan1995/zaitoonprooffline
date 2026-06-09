@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Date/z_generic_date.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
@@ -30,6 +31,7 @@ import '../../../../Journal/Ui/TxnByReference/bloc/txn_reference_bloc.dart';
 import '../../../../Journal/Ui/TxnByReference/txn_reference.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import '../../TransactionRef/transaction_ref.dart';
+import 'PDF/gl_excel.dart';
 import 'PDF/pdf.dart';
 import 'package:flutter/services.dart';
 
@@ -601,8 +603,36 @@ class _DesktopState extends State<_Desktop> {
         actionsPadding: EdgeInsets.symmetric(horizontal: 8),
         actions: [
           ZOutlineButton(
-            icon: Icons.print,
-            label: Text(tr.print),
+            icon: FontAwesomeIcons.fileExcel, // or Icons.table_chart_outlined
+            backgroundHover: Colors.green,
+            onPressed: () {
+              if (accountStatementModel != null &&
+                  accountStatementModel!.records != null &&
+                  accountStatementModel!.records!.isNotEmpty) {
+                GlStatementExcelService.exportToExcel(
+                  glStatement: accountStatementModel!,
+                  fromDate: fromDate,
+                  toDate: widget.isSingleDate ? fromDate : toDate,
+                  currency: currency ?? baseCurrency ?? '',
+                  branchName: accountStatementModel!.brcName,
+                  fileName: 'GL_Statement_${accountStatementModel!.accNumber}_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.xlsx',
+                  context: context,
+                );
+              } else {
+                ToastManager.show(
+                  context: context,
+                  title: "No Data",
+                  message: "Please load GL statement first.",
+                  type: ToastType.warning,
+                );
+              }
+            },
+            label: Text("EXCEL"),
+          ),
+          SizedBox(width: 8),
+          ZOutlineButton(
+            icon: FontAwesomeIcons.solidFilePdf,
+            label: Text("PDF"),
             onPressed: (){
               if(formKey.currentState!.validate()){
                 pdf();
