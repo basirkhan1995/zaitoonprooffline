@@ -388,8 +388,8 @@ class StockDocumentPrintService extends PrintServices {
     final isWholeSale = report.visible?.isWholeSale ?? false;
 
     // Column widths
-    const numberWidth = 20.0;
-    const skuWidth = 45.0;
+    const numberWidth = 15.0;
+    const skuWidth = 35.0;
     const descriptionWidth = 130.0;
     const qtyWidth = 30.0;
     const batchWidth = 30.0;
@@ -502,6 +502,7 @@ class StockDocumentPrintService extends PrintServices {
         // Data Rows
         for (int i = 0; i < items.length; i++)
           pw.TableRow(
+            verticalAlignment: pw.TableCellVerticalAlignment.middle,
             decoration: i.isOdd
                 ? pw.BoxDecoration(color: pw.PdfColors.grey50)
                 : null,
@@ -520,7 +521,7 @@ class StockDocumentPrintService extends PrintServices {
 
     // # (Number)
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: (index + 1).toString(),
         fontSize: 9,
@@ -531,7 +532,7 @@ class StockDocumentPrintService extends PrintServices {
 
     //sku
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.sku,
         fontSize: 9,
@@ -541,7 +542,7 @@ class StockDocumentPrintService extends PrintServices {
 
     // Description
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 6),
       child: zText(
         text: item.productName,
         textAlign: pw.TextAlign.left,
@@ -552,7 +553,7 @@ class StockDocumentPrintService extends PrintServices {
 
     // Quantity
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.quantity.toStringAsFixed(0),
         fontSize: 10,
@@ -563,7 +564,7 @@ class StockDocumentPrintService extends PrintServices {
     if (isWholeSale) {
       // Packing (Batch)
       widgets.add(pw.Container(
-        padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+        padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
         child: zText(
           text: item.batch.toString(),
           fontSize: 10,
@@ -574,7 +575,7 @@ class StockDocumentPrintService extends PrintServices {
 
     // Unit
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.unit,
         fontSize: 10,
@@ -585,7 +586,7 @@ class StockDocumentPrintService extends PrintServices {
     if (isWholeSale) {
       // Total Qty (quantity × batch)
       widgets.add(pw.Container(
-        padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+        padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
         child: zText(
           text: total,
           fontSize: 10,
@@ -605,7 +606,7 @@ class StockDocumentPrintService extends PrintServices {
 
     // Unit
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.unit,
         fontSize: 10,
@@ -616,7 +617,7 @@ class StockDocumentPrintService extends PrintServices {
     if (isWholeSale) {
       // Total Qty (quantity × batch)
       widgets.add(pw.Container(
-        padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+        padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
         child: zText(
           text: total,
           fontSize: 10,
@@ -628,7 +629,7 @@ class StockDocumentPrintService extends PrintServices {
 
       // Packing (Batch)
       widgets.add(pw.Container(
-        padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+        padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
         child: zText(
           text: item.batch.toString(),
           fontSize: 10,
@@ -639,7 +640,7 @@ class StockDocumentPrintService extends PrintServices {
 
     // Quantity
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.quantity.toStringAsFixed(0),
         fontSize: 10,
@@ -649,7 +650,7 @@ class StockDocumentPrintService extends PrintServices {
 
     // Description
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 6),
       child: zText(
         text: item.productName,
         fontSize: 12,
@@ -660,7 +661,7 @@ class StockDocumentPrintService extends PrintServices {
 
     //sku
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.sku,
         fontSize: 9,
@@ -670,7 +671,7 @@ class StockDocumentPrintService extends PrintServices {
 
     // # (Number - appears last on left side)
     widgets.add(pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: (index + 1).toString(),
         fontSize: 9,
