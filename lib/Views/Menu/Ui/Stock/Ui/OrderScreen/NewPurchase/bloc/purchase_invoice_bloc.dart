@@ -45,8 +45,36 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
     on<UpdateExchangeRateManuallyEvent>(_onUpdateExchangeRateManually);
     on<UpdateCashCurrencyEvent>(_onUpdateCashCurrency);
     on<LoadPurchaseInvoiceForEditEvent>(_onLoadPurchaseInvoiceForEdit);
+    on<UpdateItemLocalAmountEvent>(_onUpdateItemLocalAmount);
   }
 
+  void _onUpdateItemLocalAmount(UpdateItemLocalAmountEvent event, Emitter<PurchaseInvoiceState> emit) {
+    if (state is PurchaseInvoiceLoaded) {
+      final current = state as PurchaseInvoiceLoaded;
+
+      // Only process if we have a valid exchange rate
+      if (current.safeExchangeRate <= 0) return;
+
+      final updatedItems = current.items.map((item) {
+        if (item.rowId == event.rowId) {
+          // Calculate new purchase price from local amount
+          final newPurPrice = event.localAmount / current.safeExchangeRate;
+
+          return item.copyWith(
+            purPrice: newPurPrice,
+            localAmount: event.localAmount,
+            exchangeRate: current.safeExchangeRate,
+          );
+        }
+        return item;
+      }).toList();
+
+      emit(current.copyWith(items: updatedItems));
+
+      // Recalculate landed prices after purchase price changes
+      add(UpdateAllLandedPricesEvent());
+    }
+  }
   Future<void> _onLoadPurchaseInvoiceForEdit(LoadPurchaseInvoiceForEditEvent event, Emitter<PurchaseInvoiceState> emit) async {
     emit(PurchaseInvoiceLoading());
     try {

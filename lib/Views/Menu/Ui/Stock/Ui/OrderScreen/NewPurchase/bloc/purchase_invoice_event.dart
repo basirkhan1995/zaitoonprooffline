@@ -23,7 +23,18 @@ class SelectSupplierEvent extends PurchaseInvoiceEvent {
   @override
   List<Object?> get props => [supplier];
 }
+class UpdateItemLocalAmountEvent extends PurchaseInvoiceEvent {
+  final String rowId;
+  final double localAmount;
 
+  const UpdateItemLocalAmountEvent({
+    required this.rowId,
+    required this.localAmount,
+  });
+
+  @override
+  List<Object?> get props => [rowId, localAmount];
+}
 class SelectSupplierAccountEvent extends PurchaseInvoiceEvent {
   final AccountsModel supplier;
   const SelectSupplierAccountEvent(this.supplier);

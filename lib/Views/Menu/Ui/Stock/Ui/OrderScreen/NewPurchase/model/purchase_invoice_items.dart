@@ -44,6 +44,14 @@ class PurchaseInvoiceItem {
     return (purPrice ?? 0) * rate;
   }
 
+  void updatePurchasePriceFromLocalAmount(double localAmountValue, double? exchangeRateValue) {
+    if (exchangeRateValue != null && exchangeRateValue > 0) {
+      exchangeRate = exchangeRateValue;
+      purPrice = localAmountValue / exchangeRateValue;
+      localAmount = localAmountValue;
+    }
+  }
+
   void updateLocalAmount(double? exchangeRateValue) {
     exchangeRate = exchangeRateValue;
     if (purPrice != null && exchangeRate != null) {

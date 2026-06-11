@@ -1657,13 +1657,16 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
   late TextEditingController _storageController;
   late TextEditingController _localAmountController;
   late TextEditingController _sellPriceController;
-  double? _lastExchangeRate;
-  double? _lastPurPrice;
   late TextEditingController _productController;
   late TextEditingController _headerProductController;
+
   bool _isPercentageMode = true;
   double _currentPurchasePrice = 0.0;
   bool _isUpdating = false;
+  bool _isEditingLocalAmount = false;
+  Timer? _localAmountDebounce;
+  double? _lastExchangeRate;
+  bool _isUpdatingFromBloc = false;
 
   @override
   void initState() {
@@ -1678,9 +1681,24 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
     _storageController = TextEditingController(text: widget.item.storageName);
     _localAmountController = TextEditingController(text: _getLocalAmountText());
     _lastExchangeRate = _getCurrentExchangeRate();
-    _lastPurPrice = widget.item.purPrice;
     _currentPurchasePrice = widget.item.purPrice ?? 0.0;
     _initializeSellPriceController();
+  }
+
+  // Helper method to get local amount text
+  String _getLocalAmountText() {
+    if (widget.item.localAmount != null && widget.item.localAmount! > 0) {
+      return widget.item.localAmount!.toAmount();
+    }
+
+    final exchangeRate = _getCurrentExchangeRate();
+    if (widget.item.purPrice != null && exchangeRate != null && exchangeRate > 0) {
+      final calculatedAmount = widget.item.purPrice! * exchangeRate;
+      if (calculatedAmount > 0) {
+        return calculatedAmount.toAmount();
+      }
+    }
+    return '';
   }
 
   // Helper method to check if product is duplicate
@@ -1823,7 +1841,6 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                         ],
                       ),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
@@ -1892,9 +1909,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 16),
-
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
@@ -1925,9 +1940,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                               ],
                             ),
                           ),
-
                           const SizedBox(height: 20),
-
                           Row(
                             children: [
                               Expanded(
@@ -2041,55 +2054,62 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
     return null;
   }
 
-  bool _needsLocalConversion(BuildContext context) {
-    final state = context.read<PurchaseInvoiceBloc>().state;
-    if (state is PurchaseInvoiceLoaded && state.supplierAccount != null) {
-      final authState = context.read<AuthBloc>().state;
-      if (authState is AuthenticatedState) {
-        final baseCurrency = authState.loginData.company?.comLocalCcy ?? '';
-        final accountCurrency = state.supplierAccount!.actCurrency ?? '';
-        return baseCurrency.isNotEmpty &&
-            accountCurrency.isNotEmpty &&
-            baseCurrency != accountCurrency;
-      }
-    }
-    return false;
-  }
+  void _updateLocalAmountFromPurchasePrice() {
+    if (_isEditingLocalAmount || _isUpdatingFromBloc) return;
 
-  void _updateLocalAmount() {
-    final currentExchangeRate = _getCurrentExchangeRate();
-    final currentPurPrice = widget.item.purPrice;
-
-    if (_lastExchangeRate != currentExchangeRate ||
-        _lastPurPrice != currentPurPrice) {
-      _lastExchangeRate = currentExchangeRate;
-      _lastPurPrice = currentPurPrice;
-      _currentPurchasePrice = currentPurPrice ?? 0.0;
-
-      if (_isPercentageMode && !_isUpdating) {
-        _updateSellPriceFromPercentage();
-      }
-
-      double? newLocalAmount;
-      if (currentPurPrice != null && currentExchangeRate != null) {
-        newLocalAmount = currentPurPrice * currentExchangeRate;
-      }
-
-      final newText = (newLocalAmount != null && newLocalAmount > 0)
-          ? newLocalAmount.toAmount()
-          : '';
+    final exchangeRate = _getCurrentExchangeRate();
+    if (exchangeRate != null && exchangeRate > 0 && widget.item.purPrice != null) {
+      final newLocalAmount = widget.item.purPrice! * exchangeRate;
+      final newText = newLocalAmount.toAmount();
 
       if (_localAmountController.text != newText) {
         _localAmountController.value = TextEditingValue(
           text: newText,
           selection: TextSelection.collapsed(offset: newText.length),
         );
-
-        if (widget.item.localAmount != newLocalAmount) {
-          widget.item.localAmount = newLocalAmount;
-        }
       }
     }
+  }
+
+  void _updatePurchasePriceFromLocalAmount(double localAmount) {
+    if (_isUpdatingFromBloc) return;
+
+    final exchangeRate = _getCurrentExchangeRate();
+    if (exchangeRate != null && exchangeRate > 0) {
+      final newPurPrice = localAmount / exchangeRate;
+
+      // Update the purchase price controller directly
+      final priceController = widget.purchasePriceControllers[widget.item.rowId];
+      if (priceController != null) {
+        final newPriceText = newPurPrice.toAmount();
+        if (priceController.text != newPriceText) {
+          priceController.text = newPriceText;
+        }
+      }
+
+      // Update through callback
+      widget.onPurchasePriceChanged(widget.item.rowId, newPurPrice);
+
+      // Dispatch event to update BLoC state
+      context.read<PurchaseInvoiceBloc>().add(
+        UpdateItemLocalAmountEvent(
+          rowId: widget.item.rowId,
+          localAmount: localAmount,
+        ),
+      );
+    }
+  }
+
+  void _onLocalAmountChanged(String value) {
+    _localAmountDebounce?.cancel();
+    _localAmountDebounce = Timer(const Duration(milliseconds: 500), () {
+      final localAmount = double.tryParse(value.replaceAll(',', ''));
+      if (localAmount != null && localAmount > 0) {
+        _isEditingLocalAmount = true;
+        _updatePurchasePriceFromLocalAmount(localAmount);
+        _isEditingLocalAmount = false;
+      }
+    });
   }
 
   void _updateSellPriceFromPercentage() {
@@ -2172,21 +2192,6 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
     });
   }
 
-  String _getLocalAmountText() {
-    if (widget.item.localAmount != null && widget.item.localAmount! > 0) {
-      return widget.item.localAmount!.toAmount();
-    }
-
-    final exchangeRate = _getCurrentExchangeRate();
-    if (widget.item.purPrice != null && exchangeRate != null && exchangeRate > 0) {
-      final calculatedAmount = widget.item.purPrice! * exchangeRate;
-      if (calculatedAmount > 0) {
-        return calculatedAmount.toAmount();
-      }
-    }
-    return '';
-  }
-
   @override
   void didUpdateWidget(covariant _PurchaseItemRow oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -2197,6 +2202,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
+      // Update landed price display
       if (widget.item.landedPrice != oldWidget.item.landedPrice) {
         final newValue = widget.item.landedPrice != null && widget.item.landedPrice! > 0
             ? widget.item.landedPrice!.toAmount()
@@ -2210,6 +2216,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
         }
       }
 
+      // Update storage display
       if (widget.item.storageName != oldWidget.item.storageName) {
         if (_storageController.text != widget.item.storageName) {
           final text = widget.item.storageName;
@@ -2220,48 +2227,102 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
         }
       }
 
+      // Update purchase price and local amount if they changed from outside
+      final currentExchangeRate = _getCurrentExchangeRate();
+      bool needsUpdate = false;
+
       if (widget.item.purPrice != oldWidget.item.purPrice) {
         _currentPurchasePrice = widget.item.purPrice ?? 0.0;
-        if (_isPercentageMode && !_isUpdating) {
-          _updateSellPriceFromPercentage();
+
+        // Update purchase price controller
+        final priceController = widget.purchasePriceControllers[widget.item.rowId];
+        if (priceController != null && widget.item.purPrice != null) {
+          final newPriceText = widget.item.purPrice!.toAmount();
+          if (priceController.text != newPriceText) {
+            _isUpdatingFromBloc = true;
+            priceController.text = newPriceText;
+            _isUpdatingFromBloc = false;
+          }
+        }
+        needsUpdate = true;
+      }
+
+      // Update local amount if exchange rate changed or purchase price changed
+      if (currentExchangeRate != _lastExchangeRate || needsUpdate) {
+        _lastExchangeRate = currentExchangeRate;
+        if (!_isEditingLocalAmount) {
+          _updateLocalAmountFromPurchasePrice();
         }
       }
 
-      _updateLocalAmount();
+      // Update sell price if in percentage mode
+      if (needsUpdate && _isPercentageMode && !_isUpdating) {
+        _updateSellPriceFromPercentage();
+      }
     });
   }
 
   @override
   void dispose() {
+    _localAmountDebounce?.cancel();
     _productController.dispose();
     _headerProductController.dispose();
     _landedPriceController.dispose();
     _storageController.dispose();
     _localAmountController.dispose();
+    _sellPriceController.dispose();
     super.dispose();
   }
 
   void focusNext(int currentIndex) {
     final visibility = context.read<SettingsVisibleBloc>().state;
     final isWholeSale = visibility.isWholeSale;
+    final needsLocalConversion = _needsLocalConversion(context);
 
     int nextIndex;
     if (isWholeSale) {
-      switch (currentIndex) {
-        case 0: nextIndex = 1; break;
-        case 1: nextIndex = 2; break;
-        case 2: nextIndex = 3; break;
-        case 3: nextIndex = 4; break;
-        case 4: nextIndex = 5; break;
-        default: nextIndex = currentIndex + 1;
+      if (needsLocalConversion) {
+        // Product, Qty, Batch, UnitPrice, LocalAmount, SellPrice, Storage
+        switch (currentIndex) {
+          case 0: nextIndex = 1; break;
+          case 1: nextIndex = 2; break;
+          case 2: nextIndex = 3; break;
+          case 3: nextIndex = 4; break;
+          case 4: nextIndex = 5; break;
+          case 5: nextIndex = 6; break;
+          default: nextIndex = currentIndex + 1;
+        }
+      } else {
+        // Product, Qty, Batch, UnitPrice, SellPrice, Storage
+        switch (currentIndex) {
+          case 0: nextIndex = 1; break;
+          case 1: nextIndex = 2; break;
+          case 2: nextIndex = 3; break;
+          case 3: nextIndex = 4; break;
+          case 4: nextIndex = 5; break;
+          default: nextIndex = currentIndex + 1;
+        }
       }
     } else {
-      switch (currentIndex) {
-        case 0: nextIndex = 1; break;
-        case 1: nextIndex = 2; break;
-        case 2: nextIndex = 3; break;
-        case 3: nextIndex = 4; break;
-        default: nextIndex = currentIndex + 1;
+      if (needsLocalConversion) {
+        // Product, Qty, UnitPrice, LocalAmount, SellPrice, Storage
+        switch (currentIndex) {
+          case 0: nextIndex = 1; break;
+          case 1: nextIndex = 2; break;
+          case 2: nextIndex = 3; break;
+          case 3: nextIndex = 4; break;
+          case 4: nextIndex = 5; break;
+          default: nextIndex = currentIndex + 1;
+        }
+      } else {
+        // Product, Qty, UnitPrice, SellPrice, Storage
+        switch (currentIndex) {
+          case 0: nextIndex = 1; break;
+          case 1: nextIndex = 2; break;
+          case 2: nextIndex = 3; break;
+          case 3: nextIndex = 4; break;
+          default: nextIndex = currentIndex + 1;
+        }
       }
     }
 
@@ -2278,16 +2339,39 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
   FocusNode? safeNode(int virtualIndex) {
     final visibility = context.read<SettingsVisibleBloc>().state;
     final isWholeSale = visibility.isWholeSale;
+    final needsLocalConversion = _needsLocalConversion(context);
 
     if (isWholeSale) {
-      if (virtualIndex >= 0 && virtualIndex < widget.nodes.length) {
-        return widget.nodes[virtualIndex];
+      if (needsLocalConversion) {
+        // Map virtual indices to actual node indices (7 fields)
+        const nodeMap = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6};
+        final nodeIndex = nodeMap[virtualIndex];
+        if (nodeIndex != null && nodeIndex < widget.nodes.length) {
+          return widget.nodes[nodeIndex];
+        }
+      } else {
+        // Map virtual indices to actual node indices (6 fields)
+        const nodeMap = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
+        final nodeIndex = nodeMap[virtualIndex];
+        if (nodeIndex != null && nodeIndex < widget.nodes.length) {
+          return widget.nodes[nodeIndex];
+        }
       }
     } else {
-      final nodeIndexMap = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4};
-      final nodeIndex = nodeIndexMap[virtualIndex];
-      if (nodeIndex != null && nodeIndex < widget.nodes.length) {
-        return widget.nodes[nodeIndex];
+      if (needsLocalConversion) {
+        // Map virtual indices to actual node indices (6 fields)
+        const nodeMap = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
+        final nodeIndex = nodeMap[virtualIndex];
+        if (nodeIndex != null && nodeIndex < widget.nodes.length) {
+          return widget.nodes[nodeIndex];
+        }
+      } else {
+        // Map virtual indices to actual node indices (5 fields)
+        const nodeMap = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4};
+        final nodeIndex = nodeMap[virtualIndex];
+        if (nodeIndex != null && nodeIndex < widget.nodes.length) {
+          return widget.nodes[nodeIndex];
+        }
       }
     }
     return null;
@@ -2306,11 +2390,43 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
     });
   }
 
+  String _getBaseCurrency() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthenticatedState) {
+      return authState.loginData.company?.comLocalCcy ?? '';
+    }
+    return '';
+  }
+
+  String _getAccountCurrency() {
+    final state = context.read<PurchaseInvoiceBloc>().state;
+    if (state is PurchaseInvoiceLoaded && state.supplierAccount != null) {
+      return state.supplierAccount!.actCurrency ?? '';
+    }
+    return '';
+  }
+
+  bool _needsLocalConversion(BuildContext context) {
+    final state = context.read<PurchaseInvoiceBloc>().state;
+    if (state is PurchaseInvoiceLoaded && state.supplierAccount != null) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState is AuthenticatedState) {
+        final baseCurrency = authState.loginData.company?.comLocalCcy ?? '';
+        final accountCurrency = state.supplierAccount!.actCurrency ?? '';
+        return baseCurrency.isNotEmpty &&
+            accountCurrency.isNotEmpty &&
+            baseCurrency != accountCurrency;
+      }
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
     final visibility = context.read<SettingsVisibleBloc>().state;
     final isWholeSale = visibility.isWholeSale;
+    final needsLocalConversion = _needsLocalConversion(context);
 
     final qtyController = widget.qtyControllers.putIfAbsent(
       widget.item.rowId,
@@ -2447,7 +2563,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                   ),
                 ],
 
-                /// Unit Price
+                /// Unit Price (Base Currency)
                 SizedBox(
                   width: 150,
                   child: TextField(
@@ -2458,26 +2574,34 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                       FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,6}')),
                     ],
                     decoration: InputDecoration(
-                      hintText: locale.unitPrice,
+                      hintText: "${locale.unitPrice} (${_getBaseCurrency()})",
                       border: InputBorder.none,
                       isDense: true,
                     ),
                     onChanged: (value) {
                       final parsed = double.tryParse(value.replaceAll(',', '')) ?? 0;
                       widget.onPurchasePriceChanged(widget.item.rowId, parsed);
+                      if (!_isEditingLocalAmount) {
+                        _updateLocalAmountFromPurchasePrice();
+                      }
                     },
                     onSubmitted: (_) => focusNext(isWholeSale ? 3 : 2),
                   ),
                 ),
 
-                /// Local Amount (read-only)
-                if (_needsLocalConversion(context))
+                /// Local Amount (editable)
+                if (needsLocalConversion)
                   SizedBox(
                     width: 150,
                     child: TextField(
                       controller: _localAmountController,
+                      focusNode: safeNode(isWholeSale ? 4 : 3),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                      ],
                       decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!.amount,
+                        hintText: "${locale.amount} (${_getAccountCurrency()})",
                         border: InputBorder.none,
                         isDense: true,
                       ),
@@ -2485,6 +2609,8 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w500,
                       ),
+                      onChanged: _onLocalAmountChanged,
+                      onSubmitted: (_) => focusNext(isWholeSale ? 4 : 3),
                     ),
                   ),
 
@@ -2496,7 +2622,11 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                       Expanded(
                         child: TextField(
                           controller: _sellPriceController,
-                          focusNode: safeNode(isWholeSale ? 4 : 3),
+                          focusNode: safeNode(
+                              isWholeSale
+                                  ? (needsLocalConversion ? 5 : 4)
+                                  : (needsLocalConversion ? 4 : 3)
+                          ),
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
@@ -2529,7 +2659,11 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                             if (widget.isLastRow) {
                               _addNewRowAndFocus();
                             } else {
-                              focusNext(isWholeSale ? 4 : 3);
+                              focusNext(
+                                  isWholeSale
+                                      ? (needsLocalConversion ? 5 : 4)
+                                      : (needsLocalConversion ? 4 : 3)
+                              );
                             }
                           },
                         ),
@@ -2573,15 +2707,18 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                 SizedBox(
                   width: 180,
                   child: BlocBuilder<StorageBloc, StorageState>(
-                    // ===== ADD buildWhen for performance =====
                     buildWhen: (previous, current) {
                       if (current is StorageLoadedState && previous is StorageLoadedState) {
-                        return false; // Don't rebuild if already loaded
+                        return false;
                       }
                       return true;
                     },
                     builder: (context, state) {
-                      final storageFocus = safeNode(5);
+                      final storageFocus = safeNode(
+                          isWholeSale
+                              ? (needsLocalConversion ? 6 : 5)
+                              : (needsLocalConversion ? 5 : 4)
+                      );
 
                       if (state is StorageLoadedState &&
                           state.storage.isNotEmpty &&
