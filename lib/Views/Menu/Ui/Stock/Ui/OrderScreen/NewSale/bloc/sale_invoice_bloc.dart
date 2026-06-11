@@ -42,6 +42,31 @@ class SaleInvoiceBloc extends Bloc<SaleInvoiceEvent, SaleInvoiceState> {
     on<UpdateCashCurrencyEvent>(_onUpdateCashCurrency);
     on<LoadSaleInvoiceForEditEvent>(_onLoadSaleInvoiceForEdit);
     on<UpdateRemarkEvent>(_onUpdateRemark);
+    on<UpdateItemLocalAmountEvent>(_onUpdateItemLocalAmount);
+  }
+
+  void _onUpdateItemLocalAmount(UpdateItemLocalAmountEvent event, Emitter<SaleInvoiceState> emit) {
+    if (state is SaleInvoiceLoaded) {
+      final current = state as SaleInvoiceLoaded;
+
+      // Only process if we have a valid exchange rate
+      if (current.safeExchangeRate <= 0) return;
+
+      final updatedItems = current.items.map((item) {
+        if (item.rowId == event.rowId) {
+          // Calculate new sale price from local amount
+          final newSalePrice = event.localAmount / current.safeExchangeRate;
+
+          return item.copyWith(
+            salePrice: newSalePrice,
+            localAmount: event.localAmount,
+          );
+        }
+        return item;
+      }).toList();
+
+      emit(current.copyWith(items: updatedItems));
+    }
   }
 
   void _onUpdateRemark(UpdateRemarkEvent event, Emitter<SaleInvoiceState> emit) {

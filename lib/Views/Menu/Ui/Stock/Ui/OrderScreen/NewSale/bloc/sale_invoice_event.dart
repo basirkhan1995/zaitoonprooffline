@@ -233,6 +233,16 @@ class UpdateCashCurrencyEvent extends SaleInvoiceEvent {
   List<Object?> get props => [currency, exchangeRate];
 }
 
+class UpdateItemLocalAmountEvent extends SaleInvoiceEvent {
+  final String rowId;
+  final double localAmount;
+  const UpdateItemLocalAmountEvent({
+    required this.rowId,
+    required this.localAmount,
+  });
+  @override
+  List<Object?> get props => [rowId, localAmount];
+}
 
 class LoadSaleInvoiceForEditEvent extends SaleInvoiceEvent {
   final dynamic orderId;

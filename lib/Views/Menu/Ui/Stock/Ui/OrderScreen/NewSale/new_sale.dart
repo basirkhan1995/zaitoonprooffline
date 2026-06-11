@@ -375,6 +375,28 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
         shortcuts: shortcuts,
         child: BlocListener<SaleInvoiceBloc, SaleInvoiceState>(
           listener: (context, state) {
+
+            if (state is SaleInvoiceLoaded && state.exchangeRate != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                for (var item in state.items) {
+                  final controller = _localeAmountControllers[item.rowId];
+                  if (controller != null && state.safeExchangeRate > 0) {
+                    // Only update if this field doesn't have focus
+                    final hasFocus = _rowFocusNodes.any((row) =>
+                    row.length > 4 && row[4].hasFocus &&
+                        _localeAmountControllers[item.rowId] == controller
+                    );
+
+                    if (!hasFocus) {
+                      final newLocalAmount = (item.salePrice ?? 0) * state.safeExchangeRate;
+                      if (controller.text != newLocalAmount.toAmount()) {
+                        controller.text = newLocalAmount.toAmount();
+                      }
+                    }
+                  }
+                }
+              });
+            }
             if (state is SaleInvoiceError) {
               ToastManager.show(
                 context: context,
@@ -948,16 +970,17 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     );
   }
 
-  Widget _buildItemRow({
-    required BuildContext context,
-    required SaleInvoiceItem item,
-    required List<FocusNode> nodes,
-    required bool isLastRow,
-    required int index,
-  }) {
+  Widget _buildItemRow({required BuildContext context, required SaleInvoiceItem item, required List<FocusNode> nodes, required bool isLastRow, required int index,}) {
     final visibility = context.read<SettingsVisibleBloc>().state;
     final tr = AppLocalizations.of(context)!;
     final color = Theme.of(context).colorScheme;
+    final needsLocalConv = _needsLocalConversion(context);
+
+    // Flags to prevent recursive updates
+    bool isUpdatingFromLocal = false;
+    bool isUpdatingFromBase = false;
+    bool isLocalEditing = false;
+    Timer? localEditTimer;
 
     final productController = TextEditingController(text: item.productName);
     final headerProductController = TextEditingController(text: item.productName);
@@ -966,26 +989,186 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       item.rowId,
           () => TextEditingController(text: item.qty > 0 ? item.qty.toString() : ''),
     );
+
     final salePriceController = _priceControllers.putIfAbsent(
       "sale_${item.rowId}",
           () => TextEditingController(
         text: item.salePrice != null && item.salePrice! > 0 ? item.salePrice!.toAmount(decimal: 4) : '',
       ),
     );
+
     final discountController = _discountControllers.putIfAbsent(
       "sale_${item.rowId}",
           () => TextEditingController(
         text: item.discount != null && item.discount! > 0 ? item.discount!.toAmount() : '',
       ),
     );
+
     final batchController = _pcsControllers.putIfAbsent(
       "sale_${item.rowId}",
           () => TextEditingController(
         text: item.batch != null && item.batch! > 0 ? item.batch!.toAmount(decimal: 0) : '',
       ),
     );
+
     final unitController = TextEditingController(text: item.unit ?? '');
-    final localAmountController = _getLocalAmountController(item);
+    final localAmountController = _localeAmountControllers.putIfAbsent(
+      item.rowId,
+          () => TextEditingController(),
+    );
+
+    // Get focus nodes
+    final basePriceFocusNode = nodes[2];
+    final discountFocusNode = needsLocalConv && nodes.length > 4 ? nodes[3] : nodes[3];
+    final localAmountFocusNode = needsLocalConv && nodes.length > 4 ? nodes[4] : null;
+
+    // Save cursor positions
+    int lastLocalCursorPosition = 0;
+    int lastBaseCursorPosition = 0;
+
+    // Listen to focus changes to save cursor positions
+    basePriceFocusNode.addListener(() {
+      if (basePriceFocusNode.hasFocus) {
+        lastBaseCursorPosition = salePriceController.selection.baseOffset;
+      }
+    });
+
+    localAmountFocusNode?.addListener(() {
+      if (localAmountFocusNode.hasFocus) {
+        lastLocalCursorPosition = localAmountController.selection.baseOffset;
+      } else {
+        // Clear editing flag when focus is lost
+        isLocalEditing = false;
+        localEditTimer?.cancel();
+      }
+    });
+
+    // Update local amount display when exchange rate changes (only if not editing)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = context.read<SaleInvoiceBloc>().state;
+      if (state is SaleInvoiceLoaded && !isUpdatingFromLocal && !isUpdatingFromBase && !isLocalEditing) {
+        if (state.safeExchangeRate > 0 && (item.salePrice ?? 0) > 0) {
+          final newLocalAmount = (item.salePrice ?? 0) * state.safeExchangeRate;
+          final currentText = localAmountController.text;
+          final newText = newLocalAmount.toAmount();
+
+          if (currentText != newText && newText.isNotEmpty) {
+            final hadFocus = localAmountFocusNode?.hasFocus ?? false;
+            localAmountController.text = newText;
+
+            // Restore cursor position if field had focus
+            if (hadFocus && lastLocalCursorPosition <= newText.length && lastLocalCursorPosition > 0) {
+              localAmountController.selection = TextSelection.collapsed(offset: lastLocalCursorPosition);
+            }
+          }
+        }
+      }
+    });
+
+    void updateSalePrice(double newPrice) {
+      if (isUpdatingFromLocal) return;
+      isUpdatingFromBase = true;
+
+      // Save base price cursor
+      final hadBaseFocus = basePriceFocusNode.hasFocus;
+      final savedBaseCursor = salePriceController.selection.baseOffset;
+
+      context.read<SaleInvoiceBloc>().add(
+        UpdateSaleItemEvent(
+          rowId: item.rowId,
+          salePrice: newPrice,
+        ),
+      );
+
+      // Update local amount after price change
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final state = context.read<SaleInvoiceBloc>().state;
+        if (state is SaleInvoiceLoaded && state.safeExchangeRate > 0 && newPrice > 0) {
+          final updatedLocalAmount = newPrice * state.safeExchangeRate;
+          if (!isLocalEditing && localAmountController.text != updatedLocalAmount.toAmount()) {
+            localAmountController.text = updatedLocalAmount.toAmount();
+          }
+        }
+
+        // Restore base price cursor
+        if (hadBaseFocus && mounted) {
+          final newText = salePriceController.text;
+          if (savedBaseCursor <= newText.length && savedBaseCursor > 0) {
+            salePriceController.selection = TextSelection.collapsed(offset: savedBaseCursor);
+          } else if (newText.isNotEmpty) {
+            salePriceController.selection = TextSelection.collapsed(offset: newText.length);
+          }
+        }
+
+        isUpdatingFromBase = false;
+      });
+    }
+
+    void updateLocalAmount(double newLocalAmount) {
+      if (isUpdatingFromBase) return;
+      if (newLocalAmount <= 0) {
+        // Allow zero or empty
+        if (newLocalAmount == 0) {
+          context.read<SaleInvoiceBloc>().add(
+            UpdateSaleItemEvent(
+              rowId: item.rowId,
+              salePrice: 0,
+            ),
+          );
+          salePriceController.text = '0';
+        }
+        return;
+      }
+
+      // Mark that user is editing
+      isLocalEditing = true;
+      localEditTimer?.cancel();
+      localEditTimer = Timer(const Duration(milliseconds: 800), () {
+        isLocalEditing = false;
+      });
+
+      isUpdatingFromLocal = true;
+
+      // Save cursor position
+      final savedCursorPos = localAmountController.selection.baseOffset;
+
+      final state = context.read<SaleInvoiceBloc>().state;
+      if (state is SaleInvoiceLoaded && state.safeExchangeRate > 0) {
+        final newSalePrice = newLocalAmount / state.safeExchangeRate;
+
+        // Update sale price controller immediately
+        final newSalePriceText = newSalePrice.toAmount(decimal: 4);
+        if (salePriceController.text != newSalePriceText) {
+          salePriceController.text = newSalePriceText;
+
+          // Restore base price cursor if it had focus
+          if (basePriceFocusNode.hasFocus && lastBaseCursorPosition <= newSalePriceText.length) {
+            salePriceController.selection = TextSelection.collapsed(offset: lastBaseCursorPosition);
+          }
+        }
+
+        // Send BLoC event
+        context.read<SaleInvoiceBloc>().add(
+          UpdateSaleItemEvent(
+            rowId: item.rowId,
+            salePrice: newSalePrice,
+          ),
+        );
+      }
+
+      // Restore local amount cursor position after rebuild
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (localAmountFocusNode?.hasFocus == true && mounted) {
+          final newText = localAmountController.text;
+          if (savedCursorPos <= newText.length && savedCursorPos > 0) {
+            localAmountController.selection = TextSelection.collapsed(offset: savedCursorPos);
+          } else if (newText.isNotEmpty) {
+            localAmountController.selection = TextSelection.collapsed(offset: newText.length);
+          }
+        }
+        isUpdatingFromLocal = false;
+      });
+    }
 
     void addProduct(ProductsStockModel product) {
       if (!mounted) return;
@@ -1022,7 +1205,13 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       }
 
       salePriceController.text = salePrice.toAmount(decimal: 4);
-      _updateLocalAmountText(item, localAmountController);
+
+      // Update local amount based on exchange rate
+      final state = context.read<SaleInvoiceBloc>().state;
+      if (state is SaleInvoiceLoaded && state.safeExchangeRate > 0 && salePrice > 0) {
+        final localAmount = salePrice * state.safeExchangeRate;
+        localAmountController.text = localAmount.toAmount();
+      }
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (nodes.length > 1 && nodes[1].canRequestFocus) {
@@ -1081,7 +1270,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                       headerProductController.clear();
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (nodes.length > 1 && nodes[1].canRequestFocus) {
-                          nodes[1].requestFocus(); // Focus quantity field
+                          nodes[1].requestFocus();
                         }
                       });
                       return KeyEventResult.handled;
@@ -1152,7 +1341,6 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                             ],
                           ),
                         ),
-
                         Padding(
                           padding: const EdgeInsets.all(20),
                           child: Column(
@@ -1247,9 +1435,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                   ),
                                 ),
                               ),
-
                               const SizedBox(height: 16),
-
                               // Warning message
                               Container(
                                 padding: const EdgeInsets.all(10),
@@ -1281,9 +1467,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                   ],
                                 ),
                               ),
-
                               const SizedBox(height: 20),
-
                               // Action buttons
                               Row(
                                 children: [
@@ -1302,7 +1486,6 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                           });
                                         });
                                       },
-
                                       label: Text(
                                         tr.cancel.toUpperCase(),
                                         style: TextStyle(
@@ -1350,6 +1533,32 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       addProduct(product);
     }
 
+    // Handle focus navigation
+    void onBasePriceSubmitted() {
+      if (needsLocalConv && localAmountFocusNode != null) {
+        // Focus local amount field if it exists
+        localAmountFocusNode.requestFocus();
+      } else {
+        // Focus discount field
+        discountFocusNode.requestFocus();
+      }
+    }
+
+    void onLocalAmountSubmitted() {
+      // Move to discount field
+      discountFocusNode.requestFocus();
+    }
+
+    void onDiscountSubmitted() {
+      if (isLastRow) {
+        _addNewRowAndFocus();
+      } else {
+        if (index + 1 < _rowFocusNodes.length && _rowFocusNodes[index + 1].isNotEmpty) {
+          _rowFocusNodes[index + 1][0].requestFocus();
+        }
+      }
+    }
+
     return Column(
       children: [
         Container(
@@ -1359,13 +1568,15 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
           ),
           child: Row(
             children: [
+              // Row number
               SizedBox(width: 50, child: Text((index + 1).toString(), textAlign: TextAlign.center)),
+
+              // Product field
               Expanded(
                 child: ProductSearchField<ProductsStockModel, ProductsBloc, ProductsState>(
                   controller: productController,
                   headerSearchController: headerProductController,
                   hintText: tr.products,
-
                   focusNode: nodes[0],
                   bloc: context.read<ProductsBloc>(),
                   searchFunction: (bloc, query) => bloc.add(LoadProductsStockEvent(input: query)),
@@ -1400,6 +1611,8 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                   showAllOnFocus: true,
                 ),
               ),
+
+              // Quantity field
               SizedBox(
                 width: 80,
                 child: TextField(
@@ -1411,20 +1624,23 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                   onChanged: (value) {
                     final qty = int.tryParse(value) ?? 0;
                     context.read<SaleInvoiceBloc>().add(UpdateSaleItemEvent(rowId: item.rowId, qty: qty));
-                    _updateLocalAmountText(item, localAmountController);
                   },
-                  onSubmitted: (_) => nodes[2].requestFocus(),
+                  onSubmitted: (_) => basePriceFocusNode.requestFocus(),
                 ),
               ),
+
+              // Batch field
               if(visibility.isWholeSale)
-              SizedBox(
-                width: 100,
-                child: TextField(
-                  controller: batchController,
-                  readOnly: true,
-                  decoration: InputDecoration(hintText: tr.batchTitle, border: InputBorder.none, isDense: true),
+                SizedBox(
+                  width: 100,
+                  child: TextField(
+                    controller: batchController,
+                    readOnly: true,
+                    decoration: InputDecoration(hintText: tr.batchTitle, border: InputBorder.none, isDense: true),
+                  ),
                 ),
-              ),
+
+              // Unit field
               SizedBox(
                 width: 100,
                 child: TextField(
@@ -1433,28 +1649,26 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                   decoration: InputDecoration(hintText: tr.unit, border: InputBorder.none, isDense: true),
                 ),
               ),
+
+              // Base Price field (editable)
               SizedBox(
                 width: 130,
                 child: TextField(
                   controller: salePriceController,
-                  focusNode: nodes[2],
+                  focusNode: basePriceFocusNode,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
                   decoration: InputDecoration(hintText: tr.unitPrice, border: InputBorder.none, isDense: true),
                   onChanged: (value) {
                     final price = double.tryParse(value) ?? 0;
-                    context.read<SaleInvoiceBloc>().add(UpdateSaleItemEvent(rowId: item.rowId, salePrice: price));
-                    _updateLocalAmountText(item, localAmountController);
+                    updateSalePrice(price);
                   },
-                  onSubmitted: (_) {
-                    // IMPORTANT: Focus the discount field next, not the next row
-                    if (nodes.length > 3) {
-                      nodes[3].requestFocus(); // Focus discount field
-                    }
-                  },
+                  onSubmitted: (_) => onBasePriceSubmitted(),
                 ),
               ),
-              if (_needsLocalConversion(context))
+
+              // Local Amount field (editable - bidirectional)
+              if (needsLocalConv)
                 SizedBox(
                   width: 130,
                   child: BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
@@ -1470,19 +1684,30 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                       }
                       return TextField(
                         controller: localAmountController,
-                        readOnly: true,
+                        focusNode: localAmountFocusNode,
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
                         decoration: InputDecoration(
                           hintText: tr.localAmount,
                           border: InputBorder.none,
                           isDense: true,
                         ),
                         style: TextStyle(color: color.primary, fontWeight: FontWeight.w500),
+                        onChanged: (value) {
+                          if (value.isEmpty) {
+                            updateLocalAmount(0);
+                            return;
+                          }
+                          final localAmount = double.tryParse(value) ?? 0;
+                          updateLocalAmount(localAmount);
+                        },
+                        onSubmitted: (_) => onLocalAmountSubmitted(),
                       );
                     },
                   ),
                 ),
 
-              ///Discount Field
+              // Discount field
               SizedBox(
                 width: 140,
                 child: Row(
@@ -1490,7 +1715,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                     Expanded(
                       child: TextField(
                         controller: discountController,
-                        focusNode: nodes[3],
+                        focusNode: discountFocusNode,
                         keyboardType: TextInputType.numberWithOptions(decimal: true),
                         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
                         decoration: InputDecoration(
@@ -1502,16 +1727,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                           final discount = double.tryParse(value) ?? 0;
                           context.read<SaleInvoiceBloc>().add(UpdateItemDiscountValueEvent(rowId: item.rowId, discountValue: discount));
                         },
-
-                        onSubmitted: (_) {
-                          if (isLastRow) {
-                            _addNewRowAndFocus();
-                          } else {
-                            if (index + 1 < _rowFocusNodes.length && _rowFocusNodes[index + 1].isNotEmpty) {
-                              _rowFocusNodes[index + 1][0].requestFocus();
-                            }
-                          }
-                        },
+                        onSubmitted: (_) => onDiscountSubmitted(),
                       ),
                     ),
                     IconButton(
@@ -1525,7 +1741,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                 ),
               ),
 
-
+              // Total field
               SizedBox(
                 width: 140,
                 child: Column(
@@ -1540,6 +1756,8 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                   ],
                 ),
               ),
+
+              // Delete button
               SizedBox(
                 width: 67,
                 child: IconButton(
@@ -1576,6 +1794,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       ],
     );
   }
+
   bool _needsLocalConversion(BuildContext context) {
     final state = context.read<SaleInvoiceBloc>().state;
     if (state is SaleInvoiceLoaded && state.customerAccount != null) {
@@ -1587,39 +1806,6 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       }
     }
     return false;
-  }
-
-  String _getLocalAmountText(SaleInvoiceItem item) {
-    final state = context.read<SaleInvoiceBloc>().state;
-    if (state is SaleInvoiceLoaded) {
-      if (state.isExchangeRateLoading) return AppLocalizations.of(context)!.loading;
-      final rate = state.safeExchangeRate;
-      if (rate > 0) {
-        // Use the item's singleLocalAmount which accounts for unit price * exchange rate
-        final localAmount = item.singleLocalAmount;
-        if (localAmount > 0) return localAmount.toAmount();
-      }
-    }
-    return '';
-  }
-
-  TextEditingController _getLocalAmountController(SaleInvoiceItem item) {
-    final controller = _localeAmountControllers.putIfAbsent(
-      item.rowId,
-          () => TextEditingController(),
-    );
-    final newText = _getLocalAmountText(item);
-    if (controller.text != newText) {
-      controller.text = newText;
-    }
-    return controller;
-  }
-
-  void _updateLocalAmountText(SaleInvoiceItem item, TextEditingController controller) {
-    final newText = _getLocalAmountText(item);
-    if (controller.text != newText) {
-      controller.text = newText;
-    }
   }
 
   void _addNewRowAndFocus() {
@@ -1638,14 +1824,29 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
   }
 
   void _synchronizeFocusNodes(int itemCount) {
+    final needsLocalConv = _needsLocalConversion(context);
+
     while (_rowFocusNodes.length < itemCount) {
-      _rowFocusNodes.add([
-        FocusNode(),
-        FocusNode(),
-        FocusNode(),
-        FocusNode(),
-      ]);
+      if (needsLocalConv) {
+        // 5 focus nodes: product, qty, unitPrice, discount, localAmount
+        _rowFocusNodes.add([
+          FocusNode(),
+          FocusNode(),
+          FocusNode(),
+          FocusNode(),
+          FocusNode(),
+        ]);
+      } else {
+        // 4 focus nodes: product, qty, unitPrice, discount
+        _rowFocusNodes.add([
+          FocusNode(),
+          FocusNode(),
+          FocusNode(),
+          FocusNode(),
+        ]);
+      }
     }
+
     while (_rowFocusNodes.length > itemCount) {
       final removed = _rowFocusNodes.removeLast();
       for (final node in removed) {
