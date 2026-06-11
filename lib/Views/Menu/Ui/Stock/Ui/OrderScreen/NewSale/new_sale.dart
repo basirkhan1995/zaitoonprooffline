@@ -102,20 +102,20 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       ordId = saleState.orderId;
     }
     showDialog(
-      context: context,
-      builder: (context) => ZAlertDialog(
-          title: tr.areYouSure,
-          content: tr.deleteMessage,
-          onYes: (){
-            context.read<OrdersBloc>().add(
-              DeleteOrderEvent(
-                orderId: ordId!,
-                usrName: _userName??"",
-                ref: ref,
-                orderName: 'Sale',
-              ),
-            );
-          })
+        context: context,
+        builder: (context) => ZAlertDialog(
+            title: tr.areYouSure,
+            content: tr.deleteMessage,
+            onYes: (){
+              context.read<OrdersBloc>().add(
+                DeleteOrderEvent(
+                  orderId: ordId!,
+                  usrName: _userName??"",
+                  ref: ref,
+                  orderName: 'Sale',
+                ),
+              );
+            })
     );
   }
 
@@ -378,20 +378,13 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
 
             if (state is SaleInvoiceLoaded && state.exchangeRate != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                // Update all local amount controllers when exchange rate changes
                 for (var item in state.items) {
                   final controller = _localeAmountControllers[item.rowId];
                   if (controller != null && state.safeExchangeRate > 0) {
-                    // Only update if this field doesn't have focus
-                    final hasFocus = _rowFocusNodes.any((row) =>
-                    row.length > 4 && row[4].hasFocus &&
-                        _localeAmountControllers[item.rowId] == controller
-                    );
-
-                    if (!hasFocus) {
-                      final newLocalAmount = (item.salePrice ?? 0) * state.safeExchangeRate;
-                      if (controller.text != newLocalAmount.toAmount()) {
-                        controller.text = newLocalAmount.toAmount();
-                      }
+                    final newLocalAmount = (item.salePrice ?? 0) * state.safeExchangeRate;
+                    if (controller.text != newLocalAmount.toAmount()) {
+                      controller.text = newLocalAmount.toAmount();
                     }
                   }
                 }
@@ -592,113 +585,164 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                 child: Padding(
                   padding: const EdgeInsets.all(0.0),
                   child: BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
-                    builder: (context,state) {
-                      // Check if we're in loading state
-                      final isLoading = state is SaleInvoiceLoading ||
-                          (state is SaleInvoiceLoaded && state.items.isEmpty && state.customer == null && _isEditMode);
+                      builder: (context,state) {
+                        // Check if we're in loading state
+                        final isLoading = state is SaleInvoiceLoading ||
+                            (state is SaleInvoiceLoaded && state.items.isEmpty && state.customer == null && _isEditMode);
 
-                      if (isLoading) {
-                        // Show full shimmer while loading
-                        return UniversalShimmer.invoiceLoading();
-                      }
-                      if(state is SaleInvoiceLoaded || state is SaleInvoiceSaving){
-                        final current = state is SaleInvoiceSaving ? state : (state as SaleInvoiceLoaded);
-                        _synchronizeFocusNodes(current.items.length);
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Customer and Account Selection
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Expanded(
-                                  child: GenericTextField<IndividualsModel, IndividualsBloc, IndividualsState>(
-                                    key: const ValueKey('person_field'),
-                                    focusNode: _customerFocusNode,
-                                    controller: _personController,
-                                    title: tr.customer,
-                                    hintText: tr.customer,
-                                    isRequired: true,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return tr.required(tr.customer);
-                                      }
-                                      return null;
-                                    },
-                                    bloc: context.read<IndividualsBloc>(),
-                                    fetchAllFunction: (bloc) => bloc.add(const LoadIndividualsEvent()),
-                                    searchFunction: (bloc, query) => bloc.add(LoadIndividualsEvent(search: query)),
-                                    itemBuilder: (context, ind) => Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Text("${ind.perName ?? ''} ${ind.perLastName ?? ''}",style: Theme.of(context).textTheme.titleSmall,),
+                        if (isLoading) {
+                          // Show full shimmer while loading
+                          return UniversalShimmer.invoiceLoading();
+                        }
+                        if(state is SaleInvoiceLoaded || state is SaleInvoiceSaving){
+                          final current = state is SaleInvoiceSaving ? state : (state as SaleInvoiceLoaded);
+                          _synchronizeFocusNodes(current.items.length);
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Customer and Account Selection
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: GenericTextField<IndividualsModel, IndividualsBloc, IndividualsState>(
+                                      key: const ValueKey('person_field'),
+                                      focusNode: _customerFocusNode,
+                                      controller: _personController,
+                                      title: tr.customer,
+                                      hintText: tr.customer,
+                                      isRequired: true,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return tr.required(tr.customer);
+                                        }
+                                        return null;
+                                      },
+                                      bloc: context.read<IndividualsBloc>(),
+                                      fetchAllFunction: (bloc) => bloc.add(const LoadIndividualsEvent()),
+                                      searchFunction: (bloc, query) => bloc.add(LoadIndividualsEvent(search: query)),
+                                      itemBuilder: (context, ind) => Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Text("${ind.perName ?? ''} ${ind.perLastName ?? ''}",style: Theme.of(context).textTheme.titleSmall,),
+                                      ),
+                                      itemToString: (individual) => "${individual.perName} ${individual.perLastName}",
+                                      stateToLoading: (state) => state is IndividualLoadingState,
+                                      stateToItems: (state) {
+                                        if (state is IndividualLoadedState) {
+                                          return state.individuals;
+                                        }
+                                        return [];
+                                      },
+                                      onSelected: (value) {
+                                        _personController.text = "${value.perName} ${value.perLastName}";
+                                        context.read<SaleInvoiceBloc>().add(SelectCustomerEvent(value));
+                                        context.read<AccountsBloc>().add(LoadAccountsEvent(ownerId: value.perId));
+                                        setState(() {
+                                          signatory = value.perId;
+                                          company.partyAddress = value.addName;
+                                          company.partyPhone = value.perPhone;
+                                          company.partyCity = value.addCity;
+                                          company.partyProvince = value.addProvince;
+                                        });
+                                      },
+                                      showClearButton: true,
                                     ),
-                                    itemToString: (individual) => "${individual.perName} ${individual.perLastName}",
-                                    stateToLoading: (state) => state is IndividualLoadingState,
-                                    stateToItems: (state) {
-                                      if (state is IndividualLoadedState) {
-                                        return state.individuals;
-                                      }
-                                      return [];
-                                    },
-                                    onSelected: (value) {
-                                      _personController.text = "${value.perName} ${value.perLastName}";
-                                      context.read<SaleInvoiceBloc>().add(SelectCustomerEvent(value));
-                                      context.read<AccountsBloc>().add(LoadAccountsEvent(ownerId: value.perId));
-                                      setState(() {
-                                        signatory = value.perId;
-                                        company.partyAddress = value.addName;
-                                        company.partyPhone = value.perPhone;
-                                        company.partyCity = value.addCity;
-                                        company.partyProvince = value.addProvince;
-                                      });
-                                    },
-                                    showClearButton: true,
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
-                                    builder: (context, state) {
-                                      if (state is SaleInvoiceLoaded) {
-                                        final current = state;
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
+                                      builder: (context, state) {
+                                        if (state is SaleInvoiceLoaded) {
+                                          final current = state;
+                                          return GenericTextField<AccountsModel, AccountsBloc, AccountsState>(
+                                            key: const ValueKey('account_field'),
+                                            focusNode: _accountFocusNode,
+                                            controller: _accountController,
+                                            title: tr.accounts,
+                                            hintText: tr.selectAccount,
+                                            isRequired: current.paymentMode != PaymentMode.cash,
+                                            validator: (value) {
+                                              if (current.paymentMode != PaymentMode.cash && (value == null || value.isEmpty)) {
+                                                return tr.selectCreditAccountMsg;
+                                              }
+                                              return null;
+                                            },
+                                            bloc: context.read<AccountsBloc>(),
+                                            fetchAllFunction: (bloc) => bloc.add(LoadAccountsEvent(ownerId: signatory)),
+                                            searchFunction: (bloc, query) => bloc.add(LoadAccountsEvent(ownerId: signatory)),
+                                            itemBuilder: (context, account) => ListTile(
+                                              visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
+                                              contentPadding: const EdgeInsets.symmetric(horizontal: 5),
+                                              title: Text(account.accName ?? ''),
+                                              subtitle: Text('${account.accNumber}'),
+                                              trailing: Column(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    tr.balance,
+                                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                                      color: Theme.of(context).colorScheme.outline,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "${account.accAvailBalance?.toAmount() ?? "0.0"} ${account.actCurrency}",
+                                                    style: Theme.of(context).textTheme.titleSmall,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            itemToString: (account) => '${account.accName} (${account.accNumber})',
+                                            stateToLoading: (state) => state is AccountLoadingState,
+                                            stateToItems: (state) {
+                                              if (state is AccountLoadedState) {
+                                                return state.accounts;
+                                              }
+                                              return [];
+                                            },
+                                            onSelected: (value) {
+                                              setState(() {
+                                                _accountController.text = '${value.accName} (${value.accNumber})';
+                                                _selectedAccountNumber = value.accNumber;
+                                              });
+                                              context.read<SaleInvoiceBloc>().add(SelectCustomerAccountEvent(value));
+                                              final authState = context.read<AuthBloc>().state;
+                                              if (authState is AuthenticatedState) {
+                                                final baseCurr = authState.loginData.company?.comLocalCcy ?? '';
+                                                final accountCurrency = value.actCurrency ?? '';
+
+                                                if (baseCurr.isNotEmpty && accountCurrency.isNotEmpty && baseCurr != accountCurrency) {
+                                                  _fetchExchangeRate(baseCurr, accountCurrency);
+                                                } else {
+                                                  context.read<SaleInvoiceBloc>().add(
+                                                    UpdateExchangeRateEvent(
+                                                      rate: 1.0,
+                                                      fromCurrency: baseCurr,
+                                                      toCurrency: accountCurrency,
+                                                    ),
+                                                  );
+                                                  _exchangeRateController.text = "1.0000";
+                                                }
+                                              }
+                                            },
+                                            showClearButton: true,
+                                          );
+                                        }
                                         return GenericTextField<AccountsModel, AccountsBloc, AccountsState>(
                                           key: const ValueKey('account_field'),
-                                          focusNode: _accountFocusNode,
                                           controller: _accountController,
+                                          focusNode: _accountFocusNode,
                                           title: tr.accounts,
                                           hintText: tr.selectAccount,
-                                          isRequired: current.paymentMode != PaymentMode.cash,
-                                          validator: (value) {
-                                            if (current.paymentMode != PaymentMode.cash && (value == null || value.isEmpty)) {
-                                              return tr.selectCreditAccountMsg;
-                                            }
-                                            return null;
-                                          },
+                                          isRequired: false,
                                           bloc: context.read<AccountsBloc>(),
-                                          fetchAllFunction: (bloc) => bloc.add(LoadAccountsEvent(ownerId: signatory)),
-                                          searchFunction: (bloc, query) => bloc.add(LoadAccountsEvent(ownerId: signatory)),
+                                          fetchAllFunction: (bloc) => bloc.add(LoadAccountsFilterEvent(include: '8', exclude: '')),
+                                          searchFunction: (bloc, query) => bloc.add(LoadAccountsFilterEvent(input: query, include: '8', exclude: '')),
                                           itemBuilder: (context, account) => ListTile(
-                                            visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
-                                            contentPadding: const EdgeInsets.symmetric(horizontal: 5),
                                             title: Text(account.accName ?? ''),
-                                            subtitle: Text('${account.accNumber}'),
-                                            trailing: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  tr.balance,
-                                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                                    color: Theme.of(context).colorScheme.outline,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  "${account.accAvailBalance?.toAmount() ?? "0.0"} ${account.actCurrency}",
-                                                  style: Theme.of(context).textTheme.titleSmall,
-                                                ),
-                                              ],
-                                            ),
+                                            subtitle: Text('${account.accNumber} - ${tr.balance}: ${account.accAvailBalance?.toAmount() ?? "0.0"}'),
+                                            trailing: Text(account.actCurrency ?? ""),
                                           ),
                                           itemToString: (account) => '${account.accName} (${account.accNumber})',
                                           stateToLoading: (state) => state is AccountLoadingState,
@@ -713,7 +757,9 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                               _accountController.text = '${value.accName} (${value.accNumber})';
                                               _selectedAccountNumber = value.accNumber;
                                             });
+
                                             context.read<SaleInvoiceBloc>().add(SelectCustomerAccountEvent(value));
+
                                             final authState = context.read<AuthBloc>().state;
                                             if (authState is AuthenticatedState) {
                                               final baseCurr = authState.loginData.company?.comLocalCcy ?? '';
@@ -735,162 +781,109 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                           },
                                           showClearButton: true,
                                         );
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+
+                                  BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
+                                    builder: (context, state) {
+                                      // Check condition INSIDE the builder
+                                      bool shouldShowExchangeRate = false;
+                                      if (state is SaleInvoiceLoaded) {
+                                        final base = baseCurrency ?? state.fromCurrency ?? '';
+                                        final toCcy = state.toCurrency ?? '';
+                                        shouldShowExchangeRate = base.isNotEmpty && toCcy.isNotEmpty && base != toCcy;
                                       }
-                                      return GenericTextField<AccountsModel, AccountsBloc, AccountsState>(
-                                        key: const ValueKey('account_field'),
-                                        controller: _accountController,
-                                        focusNode: _accountFocusNode,
-                                        title: tr.accounts,
-                                        hintText: tr.selectAccount,
-                                        isRequired: false,
-                                        bloc: context.read<AccountsBloc>(),
-                                        fetchAllFunction: (bloc) => bloc.add(LoadAccountsFilterEvent(include: '8', exclude: '')),
-                                        searchFunction: (bloc, query) => bloc.add(LoadAccountsFilterEvent(input: query, include: '8', exclude: '')),
-                                        itemBuilder: (context, account) => ListTile(
-                                          title: Text(account.accName ?? ''),
-                                          subtitle: Text('${account.accNumber} - ${tr.balance}: ${account.accAvailBalance?.toAmount() ?? "0.0"}'),
-                                          trailing: Text(account.actCurrency ?? ""),
-                                        ),
-                                        itemToString: (account) => '${account.accName} (${account.accNumber})',
-                                        stateToLoading: (state) => state is AccountLoadingState,
-                                        stateToItems: (state) {
-                                          if (state is AccountLoadedState) {
-                                            return state.accounts;
-                                          }
-                                          return [];
-                                        },
-                                        onSelected: (value) {
-                                          setState(() {
-                                            _accountController.text = '${value.accName} (${value.accNumber})';
-                                            _selectedAccountNumber = value.accNumber;
-                                          });
 
-                                          context.read<SaleInvoiceBloc>().add(SelectCustomerAccountEvent(value));
-
-                                          final authState = context.read<AuthBloc>().state;
-                                          if (authState is AuthenticatedState) {
-                                            final baseCurr = authState.loginData.company?.comLocalCcy ?? '';
-                                            final accountCurrency = value.actCurrency ?? '';
-
-                                            if (baseCurr.isNotEmpty && accountCurrency.isNotEmpty && baseCurr != accountCurrency) {
-                                              _fetchExchangeRate(baseCurr, accountCurrency);
-                                            } else {
-                                              context.read<SaleInvoiceBloc>().add(
-                                                UpdateExchangeRateEvent(
-                                                  rate: 1.0,
-                                                  fromCurrency: baseCurr,
-                                                  toCurrency: accountCurrency,
-                                                ),
-                                              );
-                                              _exchangeRateController.text = "1.0000";
-                                            }
-                                          }
-                                        },
-                                        showClearButton: true,
-                                      );
+                                      if (shouldShowExchangeRate && state is SaleInvoiceLoaded && state.needsExchangeRate) {
+                                        final isLoading = state.isExchangeRateLoading;
+                                        return Expanded(
+                                          child: ZTextFieldEntitled(
+                                            controller: _exchangeRateController,
+                                            isRequired: true,
+                                            showClearButton: true,
+                                            title: tr.exchangeRate,
+                                            hint: isLoading ? tr.loading : tr.exchangeRate,
+                                            isEnabled: !isLoading,
+                                            validator: (value){
+                                              if(value.isEmpty){
+                                                return tr.required(tr.exchangeRate);
+                                              }
+                                              return null;
+                                            },
+                                            compactMode: true,
+                                            onChanged: _onExchangeRateChanged,
+                                            onSubmit: _onExchangeRateChanged,
+                                            trailing: isLoading ? Container(
+                                              padding: EdgeInsets.all(2),
+                                              width: 18,
+                                              height: 18,
+                                              child: CircularProgressIndicator(strokeWidth: 2),
+                                            ) : null,
+                                            inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,6}'))],
+                                          ),
+                                        );
+                                      }
+                                      return const SizedBox();
                                     },
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-
-                                BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
-                                  builder: (context, state) {
-                                    // Check condition INSIDE the builder
-                                    bool shouldShowExchangeRate = false;
-                                    if (state is SaleInvoiceLoaded) {
-                                      final base = baseCurrency ?? state.fromCurrency ?? '';
-                                      final toCcy = state.toCurrency ?? '';
-                                      shouldShowExchangeRate = base.isNotEmpty && toCcy.isNotEmpty && base != toCcy;
-                                    }
-
-                                    if (shouldShowExchangeRate && state is SaleInvoiceLoaded && state.needsExchangeRate) {
-                                      final isLoading = state.isExchangeRateLoading;
-                                      return Expanded(
-                                        child: ZTextFieldEntitled(
-                                          controller: _exchangeRateController,
-                                          isRequired: true,
-                                          showClearButton: true,
-                                          title: tr.exchangeRate,
-                                          hint: isLoading ? tr.loading : tr.exchangeRate,
-                                          isEnabled: !isLoading,
-                                          validator: (value){
-                                            if(value.isEmpty){
-                                              return tr.required(tr.exchangeRate);
-                                            }
-                                            return null;
-                                          },
-                                          compactMode: true,
-                                          onChanged: _onExchangeRateChanged,
-                                          onSubmit: _onExchangeRateChanged,
-                                          trailing: isLoading ? Container(
-                                            padding: EdgeInsets.all(2),
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(strokeWidth: 2),
-                                          ) : null,
-                                          inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,6}'))],
-                                        ),
-                                      );
-                                    }
-                                    return const SizedBox();
-                                  },
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  flex: 2,
-                                  child: ZTextFieldEntitled(
-                                    showClearButton: true,
-                                    controller: _remarkController,
-                                    maxLength: 100,
-                                    title: tr.remark,
-                                    onChanged: _onRemarkChanged
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    flex: 2,
+                                    child: ZTextFieldEntitled(
+                                        showClearButton: true,
+                                        controller: _remarkController,
+                                        maxLength: 100,
+                                        title: tr.remark,
+                                        onChanged: _onRemarkChanged
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
 
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
 
-                            BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
-                              builder: (context, state) {
-                                return _buildItemsHeader(context);
-                              },
-                            ),
-                            const SizedBox(height: 8),
-
-                            Expanded(
-                              child: BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
+                              BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
                                 builder: (context, state) {
-                                  if (state is SaleInvoiceLoaded || state is SaleInvoiceSaving) {
-                                    final current = state is SaleInvoiceSaving ? state : (state as SaleInvoiceLoaded);
-                                    _synchronizeFocusNodes(current.items.length);
-                                    return ListView.builder(
-                                      itemCount: current.items.length,
-                                      itemBuilder: (context, index) {
-                                        final item = current.items[index];
-                                        final isLastRow = index == current.items.length - 1;
-                                        final nodes = _rowFocusNodes[index];
-                                        return _buildItemRow(
-                                          item: item,
-                                          nodes: nodes,
-                                          isLastRow: isLastRow,
-                                          index: index,
-                                          context: context,
-                                        );
-                                      },
-                                    );
-                                  }
-                                  return const Center(child: CircularProgressIndicator());
+                                  return _buildItemsHeader(context);
                                 },
                               ),
-                            ),
+                              const SizedBox(height: 8),
 
-                            _buildSummarySection(context),
-                          ],
-                        );
+                              Expanded(
+                                child: BlocBuilder<SaleInvoiceBloc, SaleInvoiceState>(
+                                  builder: (context, state) {
+                                    if (state is SaleInvoiceLoaded || state is SaleInvoiceSaving) {
+                                      final current = state is SaleInvoiceSaving ? state : (state as SaleInvoiceLoaded);
+                                      _synchronizeFocusNodes(current.items.length);
+                                      return ListView.builder(
+                                        itemCount: current.items.length,
+                                        itemBuilder: (context, index) {
+                                          final item = current.items[index];
+                                          final isLastRow = index == current.items.length - 1;
+                                          final nodes = _rowFocusNodes[index];
+                                          return _buildItemRow(
+                                            item: item,
+                                            nodes: nodes,
+                                            isLastRow: isLastRow,
+                                            index: index,
+                                            context: context,
+                                          );
+                                        },
+                                      );
+                                    }
+                                    return const Center(child: CircularProgressIndicator());
+                                  },
+                                ),
+                              ),
+
+                              _buildSummarySection(context),
+                            ],
+                          );
+                        }
+                        return const SizedBox();
                       }
-                      return const SizedBox();
-                    }
                   ),
                 ),
               ),
@@ -953,18 +946,18 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       ),
       child: Row(
         children: [
-           const SizedBox(width: 30, child: Text('#', textAlign: TextAlign.center)),
+          const SizedBox(width: 30, child: Text('#', textAlign: TextAlign.center)),
           Expanded(child: Text(locale.products, style: title)),
-            SizedBox(width: 80, child: Text(locale.qty)),
-            if(visibility.isWholeSale)
+          SizedBox(width: 80, child: Text(locale.qty)),
+          if(visibility.isWholeSale)
             SizedBox(width: 100, child: Text(locale.batchTitle)),
-            SizedBox(width: 100, child: Text(locale.unit)),
+          SizedBox(width: 100, child: Text(locale.unit)),
           SizedBox(width: 130, child: Text("${locale.unitPrice} ($baseCurrency)")),
           if (needsLocalConv)
             SizedBox(width: 130, child: Text("${locale.unitPrice} (${_getAccountCurrency(context)})")),
-            SizedBox(width: 140, child: Text(locale.discountTitle)),
+          SizedBox(width: 140, child: Text(locale.discountTitle)),
           SizedBox(width: 140, child: Text("${locale.totalTitle} ($baseCurrency)")),
-            SizedBox(width: 60, child: Text(locale.actions)),
+          SizedBox(width: 60, child: Text(locale.actions)),
         ].map((child) => DefaultTextStyle(style: title!, child: child)).toList(),
       ),
     );
@@ -979,7 +972,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     // Flags to prevent recursive updates
     bool isUpdatingFromLocal = false;
     bool isUpdatingFromBase = false;
-    bool isLocalEditing = false;
+    bool isLocalEditing = false; // Track if user is actively editing local amount
     Timer? localEditTimer;
 
     final productController = TextEditingController(text: item.productName);
@@ -1794,7 +1787,6 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       ],
     );
   }
-
   bool _needsLocalConversion(BuildContext context) {
     final state = context.read<SaleInvoiceBloc>().state;
     if (state is SaleInvoiceLoaded && state.customerAccount != null) {
@@ -2049,7 +2041,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Row(
-                                  spacing: 8,
+                                spacing: 8,
                                 children: [
                                   Icon(Icons.payment_rounded),
                                   Text(tr.paymentDetails.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -2074,12 +2066,12 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
 
                           if (current.paymentMode == PaymentMode.cash) ...[
                             AmountDisplay(
-                                title: tr.cashReceipt,
-                                baseAmount: current.cashPayment,
-                                baseCurrency: baseCurr,
-                                convertedAmount: (current.cashCurrency != null && current.cashCurrency!.isNotEmpty && current.cashCurrency != baseCurr)?
-                                current.cashPayment * current.cashExchangeRate : null,
-                                convertedCurrency: current.cashCurrency,
+                              title: tr.cashReceipt,
+                              baseAmount: current.cashPayment,
+                              baseCurrency: baseCurr,
+                              convertedAmount: (current.cashCurrency != null && current.cashCurrency!.isNotEmpty && current.cashCurrency != baseCurr)?
+                              current.cashPayment * current.cashExchangeRate : null,
+                              convertedCurrency: current.cashCurrency,
                             ),
 
                           ]
@@ -2107,19 +2099,19 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                 baseColor: Colors.green.withValues(alpha: .9),
                               ),
 
-                                Divider(),
-                                AmountDisplay(
-                                  title: tr.accountReceivable,
-                                  baseAmount: current.creditAmount,
-                                  baseCurrency: baseCurr,
-                                  convertedAmount: (needsConversion && !isLoading) ? current.creditAmountLocal : null,
-                                  convertedCurrency: current.toCurrency,
-                                  fontSize: 16,
-                                  baseColor: Colors.green.withValues(alpha: .9),
-                                ),
+                              Divider(),
+                              AmountDisplay(
+                                title: tr.accountReceivable,
+                                baseAmount: current.creditAmount,
+                                baseCurrency: baseCurr,
+                                convertedAmount: (needsConversion && !isLoading) ? current.creditAmountLocal : null,
+                                convertedCurrency: current.toCurrency,
+                                fontSize: 16,
+                                baseColor: Colors.green.withValues(alpha: .9),
+                              ),
 
 
-                          ],
+                            ],
 
                           if (visibility.benefit && current.totalPurchaseCost > 0 && login.hasPermission(8) == true) ...[
                             const SizedBox(height: 8),
@@ -2174,14 +2166,14 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                   ),
 
                                   AmountDisplay(
-                                      title: tr.amountAddedToAR,
-                                      baseColor: Theme.of(context).colorScheme.error,
-                                      baseAmount: current.creditAmount,
-                                      baseCurrency: baseCurr,
-                                      convertedCurrency: accountCurr,
-                                      isPositive: true,
-                                      showSign: true,
-                                      convertedAmount: (needsConversion && !isLoading) ? remainingAmountInAccountCurrency : null,
+                                    title: tr.amountAddedToAR,
+                                    baseColor: Theme.of(context).colorScheme.error,
+                                    baseAmount: current.creditAmount,
+                                    baseCurrency: baseCurr,
+                                    convertedCurrency: accountCurr,
+                                    isPositive: true,
+                                    showSign: true,
+                                    convertedAmount: (needsConversion && !isLoading) ? remainingAmountInAccountCurrency : null,
                                   ),
 
                                   const SizedBox(height: 8),
@@ -2244,9 +2236,9 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     showDialog(
       context: context,
       builder: (_) => StatefulBuilder(
-        builder: (context,setState) {
-          return SalePaymentDialog(state: current);
-        }
+          builder: (context,setState) {
+            return SalePaymentDialog(state: current);
+          }
       ),
     );
   }
@@ -2275,7 +2267,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     }
 
     // If payment is cash but no cash amount set, open dialog to set it
-  if (state.paymentMode == PaymentMode.cash) {
+    if (state.paymentMode == PaymentMode.cash) {
       if(state.cashPayment <= 0 || state.cashPaymentLocal <=0 && state.cashPayment != state.grandTotal || state.cashPaymentLocal != state.grandTotalLocal){
         _showPaymentDialog(state);
         return;
@@ -2505,12 +2497,12 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     // Convert to StockDocumentItem (only needs: productName, quantity, batch, storageName)
     final List<StockDocumentItem> stockItems = current.items.map((item) {
       return SaleStockItem(
-        unit: item.unit ?? '',
-        productName: item.productName,
-        quantity: item.qty.toDouble(),
-        batch: item.batch ?? 0,
-        storageName: item.storageName,
-        sku: item.productId
+          unit: item.unit ?? '',
+          productName: item.productName,
+          quantity: item.qty.toDouble(),
+          batch: item.batch ?? 0,
+          storageName: item.storageName,
+          sku: item.productId
       );
     }).toList();
 
