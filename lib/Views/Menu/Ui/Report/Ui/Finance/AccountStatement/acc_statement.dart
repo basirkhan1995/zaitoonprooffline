@@ -573,7 +573,7 @@ class _DesktopState extends State<_Desktop> {
     final tr = AppLocalizations.of(context)!;
     double dateWith = 100;
     double refWidth = 220;
-    double amountWidth = 130;
+    double amountWidth = 140;
     double balanceWidth =  160;
 
     return Scaffold(
@@ -821,20 +821,20 @@ class _DesktopState extends State<_Desktop> {
                           width: dateWith,
                           child: Text(
                             tr.txnDate,
-                            style: Theme.of(context).textTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         SizedBox(
                           width: refWidth,
                           child: Text(
                             tr.referenceNumber,
-                            style: Theme.of(context).textTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         Expanded(
                           child: Text(
                             tr.narration,
-                            style: Theme.of(context).textTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         SizedBox(
@@ -844,7 +844,7 @@ class _DesktopState extends State<_Desktop> {
                                 ? TextAlign.right
                                 : TextAlign.left,
                             tr.debitTitle,
-                            style: Theme.of(context).textTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         SizedBox(
@@ -854,7 +854,7 @@ class _DesktopState extends State<_Desktop> {
                                 ? TextAlign.right
                                 : TextAlign.left,
                             tr.creditTitle,
-                            style: Theme.of(context).textTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         SizedBox(
@@ -864,13 +864,14 @@ class _DesktopState extends State<_Desktop> {
                                 ? TextAlign.right
                                 : TextAlign.left,
                             tr.balance,
-                            style: Theme.of(context).textTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleMedium
                           ),
                         ),
                         SizedBox(width: 15),
                       ],
                     ),
                   ),
+                  SizedBox(height: 5),
                   Divider(
                     endIndent: 10,
                     indent: 10,
@@ -1016,7 +1017,9 @@ class _DesktopState extends State<_Desktop> {
                                           "${stmt.debit?.toAmount()}",
                                           style: Theme.of(
                                             context,
-                                          ).textTheme.bodyMedium,
+                                          ).textTheme.titleSmall?.copyWith(
+                                              fontSize: 15
+                                          ),
                                         ),
                                       ),
 
@@ -1029,7 +1032,9 @@ class _DesktopState extends State<_Desktop> {
                                           "${stmt.credit?.toAmount()}",
                                           style: Theme.of(
                                             context,
-                                          ).textTheme.bodyMedium,
+                                          ).textTheme.titleSmall?.copyWith(
+                                            fontSize: 15
+                                          ),
                                         ),
                                       ),
                                       SizedBox(
@@ -1042,7 +1047,7 @@ class _DesktopState extends State<_Desktop> {
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleSmall
-                                              ?.copyWith(color: bg),
+                                              ?.copyWith(color: bg,fontWeight: FontWeight.bold,fontSize: 16),
                                         ),
                                       ),
                                       SizedBox(
