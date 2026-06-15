@@ -242,6 +242,18 @@ class _GenericTextFieldState<T, B extends BlocBase<S>, S>
     }
   }
 
+  // void _selectItem(T item) {
+  //   final itemText = widget.itemToString(item);
+  //
+  //   widget.controller?.text = itemText;
+  //
+  //   widget.onSelected?.call(item);
+  //   widget.onChanged?.call(itemText);
+  //
+  //   _removeOverlay();
+  //   _focusNode.unfocus();
+  // }
+
   void _selectItem(T item) {
     final itemText = widget.itemToString(item);
 
@@ -251,7 +263,12 @@ class _GenericTextFieldState<T, B extends BlocBase<S>, S>
     widget.onChanged?.call(itemText);
 
     _removeOverlay();
-    _focusNode.unfocus();
+
+    // Don't unfocus immediately - let the parent decide when to move focus
+    // _focusNode.unfocus(); // REMOVE OR COMMENT THIS LINE
+
+    // Instead, notify that selection is complete but keep focus
+    // The parent can then request focus on the next field
   }
 
   void _handleKeyEvent(KeyEvent event) {

@@ -239,8 +239,11 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _customerFocusNode.requestFocus();
-      _accountFocusNode.requestFocus();
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          _customerFocusNode.requestFocus();
+        }
+      });
       final saleBloc = context.read<SaleInvoiceBloc>();
       final exchangeBloc = context.read<ExchangeRateBloc>();
 
@@ -302,7 +305,16 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
 
     super.dispose();
   }
-
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Request focus when dependencies change (after first build)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _personController.text.isEmpty) {
+        _customerFocusNode.requestFocus();
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
@@ -502,7 +514,6 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                   const SizedBox(width: 8),
                 ],
 
-
                 ZOutlineButton(
                   toolTip: "${tr.stockPaper} - F10",
                   icon: Icons.receipt,
@@ -643,7 +654,12 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                           company.partyCity = value.addCity;
                                           company.partyProvince = value.addProvince;
                                         });
-                                        _accountFocusNode.requestFocus();
+                                        _shouldAutoFocusProduct = false;
+                                        Future.delayed(const Duration(milliseconds: 300), () {
+                                          if (mounted) {
+                                            _accountFocusNode.requestFocus();
+                                          }
+                                        });
                                       },
                                       showClearButton: true,
                                     ),
@@ -706,6 +722,8 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                                 _selectedAccountNumber = value.accNumber;
                                               });
                                               context.read<SaleInvoiceBloc>().add(SelectCustomerAccountEvent(value));
+
+                                              _shouldAutoFocusProduct = true;
                                               final authState = context.read<AuthBloc>().state;
                                               if (authState is AuthenticatedState) {
                                                 final baseCurr = authState.loginData.company?.comLocalCcy ?? '';
@@ -758,7 +776,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                             });
 
                                             context.read<SaleInvoiceBloc>().add(SelectCustomerAccountEvent(value));
-
+                                            _shouldAutoFocusProduct = true;
                                             final authState = context.read<AuthBloc>().state;
                                             if (authState is AuthenticatedState) {
                                               final baseCurr = authState.loginData.company?.comLocalCcy ?? '';
@@ -1845,9 +1863,13 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       }
     }
   }
+  bool _shouldAutoFocusProduct = true;
 
   void _focusNewRowIfNeeded(SaleInvoiceLoaded state) {
     if (!mounted) return;
+
+    // Don't auto-focus product if we're in account selection mode
+    if (!_shouldAutoFocusProduct) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
