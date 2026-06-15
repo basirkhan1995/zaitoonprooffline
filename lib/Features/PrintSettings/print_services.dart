@@ -609,6 +609,11 @@ abstract class PrintServices {
         "ar": "د بدهکار ننوتل",
         "fa": "ورودی‌های بدهکار"
       },
+      "totalItemsRecord": {
+        "en": "Total Items",
+        "ar": "تعداد قلم",
+        "fa": "تعداد قلم"
+      },
       "sku": {
         "en": "Sku",
         "ar": "کد کالا",
@@ -631,7 +636,7 @@ abstract class PrintServices {
         "fa": "کل تعداد"
       },
       "totalItemSum": {
-        "en": "Total Items",
+        "en": "Total",
         "ar": "کل تعداد",
         "fa": "کل تعداد"
       },
@@ -2148,8 +2153,8 @@ abstract class PrintServices {
       },
       'totalBox': {
         'en': 'Total Items',
-        'fa': 'مجموعه تعداد',
-        'ar': 'کارتن تعداد',
+        'fa': 'کل تعداد',
+        'ar': 'کل تعداد',
       },
       "subtotal": {
         "en": "Subtotal",

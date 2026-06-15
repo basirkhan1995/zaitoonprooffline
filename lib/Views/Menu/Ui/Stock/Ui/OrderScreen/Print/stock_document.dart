@@ -225,6 +225,7 @@ class StockDocumentPrintService extends PrintServices {
             totalQuantity: totalQuantity,
             documentNumber: documentNumber,
             customerSupplierName: customerSupplierName,
+            totalItems: items.length,
             isSale: isSale,
           ),
           pw.SizedBox(height: 4),
@@ -304,6 +305,7 @@ class StockDocumentPrintService extends PrintServices {
     required DateTime? documentDate,
     required bool isSale,
     required double totalQuantity,
+    required int totalItems,  // Add this parameter
     required ReportModel com,
   }) {
     final title = isSale
@@ -335,12 +337,33 @@ class StockDocumentPrintService extends PrintServices {
           pw.Spacer(),
           pw.SizedBox(width: 3),
 
-          // Total Quantity Row
+          // Total Items and Total Quantity Row
           pw.Container(
             padding: pw.EdgeInsets.symmetric(horizontal: 5),
             child: pw.Row(
               mainAxisAlignment: isRtl ? pw.MainAxisAlignment.start : pw.MainAxisAlignment.end,
               children: [
+                // Total Items (Record Count)
+                zText(
+                  text: "${tr(text: 'totalItemsRecord', tr: language)}:",
+                  fontSize: 12,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+                pw.SizedBox(width: 3),
+                zText(
+                  text: totalItems.toString(),
+                  fontSize: 12,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+                pw.SizedBox(width: 10),
+                // Vertical Divider
+                pw.Container(
+                  height: 15,
+                  width: 1,
+                  color: pw.PdfColors.grey500,
+                ),
+                pw.SizedBox(width: 10),
+                // Total Quantity
                 zText(
                   text: "${tr(text: 'totalBox', tr: language)}:",
                   fontSize: 12,
