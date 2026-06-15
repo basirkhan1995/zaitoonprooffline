@@ -2326,14 +2326,34 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     final state = context.read<SaleInvoiceBloc>().state;
     SaleInvoiceLoaded? current;
 
+    // Fix: Properly handle the state after save
     if (state is SaleInvoiceLoaded) {
       current = state;
     } else if (state is SaleInvoiceSaved && state.invoiceData != null) {
       current = state.invoiceData;
     }
 
+    // If still null, try to get from the bloc's current state again after a short delay
+    if (current == null && mounted) {
+      // Show loading indicator
+      ToastManager.show(
+        context: context,
+        title: "Info",
+        message: "Preparing print...",
+        type: ToastType.info,
+      );
+
+      // Wait for state to be ready
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          _onSalePrint(invoiceNumber: invoiceNumber);
+        }
+      });
+      return;
+    }
+
     if (current == null) {
-      Utils.showOverlayMessage(context, message: 'Cannot print: No invoice data available', isError: true);
+      ToastManager.show(context: context, message: "No data available", type: ToastType.warning);
       return;
     }
 
@@ -2345,11 +2365,16 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     } else if (widget.orderId != null) {
       // Case 2: When loading an existing invoice, use the widget.orderId
       finalInvoiceNumber = widget.orderId.toString();
+    } else if (current.orderId != null) {
+      // Case 3: Use from current state if available
+      finalInvoiceNumber = current.orderId.toString();
     } else {
-      // Case 3: New invoice - leave empty
-      finalInvoiceNumber = '';
+      // Case 4: New invoice without ID - show error
+      ToastManager.show(context: context, message: "No data available", type: ToastType.warning);
+      return;
     }
 
+    // Rest of your print logic remains the same...
     final needsConversion = current.needsExchangeRate;
 
     final List<InvoiceItem> invoiceItems = current.items.map((item) {
