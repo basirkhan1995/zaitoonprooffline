@@ -74,6 +74,9 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
   final TextEditingController _exchangeRateController = TextEditingController();
   final List<List<FocusNode>> _rowFocusNodes = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FocusNode _supplierFocusNode = FocusNode();
+  final FocusNode _accountFocusNode = FocusNode();
+  bool _shouldAutoFocusProduct = true;
   void _confirmDeleteOrder() {
     final tr = AppLocalizations.of(context)!;
     final purState = context.read<PurchaseInvoiceBloc>().state;
@@ -124,7 +127,26 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
   String? _userName;
   String? baseCurrency = "";
   int? signatory;
+  void _focusNewRowIfNeeded(PurchaseInvoiceLoaded state) {
+    if (!mounted) return;
 
+    // Don't auto-focus product if we're in account selection mode
+    if (!_shouldAutoFocusProduct) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_personController.text.isEmpty) return;
+      for (int i = 0; i < state.items.length; i++) {
+        final item = state.items[i];
+        if (item.productId.isEmpty) {
+          if (i < _rowFocusNodes.length && _rowFocusNodes[i].isNotEmpty) {
+            _rowFocusNodes[i][0].requestFocus();
+            break;
+          }
+        }
+      }
+    });
+  }
   void _updateControllersFromState(PurchaseInvoiceState state) {
     if (state is PurchaseInvoiceLoaded) {
       // Update exchange rate controller if needed
@@ -209,6 +231,11 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
       baseCurrency = authState.loginData.company?.comLocalCcy;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          _supplierFocusNode.requestFocus();
+        }
+      });
       final purchaseBloc = context.read<PurchaseInvoiceBloc>();
       final exchangeBloc = context.read<ExchangeRateBloc>();
       purchaseBloc.setExchangeRateBloc(exchangeBloc);
@@ -238,6 +265,8 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
         node.dispose();
       }
     }
+    _supplierFocusNode.dispose();
+    _accountFocusNode.dispose();
     _accountController.dispose();
     _personController.dispose();
     _xRefController.dispose();
@@ -291,6 +320,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
 
   void _resetForm() {
     _clearAllControllers();
+    _shouldAutoFocusProduct = true;
     context.read<PurchaseInvoiceBloc>().add(ResetPurchaseInvoiceEvent());
     _rowFocusNodes.clear();
     _purchasePriceControllers.clear();
@@ -326,6 +356,12 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
       },
       child: BlocListener<PurchaseInvoiceBloc, PurchaseInvoiceState>(
         listener: (context, state) {
+          if (state is PurchaseInvoiceLoaded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _focusNewRowIfNeeded(state);
+              _updateControllersFromState(state);
+            });
+          }
           if (state is PurchaseInvoiceError) {
             ToastManager.show(
               context: context,
@@ -361,6 +397,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
           }
           if (state is PurchaseInvoiceLoaded && _isEditMode) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
+              _shouldAutoFocusProduct = true;
               // Set supplier name
               if (state.supplier != null) {
                 _personController.text = state.supplier!.perName ?? '';
@@ -438,13 +475,26 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
               const SizedBox(width: 8),
               BlocBuilder<PurchaseInvoiceBloc, PurchaseInvoiceState>(
                 builder: (context, state) {
-                  if (state is PurchaseInvoiceLoaded ||
-                      state is PurchaseInvoiceSaving) {
+                  if (state is PurchaseInvoiceLoaded || state is PurchaseInvoiceSaving) {
+
                     final current = state is PurchaseInvoiceSaving
                         ? state
                         : (state as PurchaseInvoiceLoaded);
                     final isSaving = state is PurchaseInvoiceSaving;
-
+                    // Add this to focus the first empty row if needed
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted && _shouldAutoFocusProduct && _personController.text.isNotEmpty) {
+                        for (int i = 0; i < current.items.length; i++) {
+                          final item = current.items[i];
+                          if (item.productId.isEmpty) {
+                            if (i < _rowFocusNodes.length && _rowFocusNodes[i].isNotEmpty) {
+                              _rowFocusNodes[i][0].requestFocus();
+                              break;
+                            }
+                          }
+                        }
+                      }
+                    });
                     return ZOutlineButton(
                       isActive: true,
                       icon: widget.orderId == null ? Icons.save_rounded : Icons.refresh,
@@ -527,6 +577,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                               child: GenericTextField<IndividualsModel, IndividualsBloc, IndividualsState>(
                                 key: const ValueKey('person_field'),
                                 controller: _personController,
+                                focusNode: _supplierFocusNode,
                                 title: tr.supplier,
                                 hintText: tr.supplier,
                                 isRequired: true,
@@ -567,6 +618,15 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                                   setState(() {
                                     signatory = value.perId;
                                   });
+
+                                  // Disable product auto-focus
+                                  _shouldAutoFocusProduct = false;
+                                  // Add delay to ensure account data loads
+                                  Future.delayed(const Duration(milliseconds: 300), () {
+                                    if (mounted) {
+                                      _accountFocusNode.requestFocus();
+                                    }
+                                  });
                                 },
                                 showClearButton: true,
                               ),
@@ -581,6 +641,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                                     return GenericTextField<AccountsModel, AccountsBloc, AccountsState>(
                                       key: const ValueKey('account_field'),
                                       controller: _accountController,
+                                      focusNode: _accountFocusNode,
                                       title: tr.accounts,
                                       hintText: tr.selectAccount,
                                       isRequired:
@@ -633,7 +694,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                                         context.read<PurchaseInvoiceBloc>().add(
                                           SelectSupplierAccountEvent(value),
                                         );
-
+                                        _shouldAutoFocusProduct = true;
                                         final companyState = context.read<CompanyProfileBloc>().state;
                                         if (companyState
                                         is CompanyProfileLoadedState) {
@@ -667,6 +728,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                                   return GenericTextField<AccountsModel, AccountsBloc, AccountsState>(
                                     key: const ValueKey('account_field'),
                                     controller: _accountController,
+                                    focusNode: _accountFocusNode,
                                     title: tr.accounts,
                                     hintText: tr.selectAccount,
                                     isRequired: false,
@@ -710,6 +772,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                                       context.read<PurchaseInvoiceBloc>().add(
                                         SelectSupplierAccountEvent(value),
                                       );
+                                      _shouldAutoFocusProduct = true;
                                     },
                                     showClearButton: true,
                                   );
@@ -1664,7 +1727,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
   double _currentPurchasePrice = 0.0;
   bool _isUpdating = false;
   bool _isEditingLocalAmount = false;
-  Timer? _localAmountDebounce;
+  Timer? _amountDebounce;
   double? _lastExchangeRate;
   bool _isUpdatingFromBloc = false;
 
@@ -2101,13 +2164,24 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
   }
 
   void _onLocalAmountChanged(String value) {
-    _localAmountDebounce?.cancel();
-    _localAmountDebounce = Timer(const Duration(milliseconds: 500), () {
+    _amountDebounce?.cancel();
+    _amountDebounce = Timer(const Duration(milliseconds: 1000), () {
       final localAmount = double.tryParse(value.replaceAll(',', ''));
       if (localAmount != null && localAmount > 0) {
         _isEditingLocalAmount = true;
         _updatePurchasePriceFromLocalAmount(localAmount);
         _isEditingLocalAmount = false;
+      }
+    });
+  }
+
+  void _onBaseAmountChanged(String value) {
+    _amountDebounce?.cancel();
+    _amountDebounce = Timer(const Duration(milliseconds: 1000), () {
+      final parsed = double.tryParse(value.replaceAll(',', '')) ?? 0;
+      widget.onPurchasePriceChanged(widget.item.rowId, parsed);
+      if (!_isEditingLocalAmount) {
+        _updateLocalAmountFromPurchasePrice();
       }
     });
   }
@@ -2264,7 +2338,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
 
   @override
   void dispose() {
-    _localAmountDebounce?.cancel();
+    _amountDebounce?.cancel();
     _productController.dispose();
     _headerProductController.dispose();
     _landedPriceController.dispose();
@@ -2578,13 +2652,7 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                       border: InputBorder.none,
                       isDense: true,
                     ),
-                    onChanged: (value) {
-                      final parsed = double.tryParse(value.replaceAll(',', '')) ?? 0;
-                      widget.onPurchasePriceChanged(widget.item.rowId, parsed);
-                      if (!_isEditingLocalAmount) {
-                        _updateLocalAmountFromPurchasePrice();
-                      }
-                    },
+                    onChanged: _onBaseAmountChanged,
                     onSubmitted: (_) => focusNext(isWholeSale ? 3 : 2),
                   ),
                 ),
