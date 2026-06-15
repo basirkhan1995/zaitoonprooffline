@@ -2333,7 +2333,6 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       current = state.invoiceData;
     }
 
-    // If still null, try to get from the bloc's current state again after a short delay
     if (current == null && mounted) {
       // Show loading indicator
       ToastManager.show(
