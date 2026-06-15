@@ -133,7 +133,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
   void _onExchangeRateChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
-    _debounce = Timer(const Duration(milliseconds: 1000), () {
+    _debounce = Timer(const Duration(milliseconds: 1500), () {
       final rate = double.tryParse(value.replaceAll(',', ''));
       final state = context.read<SaleInvoiceBloc>().state;
       if (rate != null && rate > 0 && state is SaleInvoiceLoaded) {
@@ -319,9 +319,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       }
     }
 
-    // In _DesktopNewSaleView, update the onReminder function:
     void onReminder() {
-      // Calculate the credit amount that will go to the account
       double? creditAmount;
 
       final saleState = context.read<SaleInvoiceBloc>().state;
@@ -645,6 +643,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                           company.partyCity = value.addCity;
                                           company.partyProvince = value.addProvince;
                                         });
+                                        _accountFocusNode.requestFocus();
                                       },
                                       showClearButton: true,
                                     ),
