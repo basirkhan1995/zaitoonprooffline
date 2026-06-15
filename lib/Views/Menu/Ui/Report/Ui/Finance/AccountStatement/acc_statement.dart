@@ -638,7 +638,7 @@ class _DesktopState extends State<_Desktop> {
                         Row(
                           children: [
                             ZOutlineButton(
-                              icon: FontAwesomeIcons.fileExcel, // or Icons.table_chart_outlined
+                              icon: FontAwesomeIcons.fileExcel,
                               backgroundHover: Colors.green,
                               onPressed: () {
                                 if (accountStatementModel != null &&
