@@ -2351,7 +2351,6 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       });
       return;
     }
-
     if (current == null) {
       ToastManager.show(context: context, message: "No data available", type: ToastType.warning);
       return;
