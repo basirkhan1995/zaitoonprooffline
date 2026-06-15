@@ -989,8 +989,10 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     // Flags to prevent recursive updates
     bool isUpdatingFromLocal = false;
     bool isUpdatingFromBase = false;
-    bool isLocalEditing = false; // Track if user is actively editing local amount
+    bool isLocalEditing = false;
     Timer? localEditTimer;
+    Timer? localAmountDebounceTimer; // Debounce timer for local amount changes
+    bool isProgrammaticUpdate = false; // Flag to prevent cursor jumping on programmatic updates
 
     final productController = TextEditingController(text: item.productName);
     final headerProductController = TextEditingController(text: item.productName);
@@ -1053,24 +1055,55 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       }
     });
 
-    // Update local amount display when exchange rate changes (only if not editing)
+    // Smooth update for local amount without losing cursor
+    void updateLocalAmountSmoothly(double newLocalAmount) {
+      if (isProgrammaticUpdate) return;
+      if (isLocalEditing) return;
+
+      final newText = newLocalAmount.toAmount();
+      final currentText = localAmountController.text;
+
+      if (currentText != newText && newText.isNotEmpty) {
+        isProgrammaticUpdate = true;
+
+        final hadFocus = localAmountFocusNode?.hasFocus ?? false;
+        final savedPosition = lastLocalCursorPosition;
+
+        localAmountController.text = newText;
+
+        // Restore cursor position if the field had focus
+        if (hadFocus && savedPosition <= newText.length && savedPosition > 0) {
+          localAmountController.selection = TextSelection.collapsed(offset: savedPosition);
+        } else if (hadFocus && newText.isNotEmpty) {
+          localAmountController.selection = TextSelection.collapsed(offset: newText.length);
+        }
+
+        // Reset the flag after a short delay
+        Future.delayed(const Duration(milliseconds: 50), () {
+          isProgrammaticUpdate = false;
+        });
+      }
+    }
+
+    // Schedule local amount update with debounce
+    void scheduleLocalAmountUpdate(double newLocalAmount) {
+      if (isLocalEditing) return;
+
+      localAmountDebounceTimer?.cancel();
+      localAmountDebounceTimer = Timer(const Duration(milliseconds: 150), () {
+        if (mounted && !isLocalEditing) {
+          updateLocalAmountSmoothly(newLocalAmount);
+        }
+      });
+    }
+
+    // Update local amount display when exchange rate changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final state = context.read<SaleInvoiceBloc>().state;
       if (state is SaleInvoiceLoaded && !isUpdatingFromLocal && !isUpdatingFromBase && !isLocalEditing) {
         if (state.safeExchangeRate > 0 && (item.salePrice ?? 0) > 0) {
           final newLocalAmount = (item.salePrice ?? 0) * state.safeExchangeRate;
-          final currentText = localAmountController.text;
-          final newText = newLocalAmount.toAmount();
-
-          if (currentText != newText && newText.isNotEmpty) {
-            final hadFocus = localAmountFocusNode?.hasFocus ?? false;
-            localAmountController.text = newText;
-
-            // Restore cursor position if field had focus
-            if (hadFocus && lastLocalCursorPosition <= newText.length && lastLocalCursorPosition > 0) {
-              localAmountController.selection = TextSelection.collapsed(offset: lastLocalCursorPosition);
-            }
-          }
+          scheduleLocalAmountUpdate(newLocalAmount);
         }
       }
     });
@@ -1095,8 +1128,8 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
         final state = context.read<SaleInvoiceBloc>().state;
         if (state is SaleInvoiceLoaded && state.safeExchangeRate > 0 && newPrice > 0) {
           final updatedLocalAmount = newPrice * state.safeExchangeRate;
-          if (!isLocalEditing && localAmountController.text != updatedLocalAmount.toAmount()) {
-            localAmountController.text = updatedLocalAmount.toAmount();
+          if (!isLocalEditing) {
+            scheduleLocalAmountUpdate(updatedLocalAmount);
           }
         }
 
@@ -1116,15 +1149,14 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
 
     void updateLocalAmount(double newLocalAmount) {
       if (isUpdatingFromBase) return;
+
+      // Cancel any pending debounced updates
+      localAmountDebounceTimer?.cancel();
+
+      // Allow zero or empty
       if (newLocalAmount <= 0) {
-        // Allow zero or empty
         if (newLocalAmount == 0) {
-          context.read<SaleInvoiceBloc>().add(
-            UpdateSaleItemEvent(
-              rowId: item.rowId,
-              salePrice: 0,
-            ),
-          );
+          updateSalePrice(0);
           salePriceController.text = '0';
         }
         return;
@@ -1149,19 +1181,22 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
         // Update sale price controller immediately
         final newSalePriceText = newSalePrice.toAmount(decimal: 4);
         if (salePriceController.text != newSalePriceText) {
+          final hadBaseFocus = basePriceFocusNode.hasFocus;
+          final savedBasePos = lastBaseCursorPosition;
+
           salePriceController.text = newSalePriceText;
 
           // Restore base price cursor if it had focus
-          if (basePriceFocusNode.hasFocus && lastBaseCursorPosition <= newSalePriceText.length) {
-            salePriceController.selection = TextSelection.collapsed(offset: lastBaseCursorPosition);
+          if (hadBaseFocus && savedBasePos <= newSalePriceText.length && savedBasePos > 0) {
+            salePriceController.selection = TextSelection.collapsed(offset: savedBasePos);
           }
         }
 
-        // Send BLoC event
+        // Use the dedicated event for local amount update
         context.read<SaleInvoiceBloc>().add(
-          UpdateSaleItemEvent(
+          UpdateItemLocalAmountEvent(
             rowId: item.rowId,
-            salePrice: newSalePrice,
+            localAmount: newLocalAmount,
           ),
         );
       }
@@ -1177,6 +1212,21 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
           }
         }
         isUpdatingFromLocal = false;
+      });
+    }
+
+    void onLocalAmountChanged(String value) {
+      // Cancel any pending debounced updates
+      localAmountDebounceTimer?.cancel();
+
+      // Debounce the actual update
+      localAmountDebounceTimer = Timer(const Duration(milliseconds: 400), () {
+        if (value.isEmpty) {
+          updateLocalAmount(0);
+          return;
+        }
+        final localAmount = double.tryParse(value) ?? 0;
+        updateLocalAmount(localAmount);
       });
     }
 
@@ -1220,7 +1270,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       final state = context.read<SaleInvoiceBloc>().state;
       if (state is SaleInvoiceLoaded && state.safeExchangeRate > 0 && salePrice > 0) {
         final localAmount = salePrice * state.safeExchangeRate;
-        localAmountController.text = localAmount.toAmount();
+        updateLocalAmountSmoothly(localAmount);
       }
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1555,6 +1605,12 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
     }
 
     void onLocalAmountSubmitted() {
+      // Cancel any pending debounce and trigger immediate update
+      localAmountDebounceTimer?.cancel();
+      final currentValue = double.tryParse(localAmountController.text) ?? 0;
+      if (currentValue > 0) {
+        updateLocalAmount(currentValue);
+      }
       // Move to discount field
       discountFocusNode.requestFocus();
     }
@@ -1703,14 +1759,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                           isDense: true,
                         ),
                         style: TextStyle(color: color.primary, fontWeight: FontWeight.w500),
-                        onChanged: (value) {
-                          if (value.isEmpty) {
-                            updateLocalAmount(0);
-                            return;
-                          }
-                          final localAmount = double.tryParse(value) ?? 0;
-                          updateLocalAmount(localAmount);
-                        },
+                        onChanged: onLocalAmountChanged,
                         onSubmitted: (_) => onLocalAmountSubmitted(),
                       );
                     },
