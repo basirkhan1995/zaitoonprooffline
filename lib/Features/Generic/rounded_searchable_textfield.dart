@@ -263,12 +263,6 @@ class _GenericTextFieldState<T, B extends BlocBase<S>, S>
     widget.onChanged?.call(itemText);
 
     _removeOverlay();
-
-    // Don't unfocus immediately - let the parent decide when to move focus
-    // _focusNode.unfocus(); // REMOVE OR COMMENT THIS LINE
-
-    // Instead, notify that selection is complete but keep focus
-    // The parent can then request focus on the next field
   }
 
   void _handleKeyEvent(KeyEvent event) {
