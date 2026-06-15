@@ -48,6 +48,14 @@ class ReverseTxnEvent extends TransactionsEvent {
   List<Object?> get props => [reference, usrName];
 }
 
+class UnAuthorizedTxnEvent extends TransactionsEvent {
+  final String reference;
+  final String usrName;
+  const UnAuthorizedTxnEvent({required this.reference,required this.usrName});
+  @override
+  List<Object?> get props => [reference, usrName];
+}
+
 class DeletePendingTxnEvent extends TransactionsEvent {
   final String reference;
   final String usrName;

@@ -1039,6 +1039,17 @@ class Repositories {
     return response.data;
   }
 
+  Future<Map<String, dynamic>> unAuthorizeTxn({
+    required String reference,
+    required String? usrName,
+  }) async {
+    final response = await api.put(
+      endpoint: "/journal/unauthorizeTrn.php",
+      data: {"reference": reference, "username": usrName},
+    );
+    return response.data;
+  }
+
   Future<Map<String, dynamic>> reverseTxn({
     required String reference,
     required String? usrName,
