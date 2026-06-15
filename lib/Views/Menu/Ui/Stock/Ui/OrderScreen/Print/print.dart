@@ -142,7 +142,7 @@ class InvoicePrintService extends PrintServices {
 
     pw.ImageProvider? logoImage;
     if (hasCompanyLogo) {
-      logoImage = pw.MemoryImage(company.comLogo!);
+      logoImage = pw.MemoryImage(company.comLogo ?? Uint8List(0));
     }
 
     // Determine if we need local amount conversion
@@ -1437,22 +1437,22 @@ class InvoicePrintService extends PrintServices {
 
     if (com.partyPhone?.isNotEmpty == true) {
       items.add(verticalDivider(height: 10, width: 1));
-      items.add(zText(text: com.partyPhone!, fontSize: 10));
+      items.add(zText(text: com.partyPhone??"", fontSize: 10));
     }
 
     if (com.partyAddress?.isNotEmpty == true) {
       items.add(verticalDivider(height: 10, width: 1));
-      items.add(zText(text: com.partyAddress!, fontSize: 10));
+      items.add(zText(text: com.partyAddress??"", fontSize: 10));
     }
 
     if (com.partyCity?.isNotEmpty == true) {
       items.add(verticalDivider(height: 10, width: 1));
-      items.add(zText(text: com.partyCity!, fontSize: 10));
+      items.add(zText(text: com.partyCity??"", fontSize: 10));
     }
 
     if (com.partyProvince?.isNotEmpty == true) {
       items.add(verticalDivider(height: 10, width: 1));
-      items.add(zText(text: com.partyProvince!, fontSize: 10));
+      items.add(zText(text: com.partyProvince??"", fontSize: 10));
     }
 
     return items;
@@ -1541,13 +1541,13 @@ class InvoicePrintService extends PrintServices {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   zText(
-                    text: invoiceDate!.shamsiDateFormatted,
+                    text: invoiceDate?.shamsiDateFormatted ?? DateTime.now().shamsiDateFormatted,
                     fontSize: 10,
                     fontWeight: pw.FontWeight.bold,
                   ),
                   verticalDivider(height: 10, width: 1),
                   zText(
-                    text: invoiceDate.toDateTime,
+                    text: invoiceDate?.toDateTime ?? DateTime.now().toDateTime,
                     fontSize: 9,
                     fontWeight: pw.FontWeight.bold,
                   ),
