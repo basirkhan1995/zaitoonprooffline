@@ -576,8 +576,9 @@ class _DesktopState extends State<_Desktop> {
   @override
   void initState() {
     final now = DateTime.now();
-    final lastMonthEnd = DateTime(now.year, now.month, 0);
-    final lastMonthStart = DateTime(now.year, now.month - 1, 1);
+    final lastMonthEnd = DateTime(now.year, now.month, now.day);
+    final lastMonthStart = DateTime(now.year, now.month, 1);
+
     fromDate = lastMonthStart.toFormattedDate();
     toDate = lastMonthEnd.toFormattedDate();
     WidgetsBinding.instance.addPostFrameCallback((_){

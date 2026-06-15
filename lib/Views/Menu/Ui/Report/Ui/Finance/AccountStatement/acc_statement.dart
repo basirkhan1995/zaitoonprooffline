@@ -552,11 +552,11 @@ class _DesktopState extends State<_Desktop> {
   void initState() {
     myLocale = context.read<LocalizationBloc>().state.languageCode;
     final now = DateTime.now();
-    final lastMonthEnd = DateTime(now.year, now.month, 0);
-    final lastMonthStart = DateTime(now.year, now.month - 1, 1);
-
-    fromDate = lastMonthStart.toFormattedDate();
-    toDate = lastMonthEnd.toFormattedDate();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final todayOfMonth = DateTime(now.year, now.month, now.day);
+    
+    fromDate = startOfMonth.toFormattedDate();
+    toDate = todayOfMonth.toFormattedDate();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {});
     context.read<AccStatementBloc>().add(ResetAccStmtEvent());
@@ -638,7 +638,7 @@ class _DesktopState extends State<_Desktop> {
                         Row(
                           children: [
                             ZOutlineButton(
-                              icon: FontAwesomeIcons.fileExcel,
+                              icon: FontAwesomeIcons.fileExcel, 
                               backgroundHover: Colors.green,
                               onPressed: () {
                                 if (accountStatementModel != null &&

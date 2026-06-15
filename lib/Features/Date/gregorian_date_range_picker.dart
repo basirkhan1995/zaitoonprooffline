@@ -69,14 +69,25 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
   void initState() {
     super.initState();
     _today = DateTime.now();
-    _selectedRange = widget.initialRange ?? ZGregorianRangePicker(_today, _today);
+
+    // Set default to current month if no initial range provided
+    if (widget.initialRange == null) {
+      final currentMonthStart = DateTime(_today.year, _today.month, 1);
+      final currentMonthEnd = DateTime(_today.year, _today.month + 1, 0);
+      _selectedRange = ZGregorianRangePicker(currentMonthStart, currentMonthEnd);
+      _startDate = currentMonthStart;
+      _endDate = currentMonthEnd;
+      _selectedQuickOption = QuickOption.thisMonth; // Set this month as selected option
+    } else {
+      _selectedRange = widget.initialRange!;
+      _startDate = _selectedRange.start;
+      _endDate = _selectedRange.end;
+    }
+
     _currentMonth = DateTime(_selectedRange.start.year, _selectedRange.start.month, 1);
     _selectedYear = _selectedRange.start.year;
-    _startDate = _selectedRange.start;
-    _endDate = _selectedRange.end;
     _yearScrollController = ScrollController();
 
-    // Determine which quick option matches the initial range
     _determineInitialQuickOption();
   }
 

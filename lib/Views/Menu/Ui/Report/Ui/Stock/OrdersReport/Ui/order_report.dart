@@ -1097,9 +1097,15 @@ class _DesktopState extends State<_Desktop> {
   @override
   void initState() {
     super.initState();
+    final now = DateTime.now();
+    final lastMonthEnd = DateTime(now.year, now.month, now.day);
+    final lastMonthStart = DateTime(now.year, now.month, 1);
+
+    fromDate = lastMonthStart.toFormattedDate();
+    toDate = lastMonthEnd.toFormattedDate();
+
     baseCcy = _getBaseCurrency();
-    fromDate = DateTime.now().toFormattedDate();
-    toDate = DateTime.now().toFormattedDate();
+
     myLocale = context.read<LocalizationBloc>().state.languageCode;
     context.read<OrderReportBloc>().add(ResetOrderReportEvent());
   }

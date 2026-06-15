@@ -562,11 +562,12 @@ class _DesktopState extends State<_Desktop> {
     baseCcy = _getBaseCurrency();
 
     final now = DateTime.now();
-    final lastMonthEnd = DateTime(now.year, now.month, 0);
-    final lastMonthStart = DateTime(now.year, now.month - 1, 1);
+    final lastMonthEnd = DateTime(now.year, now.month, now.day);
+    final lastMonthStart = DateTime(now.year, now.month, 1);
 
     fromDate = lastMonthStart.toFormattedDate();
     toDate = lastMonthEnd.toFormattedDate();
+
     myLocale = context.read<LocalizationBloc>().state.languageCode;
     context.read<StockRecordBloc>().add(ResetStockRecordEvent());
     WidgetsBinding.instance.addPostFrameCallback((_) {
