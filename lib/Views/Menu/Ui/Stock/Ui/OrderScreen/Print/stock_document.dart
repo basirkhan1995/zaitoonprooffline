@@ -509,13 +509,19 @@ class StockDocumentPrintService extends PrintServices {
       children: [
         // Header Row
         pw.TableRow(
-          decoration: pw.BoxDecoration(color: pw.PdfColors.blue50),
+          decoration: pw.BoxDecoration(
+            color: pw.PdfColors.blue50,
+            border: pw.Border.all(
+              color: pw.PdfColors.black,
+              width: 1,
+            ),
+          ),
           children: headers.map((header) {
             return pw.Container(
-              padding: pw.EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+              padding: pw.EdgeInsets.symmetric(vertical: 2, horizontal: 6),
               child: zText(
                 text: header,
-                fontSize: 9,
+                fontSize: 11,
                 fontWeight: pw.FontWeight.bold,
                 textAlign: pw.TextAlign.center,
               ),
@@ -526,9 +532,11 @@ class StockDocumentPrintService extends PrintServices {
         for (int i = 0; i < items.length; i++)
           pw.TableRow(
             verticalAlignment: pw.TableCellVerticalAlignment.middle,
-            decoration: i.isOdd
-                ? pw.BoxDecoration(color: pw.PdfColors.grey50)
-                : null,
+            decoration:
+                 pw.BoxDecoration(color: i.isOdd ? pw.PdfColors.grey100 : null, border: pw.Border.all(
+              color: pw.PdfColors.black,
+              width: 1,
+            ),),
             children: isRtl
                 ? _buildRtlStockRow(items[i], i, isWholeSale)
                 : _buildLtrStockRow(items[i], i, isWholeSale),
@@ -558,7 +566,7 @@ class StockDocumentPrintService extends PrintServices {
       padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.sku,
-        fontSize: 9,
+        fontSize: 11,
         textAlign: pw.TextAlign.center,
       ),
     ));
@@ -579,7 +587,7 @@ class StockDocumentPrintService extends PrintServices {
       padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.quantity.toStringAsFixed(0),
-        fontSize: 10,
+        fontSize: 11,
         textAlign: pw.TextAlign.center,
       ),
     ));
@@ -666,7 +674,7 @@ class StockDocumentPrintService extends PrintServices {
       padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.quantity.toStringAsFixed(0),
-        fontSize: 10,
+        fontSize: 11,
         textAlign: pw.TextAlign.center,
       ),
     ));
@@ -687,7 +695,7 @@ class StockDocumentPrintService extends PrintServices {
       padding: pw.EdgeInsets.symmetric(vertical: 1, horizontal: 4),
       child: zText(
         text: item.sku,
-        fontSize: 9,
+        fontSize: 11,
         textAlign: pw.TextAlign.center,
       ),
     ));
