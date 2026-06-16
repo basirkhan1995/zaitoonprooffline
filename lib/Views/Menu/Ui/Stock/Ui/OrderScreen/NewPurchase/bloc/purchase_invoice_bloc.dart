@@ -732,7 +732,7 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
             amount: convertedAmount,
             currency: paymentCurrency,
             exRate: paymentExRate,
-            narration: 'Supplier payment for invoice',
+            narration: '',
             isExpense: false,
           ));
         }
@@ -1031,7 +1031,7 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
             amount: convertedAmount,
             currency: paymentCurrency,
             exRate: paymentExRate,
-            narration: 'Supplier payment for invoice',
+            narration: '',
             isExpense: false,
           ));
         }

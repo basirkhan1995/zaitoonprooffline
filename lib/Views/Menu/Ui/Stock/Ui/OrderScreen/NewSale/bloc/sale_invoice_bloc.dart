@@ -867,7 +867,7 @@ class SaleInvoiceBloc extends Bloc<SaleInvoiceEvent, SaleInvoiceState> {
             amount: convertedAmount,
             currency: validAccountCurrency,
             exRate: needsConversion ? current.safeExchangeRate : 1.0,
-            narration: "Account Receivable",
+            narration: "AR",
           ));
         }
       }
@@ -1118,7 +1118,7 @@ class SaleInvoiceBloc extends Bloc<SaleInvoiceEvent, SaleInvoiceState> {
             amount: convertedAmount,
             currency: validAccountCurrency,
             exRate: needsConversion ? current.safeExchangeRate : 1.0,
-            narration: "Customer account payment",
+            narration: "AR",
           ));
         }
       }
