@@ -13,8 +13,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   final Repositories _repo;
   ProductsBloc(this._repo) : super(ProductsInitial()) {
 
-
-
     ///Products for sale invoice
     on<LoadProductsStockEvent>((event, emit) async{
       emit(ProductsLoadingState());
@@ -37,7 +35,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       }
     });
 
-    // Update your products_bloc.dart
     on<AddProductEvent>((event, emit) async {
       final tr = localizationService.loc;
       emit(ProductsLoadingState());
@@ -112,7 +109,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         emit(ProductsErrorState(e.toString()));
       }
     });
-
 
   }
 }
