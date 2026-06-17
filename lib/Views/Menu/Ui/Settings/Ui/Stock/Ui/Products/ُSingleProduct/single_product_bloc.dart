@@ -11,6 +11,7 @@ class SingleProductBloc extends Bloc<SingleProductEvent, SingleProductState> {
   final Repositories _repo;
 
   SingleProductBloc(this._repo) : super(SingleProductInitial()) {
+
     on<LoadSingleProductEvent>((event, emit) async {
       emit(SingleProductLoadingState());
       try {

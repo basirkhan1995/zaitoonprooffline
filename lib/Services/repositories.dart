@@ -2009,7 +2009,55 @@ class Repositories {
     // Convert the response data to OrderTxnModel
     return OrderTxnModel.fromMap(response.data);
   }
+  Future<Map<String, dynamic>> uploadProductImage({
+    required int proID,
+    required List<File> images,
+  }) async {
+    FormData formData = FormData();
 
+    // Add product ID
+    formData.fields.add(MapEntry('proID', proID.toString()));
+
+    // Add each image with key 'images[]'
+    for (int i = 0; i < images.length; i++) {
+      File file = images[i];
+
+      String extension = file.path.split('.').last.toLowerCase();
+
+      MediaType contentType;
+      switch (extension) {
+        case 'png':
+          contentType = MediaType('image', 'png');
+          break;
+        case 'webp':
+          contentType = MediaType('image', 'webp');
+          break;
+        case 'gif':
+          contentType = MediaType('image', 'gif');
+          break;
+        default:
+          contentType = MediaType('image', 'jpeg');
+      }
+
+      formData.files.add(
+        MapEntry(
+          'images[]',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+            contentType: contentType,
+          ),
+        ),
+      );
+    }
+
+    final response = await api.uploadFile(
+      endpoint: "/inventory/productImage.php",
+      data: formData,
+    );
+
+    return response.data;
+  }
   /// Transaction Types ........................................................
   Future<Map<String, dynamic>> addTxnType({
     required TxnTypeModel newType,

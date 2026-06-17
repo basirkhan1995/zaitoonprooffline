@@ -35,6 +35,14 @@ class UpdateProductEvent extends ProductsEvent{
   List<Object?> get props => [newProduct];
 }
 
+class UploadProductImageEvent extends ProductsEvent{
+  final int proId;
+  final List<File> images;
+  const UploadProductImageEvent(this.proId, this.images);
+  @override
+  List<Object?> get props => [proId,images];
+}
+
 class DeleteProductEvent extends ProductsEvent{
   final int proId;
   const DeleteProductEvent(this.proId);

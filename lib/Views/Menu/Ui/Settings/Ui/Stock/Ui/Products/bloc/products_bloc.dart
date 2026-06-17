@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zaitoonpro/Services/repositories.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Stock/Ui/Products/model/product_stock_model.dart';
-
 import '../../../../../../../../../Services/localization_services.dart';
 import '../model/product_model.dart';
 
@@ -19,6 +20,15 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       try{
         final products = await _repo.getProductStock(proId: event.proId, noStock: event.noStock, proName: event.input);
         emit(ProductsStockLoadedState(products));
+      }catch(e){
+        emit(ProductsErrorState(e.toString()));
+      }
+    });
+
+    on<UploadProductImageEvent>((event, emit) async{
+      emit(ProductsLoadingState());
+      try{
+       await _repo.uploadProductImage(proID: event.proId, images: event.images);
       }catch(e){
         emit(ProductsErrorState(e.toString()));
       }
