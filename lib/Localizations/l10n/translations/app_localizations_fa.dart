@@ -3379,4 +3379,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get marketValue => 'کل ارزش بازار';
+
+  @override
+  String get unAuthorize => 'از تایید کشیدن';
 }

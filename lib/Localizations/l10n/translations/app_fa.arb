@@ -1120,5 +1120,6 @@
   "highestTitle": "بلندترین",
   "mostFrequent": "پر تکرارترین",
   "totalVolume": "مجموعه کل",
-  "marketValue": "کل ارزش بازار"
+  "marketValue": "کل ارزش بازار",
+  "unAuthorize": "از تایید کشیدن"
 }

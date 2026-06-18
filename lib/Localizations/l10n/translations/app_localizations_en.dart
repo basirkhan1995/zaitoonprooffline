@@ -3390,4 +3390,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get marketValue => 'Total Market Value';
+
+  @override
+  String get unAuthorize => 'Unauthorize';
 }

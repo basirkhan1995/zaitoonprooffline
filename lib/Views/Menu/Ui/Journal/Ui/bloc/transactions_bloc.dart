@@ -212,6 +212,10 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
 
         final msg = response['msg'];
         switch (msg) {
+          case "success":
+            emit(TransactionSuccessState());
+            break;
+
           case "unauthorized":
             emit(TransactionSuccessState());
             break;
@@ -220,8 +224,7 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
             emit(TransactionErrorState(locale.reverseInvalidMessage));
             break;
 
-          default:
-            emit(TransactionErrorState(msg));
+          default:emit(TransactionErrorState(msg));
         }
       }catch(e){
         emit(TransactionErrorState(e.toString()));

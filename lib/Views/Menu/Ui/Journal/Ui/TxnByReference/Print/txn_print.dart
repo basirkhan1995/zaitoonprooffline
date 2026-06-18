@@ -170,7 +170,7 @@ class TransactionReferencePrintSettings extends PrintServices {
     return pw.Column(
       children: [
         _buildSingleVoucher(data, language, voucherDate, amountText, amountWords, accountValue, false, companyLines, logoProvider, isRtl),
-        pw.SizedBox(height: isRtl ? 10 : 16),
+        pw.SizedBox(height: isRtl ? 3 : 16),
         // Cut line
         pw.Row(
           children: [
@@ -181,7 +181,7 @@ class TransactionReferencePrintSettings extends PrintServices {
             pw.Expanded(child: pw.Container(height: 0.5, color: pw.PdfColors.grey400)),
           ],
         ),
-        pw.SizedBox(height: isRtl ? 10 : 16),
+        pw.SizedBox(height: isRtl ? 3 : 16),
         _buildSingleVoucher(data, language, voucherDate, amountText, amountWords, accountValue, true, companyLines, logoProvider, isRtl),
       ],
     );

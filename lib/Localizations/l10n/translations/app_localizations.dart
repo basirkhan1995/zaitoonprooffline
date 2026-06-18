@@ -6705,6 +6705,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total Market Value'**
   String get marketValue;
+
+  /// No description provided for @unAuthorize.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthorize'**
+  String get unAuthorize;
 }
 
 class _AppLocalizationsDelegate
