@@ -731,7 +731,7 @@
   "typeTitle": "نوع انتقال",
   "outTitle": "خروج",
   "inTitle": "ورود",
-  "totalProductValue": "کل ارزش کالا",
+  "totalProductValue": "کل هزینه کالا",
   "totalProductExpense": "جمع (کالا + هزینه)",
   "expenseAmount": "مصارف انتقال",
   "outRecords": "اقلام خروجی",
@@ -1119,5 +1119,6 @@
   "transactionSummaryToday": "خلاصه معاملات امروز",
   "highestTitle": "بلندترین",
   "mostFrequent": "پر تکرارترین",
-  "totalVolume": "مجموعه کل"
+  "totalVolume": "مجموعه کل",
+  "marketValue": "کل ارزش بازار"
 }

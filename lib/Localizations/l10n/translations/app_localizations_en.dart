@@ -2204,7 +2204,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inTitle => 'IN';
 
   @override
-  String get totalProductValue => 'Total Product Value';
+  String get totalProductValue => 'Total Stock Cost';
 
   @override
   String get totalProductExpense => 'Total (Product + Expense)';
@@ -3387,4 +3387,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get totalVolume => 'Total Volume';
+
+  @override
+  String get marketValue => 'Total Market Value';
 }

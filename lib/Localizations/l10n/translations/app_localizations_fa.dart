@@ -2196,7 +2196,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get inTitle => 'ورود';
 
   @override
-  String get totalProductValue => 'کل ارزش کالا';
+  String get totalProductValue => 'کل هزینه کالا';
 
   @override
   String get totalProductExpense => 'جمع (کالا + هزینه)';
@@ -3376,4 +3376,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get totalVolume => 'مجموعه کل';
+
+  @override
+  String get marketValue => 'کل ارزش بازار';
 }

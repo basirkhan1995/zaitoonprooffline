@@ -4369,7 +4369,7 @@ abstract class AppLocalizations {
   /// No description provided for @totalProductValue.
   ///
   /// In en, this message translates to:
-  /// **'Total Product Value'**
+  /// **'Total Stock Cost'**
   String get totalProductValue;
 
   /// No description provided for @totalProductExpense.
@@ -6699,6 +6699,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total Volume'**
   String get totalVolume;
+
+  /// No description provided for @marketValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Market Value'**
+  String get marketValue;
 }
 
 class _AppLocalizationsDelegate

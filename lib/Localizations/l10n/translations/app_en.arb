@@ -731,7 +731,7 @@
   "typeTitle": "Shift Type",
   "outTitle": "OUT",
   "inTitle": "IN",
-  "totalProductValue": "Total Product Value",
+  "totalProductValue": "Total Stock Cost",
   "totalProductExpense": "Total (Product + Expense)",
   "expenseAmount": "Expense Amount",
   "outRecords": "OUT Records",
@@ -1119,5 +1119,6 @@
   "transactionSummaryToday": "Today's Transactions Summary",
   "highestTitle": "Highest",
   "mostFrequent": "Most Frequent",
-  "totalVolume": "Total Volume"
+  "totalVolume": "Total Volume",
+  "marketValue": "Total Market Value"
 }

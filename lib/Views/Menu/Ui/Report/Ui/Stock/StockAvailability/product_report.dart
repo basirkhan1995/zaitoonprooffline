@@ -1514,7 +1514,7 @@ class _DesktopState extends State<_Desktop> {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    "Total Market Value",
+                                    tr.marketValue,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Theme.of(context).colorScheme.onPrimaryContainer,

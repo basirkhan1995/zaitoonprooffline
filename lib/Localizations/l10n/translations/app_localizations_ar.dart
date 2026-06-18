@@ -2199,7 +2199,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get inTitle => 'ورود';
 
   @override
-  String get totalProductValue => 'د توکو مجموعي ارزښت';
+  String get totalProductValue => 'د توکو ارزښت';
 
   @override
   String get totalProductExpense => 'ټول (کالا + لګښت)';
@@ -3379,4 +3379,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get totalVolume => 'ټول  پیسې';
+
+  @override
+  String get marketValue => 'کل ارزش بازار';
 }
