@@ -1049,7 +1049,6 @@ class _Desktop extends StatefulWidget {
   @override
   State<_Desktop> createState() => _DesktopState();
 }
-
 class _DesktopState extends State<_Desktop> {
   int? storageId;
   String? baseCcy;
@@ -1189,7 +1188,6 @@ class _DesktopState extends State<_Desktop> {
                 Expanded(
                   child: ProductsSearchField(
                     showBorder: true,
-
                     controller: productController,
                     bloc: context.read<ProductsBloc>(),
                     hintText: tr.searchProducts,
@@ -1374,6 +1372,14 @@ class _DesktopState extends State<_Desktop> {
                     return sum + value;
                   });
 
+                  final totalSaleValue = state.stock.fold<double>(0, (sum, item) {
+                    final qtyBoxes = int.tryParse(item.available ?? "0") ?? 0;
+                    final itemsPerBox = item.batch ?? 0;
+                    final salePrice = double.tryParse(item.sellPrice ?? "0") ?? 0;
+                    final totalItems = qtyBoxes * itemsPerBox;
+                    return sum + (totalItems * salePrice);
+                  });
+
                   if (state.stock.isEmpty) {
                     return NoDataWidget(
                       title: tr.noData,
@@ -1497,6 +1503,29 @@ class _DesktopState extends State<_Desktop> {
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "Total Market Value",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                    ),
+                                  ),
+                                  Text(
+                                    "${totalSaleValue.toAmount(decimal: 2)} $baseCcy",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green.shade700, // Use a different color to distinguish
                                     ),
                                   ),
                                 ],
