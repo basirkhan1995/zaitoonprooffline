@@ -47,7 +47,6 @@ class _Mobile extends StatefulWidget {
   @override
   State<_Mobile> createState() => _MobileState();
 }
-
 class _MobileState extends State<_Mobile> {
   int? storageId;
   String? baseCcy;
@@ -628,7 +627,6 @@ class _Tablet extends StatefulWidget {
   @override
   State<_Tablet> createState() => _TabletState();
 }
-
 class _TabletState extends State<_Tablet> {
   int? storageId;
   String? baseCcy;
@@ -1120,7 +1118,7 @@ class _DesktopState extends State<_Desktop> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: Text("${tr.products} ${tr.report}"),
+        title: Text(tr.stockReport),
         actionsPadding: EdgeInsets.symmetric(horizontal: 10),
         actions: [
           if(hasAnyFilter)...[
@@ -1140,14 +1138,14 @@ class _DesktopState extends State<_Desktop> {
                 ProductReportExcelService.exportToExcel(
                   productList: state.stock,
                   baseCurrency: baseCcy ?? '',
-                  fileName: 'Product_Report_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.xlsx',
+                  fileName: 'Stock_Report_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.xlsx',
                   context: context,
                 );
               } else {
                 ToastManager.show(
                   context: context,
-                  title: "Attention",
-                  message: "Please load the data first.",
+                  title: "اطلاعات وجود ندارد",
+                  message: "لطفا اول گزارشات کالا ها را تهیه کنید.",
                   type: ToastType.warning,
                 );
               }

@@ -1121,5 +1121,6 @@
   "mostFrequent": "Most Frequent",
   "totalVolume": "Total Volume",
   "marketValue": "Total Market Value",
-  "unAuthorize": "Unauthorize"
+  "unAuthorize": "Unauthorize",
+  "stockReport": "Stock Report"
 }

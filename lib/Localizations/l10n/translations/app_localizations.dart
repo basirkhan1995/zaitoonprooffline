@@ -6711,6 +6711,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unauthorize'**
   String get unAuthorize;
+
+  /// No description provided for @stockReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Report'**
+  String get stockReport;
 }
 
 class _AppLocalizationsDelegate

@@ -3393,4 +3393,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unAuthorize => 'Unauthorize';
+
+  @override
+  String get stockReport => 'Stock Report';
 }

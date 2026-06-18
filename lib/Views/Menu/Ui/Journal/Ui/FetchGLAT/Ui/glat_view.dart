@@ -1141,7 +1141,7 @@ class _DesktopState extends State<_Desktop> {
                   final bool showAuthorizeButton = glat.transaction?.trnStatus == 0 && login.usrName != transaction?.maker;
                   final bool showDeleteButton = glat.transaction?.trnStatus == 0 && transaction?.maker == login.usrName;
                   final bool showAnyButton = showAuthorizeButton || showDeleteButton;
-
+                  final bool isAuthorized = glat.transaction?.trnStateText == "Authorized";
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1317,70 +1317,87 @@ class _DesktopState extends State<_Desktop> {
                           children: [
                             // Action Buttons
                             if (showAnyButton) ...[
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                spacing: 12,
-                                children: [
-                                  if (showDeleteButton)
-                                    ZOutlineButton(
-                                      icon: isDeleteLoading ? null : Icons.delete_outline_rounded,
-                                      isActive: true,
-                                      backgroundHover: color.error,
-                                      onPressed: () {
-                                        context.read<TransactionsBloc>().add(
-                                          DeletePendingTxnEvent(
-                                            reference: loadedGlat?.transaction?.trnReference ?? "",
-                                            usrName: login.usrName ?? "",
+                              if(showAnyButton)...[
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  spacing: 12,
+                                  children: [
+                                    if (showDeleteButton)
+                                      ZOutlineButton(
+                                        icon: isDeleteLoading ? null : Icons.delete_outline_rounded,
+                                        isActive: true,
+                                        backgroundHover: color.error,
+                                        onPressed: () {
+                                          context.read<TransactionsBloc>().add(
+                                            DeletePendingTxnEvent(
+                                              reference: loadedGlat?.transaction?.trnReference ?? "",
+                                              usrName: login.usrName ?? "",
+                                            ),
+                                          );
+                                        },
+                                        label: isDeleteLoading
+                                            ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 3,
                                           ),
-                                        );
-                                      },
-                                      label: isDeleteLoading
-                                          ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 3,
-                                        ),
-                                      )
-                                          : Text(tr.delete),
-                                    ),
+                                        )
+                                            : Text(tr.delete),
+                                      ),
 
-                                  if (showAuthorizeButton)
-                                    ZOutlineButton(
-                                      onPressed: () {
-                                        context.read<TransactionsBloc>().add(
-                                          AuthorizeTxnEvent(
-                                            reference: loadedGlat?.transaction?.trnReference ?? "",
-                                            usrName: login.usrName ?? "",
+                                    if (showAuthorizeButton)
+                                      ZOutlineButton(
+                                        onPressed: () {
+                                          context.read<TransactionsBloc>().add(
+                                            AuthorizeTxnEvent(
+                                              reference: loadedGlat?.transaction?.trnReference ?? "",
+                                              usrName: login.usrName ?? "",
+                                            ),
+                                          );
+                                        },
+                                        icon: isAuthorizeLoading ? null : Icons.check_circle_outline,
+                                        isActive: true,
+                                        backgroundColor: color.primary,
+                                        textColor: color.onPrimary,
+                                        label: isAuthorizeLoading
+                                            ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 3,
+                                            color: Colors.white,
                                           ),
-                                        );
-                                      },
-                                      icon: isAuthorizeLoading ? null : Icons.check_circle_outline,
-                                      isActive: true,
-                                      backgroundColor: color.primary,
-                                      textColor: color.onPrimary,
-                                      label: isAuthorizeLoading
-                                          ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 3,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                          : Text(tr.authorize),
-                                    ),
-                                ],
-                              ),
+                                        )
+                                            : Text(tr.authorize),
+                                      ),
+                                  ],
+                                ),
+                              ],
                               SizedBox(width: 5),
+                              Row(
+                                children: [
+                                  ZOutlineButton(
+                                      isActive: true,
+                                      onPressed: () => getPrinted(data: loadedGlat!, company: company),
+                                      icon: Icons.print,
+                                      label: Text(tr.print)),
+
+                                  if(isAuthorized && (auth.loginData.usrRole == "Admin" || auth.loginData.usrRole == "Super"))...[
+                                    SizedBox(width: 5),
+                                    ZOutlineButton(
+                                        onPressed: (){
+                                          context.read<TransactionsBloc>().add(UnAuthorizedTxnEvent(reference: glat.transaction?.trnReference??"", usrName: auth.loginData.usrName??""));
+                                        },
+                                        icon: Icons.refresh_rounded,
+                                        label: Text(tr.unAuthorize)),
+                                  ]
+                                ],
+                              )
                             ],
 
-                            ZOutlineButton(
-                                isActive: true,
-                                onPressed: () => getPrinted(data: loadedGlat!, company: company),
-                                icon: Icons.print,
-                                label: Text(tr.print)),
+
                           ],
                         ),
                       ),

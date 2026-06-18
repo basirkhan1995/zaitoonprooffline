@@ -3382,4 +3382,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get unAuthorize => 'از تایید کشیدن';
+
+  @override
+  String get stockReport => 'گزارشات کالاها';
 }
