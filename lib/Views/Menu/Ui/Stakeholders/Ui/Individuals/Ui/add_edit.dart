@@ -1249,15 +1249,8 @@ class _DesktopState extends State<_Desktop> {
                         Expanded(
                           child: ZTextFieldEntitled(
                             controller: lastName,
-                            isRequired: true,
                             title: locale.lastName,
                             onSubmit: (_) => onSubmit(),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return locale.required(locale.lastName);
-                              }
-                              return null;
-                            },
                           ),
                         ),
                       ],

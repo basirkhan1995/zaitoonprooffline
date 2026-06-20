@@ -532,7 +532,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get firstName => 'نام';
 
   @override
-  String get lastName => 'نام خانوادگی';
+  String get lastName => 'تخلص';
 
   @override
   String get dob => 'تاریخ تولد';
