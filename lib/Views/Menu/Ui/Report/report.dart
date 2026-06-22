@@ -93,7 +93,7 @@ class _DesktopState extends State<_Desktop> {
     final List<Map<String, dynamic>> financeButtons = [
       if(login.hasPermission(79) ?? false)
       {"title": tr.accountStatement, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.accStatement},
-      if(login.hasPermission(81) ?? false)
+      if (!(login.hasPermission(79) ?? false) && (login.hasPermission(81) ?? false))
       {"title": tr.glStatement, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.glStatement},
       if(login.hasPermission(80) ?? false)
       {"title": tr.glStatementSingleDate, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.glStatementSingleDate},
@@ -101,7 +101,7 @@ class _DesktopState extends State<_Desktop> {
       {"title": tr.creditors, "icon": FontAwesomeIcons.arrowTrendUp, "action": ActionKey.payable},
       if(login.hasPermission(83) ?? false)
       {"title": tr.debtors, "icon": FontAwesomeIcons.arrowTrendDown, "action": ActionKey.receivable},
-      {"title": tr.accounts, "icon": Icons.account_circle, "action": ActionKey.accountsReport},
+     // {"title": tr.accounts, "icon": Icons.account_circle, "action": ActionKey.accountsReport},
     ];
 
     final List<Map<String, dynamic>> stockButtons = [

@@ -196,6 +196,24 @@ class _MobileState extends State<_Mobile> {
               },
               child: Text(locale.forgotPassword),
             ),
+
+            Align(
+              alignment: Alignment.center,
+              child: TextButton(
+                onPressed: () async {
+                  final result = await showDialog(
+                    context: context,
+                    builder: (context) => const ServerConnectDialog(),
+                  );
+
+                  if (result == true) {
+                    // Refresh UI or reconnect
+                    setState(() {});
+                  }
+                },
+                child: Text(locale.connectToServer),
+              ),
+            ),
           ],
         ),
       ),
@@ -488,6 +506,23 @@ class _TabletState extends State<_Tablet> {
               },
               child: Text(locale.forgotPassword),
             ),
+            Align(
+              alignment: Alignment.center,
+              child: TextButton(
+                onPressed: () async {
+                  final result = await showDialog(
+                    context: context,
+                    builder: (context) => const ServerConnectDialog(),
+                  );
+
+                  if (result == true) {
+                    // Refresh UI or reconnect
+                    setState(() {});
+                  }
+                },
+                child: Text(locale.connectToServer),
+              ),
+            ),
           ],
         ),
       ),
@@ -532,11 +567,6 @@ class _DesktopState extends State<_Desktop> {
             Utils.goto(
               context,
               ForceChangePasswordView(credential: _emailController.text),
-            );
-          }  if (state is NoSubscriptionState) {
-            Utils.goto(
-              context,
-              NoSubscriptionView(),
             );
           }
         },

@@ -2,19 +2,36 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:zaitoonpro/Features/Other/toast.dart';
+import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
+import 'package:zaitoonpro/Features/Widgets/textfield_entitled.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'dart:io';
+import '../../Features/Other/responsive.dart';
 import '../../Services/api_services.dart';
 
-class ServerConnectDialog extends StatefulWidget {
+class ServerConnectDialog extends StatelessWidget {
   const ServerConnectDialog({super.key});
 
   @override
-  State<ServerConnectDialog> createState() => _ServerConnectDialogState();
+  Widget build(BuildContext context) {
+    return ResponsiveLayout(
+      mobile: const _MobileServerConnect(),
+      tablet: const _TabletServerConnect(),
+      desktop: const _DesktopServerConnect(),
+    );
+  }
 }
 
-class _ServerConnectDialogState extends State<ServerConnectDialog> {
-  final ipController = TextEditingController();
+// ============= DESKTOP VIEW =============
+class _DesktopServerConnect extends StatefulWidget {
+  const _DesktopServerConnect();
+
+  @override
+  State<_DesktopServerConnect> createState() => _DesktopServerConnectState();
+}
+
+class _DesktopServerConnectState extends State<_DesktopServerConnect> {
+  final TextEditingController ipController = TextEditingController();
   bool loading = false;
   bool autoFinding = false;
   String? _scanStatus;
@@ -33,13 +50,8 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     setState(() => loading = true);
 
     try {
-      // Get this device's IP first
       final ip = await _getLocalIP();
-
-      // Check if this device can act as a server
       final isServer = await ApiServices().isServerDevice();
-
-      // Get current connection status
       final currentIP = await ApiServices().getSavedServerIP();
       final isLocalhost = ApiServices().isLocalhost;
 
@@ -51,16 +63,14 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
           _connectedToLocalhost = isLocalhost;
         });
 
-        // If already connected to a server (including localhost), show current status
         if (isLocalhost) {
-          // Already on localhost, but allow changing
           ipController.text = '';
         } else if (currentIP != null && currentIP.isNotEmpty) {
           ipController.text = currentIP;
         }
       }
     } catch (e) {
-      // Continue with manual input
+      // Ignore
     } finally {
       if (mounted) {
         setState(() => loading = false);
@@ -72,19 +82,9 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     try {
       final interfaces = await NetworkInterface.list();
 
-      // Debug: Print all interfaces to see what's available
-      for (var interface in interfaces) {
-        debugPrint('Interface: ${interface.name}');
-        for (var addr in interface.addresses) {
-          debugPrint('  - ${addr.address} (${addr.type})');
-        }
-      }
-
-      // Priority 1: WiFi (usually the correct one for LAN)
       for (var interface in interfaces) {
         final name = interface.name.toLowerCase();
 
-        // Skip virtual/non-physical interfaces
         if (name.contains('virtual') ||
             name.contains('vmware') ||
             name.contains('virtualbox') ||
@@ -98,61 +98,26 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
           continue;
         }
 
-        // Check for WiFi/Wireless first
         if (name.contains('wi-fi') ||
             name.contains('wifi') ||
             name.contains('wireless') ||
-            name.contains('wlan')) {
-
-          for (var addr in interface.addresses) {
-            if (addr.type == InternetAddressType.IPv4 &&
-                !addr.isLoopback &&
-                !addr.address.startsWith('169.254') &&  // Skip APIPA
-                !addr.address.startsWith('0.')) {
-              debugPrint('Found WiFi IP: ${addr.address}');
-              return addr.address;
-            }
-          }
-        }
-      }
-
-      // Priority 2: Ethernet
-      for (var interface in interfaces) {
-        final name = interface.name.toLowerCase();
-
-        if (name.contains('virtual') ||
-            name.contains('vmware') ||
-            name.contains('virtualbox') ||
-            name.contains('bluetooth') ||
-            name.contains('loopback') ||
-            name.contains('hyper-v') ||
-            name.contains('wsl') ||
-            name.contains('docker') ||
-            name.contains('vpn') ||
-            name.contains('tunnel')) {
-          continue;
-        }
-
-        if (name.contains('ethernet') ||
+            name.contains('wlan') ||
+            name.contains('ethernet') ||
             name.contains('lan') ||
             name.contains('eth')) {
-
           for (var addr in interface.addresses) {
             if (addr.type == InternetAddressType.IPv4 &&
                 !addr.isLoopback &&
                 !addr.address.startsWith('169.254') &&
                 !addr.address.startsWith('0.')) {
-              debugPrint('Found Ethernet IP: ${addr.address}');
               return addr.address;
             }
           }
         }
       }
 
-      // Priority 3: Any other non-virtual adapter
       for (var interface in interfaces) {
         final name = interface.name.toLowerCase();
-
         if (name.contains('virtual') ||
             name.contains('vmware') ||
             name.contains('virtualbox') ||
@@ -171,13 +136,12 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
               !addr.isLoopback &&
               !addr.address.startsWith('169.254') &&
               !addr.address.startsWith('0.')) {
-            debugPrint('Found other IP: ${addr.address}');
             return addr.address;
           }
         }
       }
     } catch (e) {
-      debugPrint('Error getting IP: $e');
+      // Ignore
     }
     return null;
   }
@@ -201,34 +165,35 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
         if (response.statusCode == 200 && response.data is Map) {
           final data = response.data;
           if (data['success'] == true) {
-            // Determine if we're connecting to localhost or remote
             final connectedIP = data['ip'] ?? ip;
             final isLocalConnection = (connectedIP == 'localhost' ||
                 connectedIP == '127.0.0.1' ||
                 connectedIP == '::1');
 
             await ApiServices().setServerIP(
-                isLocalConnection ? 'localhost' : ip,
-                port: '80'
+              isLocalConnection ? 'localhost' : ip,
+              port: '80',
             );
 
             if (mounted) {
-              ipController.text = isLocalConnection ? '' : ip;
-
-              String message;
-              if (isLocalConnection) {
-                message = 'Connected to localhost (this device)';
-              } else {
-                message = 'Connected to server at $ip';
-              }
+              setState(() {
+                _currentServerIP = isLocalConnection ? 'localhost' : ip;
+                _connectedToLocalhost = isLocalConnection;
+                ipController.text = isLocalConnection ? '' : ip;
+              });
 
               ToastManager.show(
-                  context: context,
-                  title: "Connected",
-                  message: message,
-                  type: ToastType.success
+                context: context,
+                title: "Connected",
+                message: isLocalConnection ? "Connected to localhost" : "Connected to $ip",
+                type: ToastType.success,
               );
-              Navigator.pop(context, true);
+
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  Navigator.pop(context, true);
+                }
+              });
             }
             return true;
           }
@@ -250,16 +215,15 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
       final connected = await _tryConnect('localhost');
       if (connected) return;
 
-      // If localhost fails, try 127.0.0.1
       final connected2 = await _tryConnect('127.0.0.1');
       if (connected2) return;
 
       if (mounted) {
         ToastManager.show(
-            context: context,
-            title: "Connection Failed",
-            message: "Could not connect to localhost. Is XAMPP running?",
-            type: ToastType.error
+          context: context,
+          title: "Connection Failed",
+          message: "Could not connect to localhost. Is XAMPP running?",
+          type: ToastType.error,
         );
       }
     } finally {
@@ -280,14 +244,12 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     });
 
     try {
-      // Try localhost first if this device can be a server
       if (_isServer) {
         setState(() => _scanStatus = 'Checking localhost...');
         final connected = await _tryConnect('localhost');
         if (connected) return;
       }
 
-      // Try saved IP next
       final savedIP = await ApiServices().getSavedServerIP();
       if (savedIP != null && savedIP.isNotEmpty) {
         setState(() => _scanStatus = 'Trying saved server: $savedIP');
@@ -295,14 +257,12 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
         if (connected) return;
       }
 
-      // Try this device's IP (in case we're the server with different config)
       if (_myIP != null && !_connectedToLocalhost) {
         setState(() => _scanStatus = 'Checking this device: $_myIP');
         final connected = await _tryConnect(_myIP!);
         if (connected) return;
       }
 
-      // Scan the network
       final localIP = _myIP ?? await _getLocalIP();
 
       if (localIP != null) {
@@ -316,7 +276,6 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
           if (subnet != '10.0.0') subnetsToTry.add('10.0.0');
 
           for (final currentSubnet in subnetsToTry) {
-            // Try common server IPs first
             final priorityIPs = <String>[
               '$currentSubnet.109',
               '$currentSubnet.100',
@@ -334,7 +293,6 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
               if (connected) return;
             }
 
-            // Scan remaining IPs
             for (int i = 2; i <= 254; i++) {
               final ip = '$currentSubnet.$i';
               if (priorityIPs.contains(ip) || ip == localIP) continue;
@@ -343,7 +301,6 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
               final connected = await _tryConnect(ip);
               if (connected) return;
 
-              // Small delay to prevent overwhelming the network
               await Future.delayed(const Duration(milliseconds: 50));
             }
           }
@@ -353,20 +310,20 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
       if (mounted) {
         setState(() => _scanStatus = null);
         ToastManager.show(
-            context: context,
-            title: "No Server Found",
-            message: "Could not find any server. Please check if the server is running and try again.",
-            type: ToastType.error
+          context: context,
+          title: "No Server Found",
+          message: "Could not find any server. Please check if the server is running and try again.",
+          type: ToastType.error,
         );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _scanStatus = null);
         ToastManager.show(
-            context: context,
-            title: "Scan Failed",
-            message: "An error occurred while scanning the network.",
-            type: ToastType.error
+          context: context,
+          title: "Scan Failed",
+          message: "An error occurred while scanning the network.",
+          type: ToastType.error,
         );
       }
     } finally {
@@ -385,15 +342,14 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
 
     if (ip.isEmpty) {
       ToastManager.show(
-          context: context,
-          title: "IP Required",
-          message: "Please enter the server address.",
-          type: ToastType.warning
+        context: context,
+        title: "IP Required",
+        message: "Please enter the server address.",
+        type: ToastType.warning,
       );
       return;
     }
 
-    // Handle special cases
     if (ip.toLowerCase() == 'localhost' || ip == '127.0.0.1') {
       await _connectToLocalhost();
       return;
@@ -406,19 +362,19 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
 
       if (!connected && mounted) {
         ToastManager.show(
-            context: context,
-            title: "Connection Failed",
-            message: "Could not connect to $ip. Make sure the server is running.",
-            type: ToastType.error
+          context: context,
+          title: "Connection Failed",
+          message: "Could not connect to $ip. Make sure the server is running.",
+          type: ToastType.error,
         );
       }
     } catch (e) {
       if (mounted) {
         ToastManager.show(
-            context: context,
-            title: "Connection Failed",
-            message: "Failed to connect to $ip",
-            type: ToastType.error
+          context: context,
+          title: "Connection Failed",
+          message: "Failed to connect to $ip",
+          type: ToastType.error,
         );
       }
     } finally {
@@ -430,7 +386,6 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     setState(() => loading = true);
 
     try {
-      // Reset to localhost
       await ApiServices().setServerIP('localhost');
 
       if (mounted) {
@@ -441,19 +396,19 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
         });
 
         ToastManager.show(
-            context: context,
-            title: "Disconnected",
-            message: "Reset to localhost connection.",
-            type: ToastType.info
+          context: context,
+          title: "Disconnected",
+          message: "Reset to localhost connection.",
+          type: ToastType.info,
         );
       }
     } catch (e) {
       if (mounted) {
         ToastManager.show(
-            context: context,
-            title: "Error",
-            message: "Failed to reset connection.",
-            type: ToastType.error
+          context: context,
+          title: "Error",
+          message: "Failed to reset connection.",
+          type: ToastType.error,
         );
       }
     } finally {
@@ -469,11 +424,695 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
     final locale = AppLocalizations.of(context)!;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 450),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.45,
+        constraints: const BoxConstraints(maxWidth: 550, minWidth: 420),
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            _buildHeader(theme, locale),
+            const SizedBox(height: 16),
+
+            // Current Connection Status
+            _buildConnectionStatus(),
+            const SizedBox(height: 16),
+
+            // This device info
+            if (_myIP != null) _buildDeviceInfo(),
+            const SizedBox(height: 16),
+
+            // Manual IP Input with Connect button
+            _buildManualInput(),
+            const SizedBox(height: 16),
+
+            // Quick Connect Options
+            _buildConnectionOptions(),
+            const SizedBox(height: 16),
+
+            // Action Buttons
+            _buildActionButtons(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(ThemeData theme, AppLocalizations locale) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: theme.primaryColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(Icons.dns, color: theme.primaryColor, size: 24),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            locale.connectToServer,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.close, size: 22),
+          onPressed: () => Navigator.pop(context, false),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConnectionStatus() {
+    if (!_connectedToLocalhost && _currentServerIP != null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.orange.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.link, size: 18, color: Colors.orange.shade700),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Connected to: $_currentServerIP',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.orange.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: loading ? null : _disconnect,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Disconnect',
+                style: TextStyle(fontSize: 12, color: Colors.red),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_connectedToLocalhost && _isServer) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.green.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.check_circle, size: 18, color: Colors.green.shade700),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Connected to localhost (this device)',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.green.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.link_off, size: 18, color: Colors.grey.shade600),
+          const SizedBox(width: 10),
+          Text(
+            'Not connected',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeviceInfo() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.phone_android, size: 18, color: Colors.blue.shade700),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'This Device IP: $_myIP',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue.shade700,
+                ),
+              ),
+              if (_isServer)
+                Text(
+                  '✓ This device can act as a server',
+                  style: TextStyle(fontSize: 11, color: Colors.blue.shade600),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildManualInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Manual Connection',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: ZTextFieldEntitled(
+                title: "",
+                hint: "192.168.1.15",
+                controller: ipController,
+                isEnabled: !loading,
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              flex: 1,
+              child: ZOutlineButton(
+                icon: Icons.refresh,
+                height: 49,
+                onPressed: (loading || ipController.text.trim().isEmpty) ? null : connect,
+                label: loading
+                    ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+                    : Text(
+                  AppLocalizations.of(context)!.connect,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConnectionOptions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Quick Connect',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            // Localhost button
+            if (_isServer)
+              _buildActionChip(
+                icon: Icons.computer,
+                label: _connectedToLocalhost ? 'Localhost ✓' : 'Localhost',
+                onTap: _connectToLocalhost,
+                isLoading: loading,
+                isActive: _connectedToLocalhost,
+              ),
+
+            // Auto Find button
+            _buildActionChip(
+              icon: Icons.wifi_find,
+              label: autoFinding ? 'Searching...' : 'Auto Find',
+              onTap: _quickConnect,
+              isLoading: loading || autoFinding,
+              isActive: false,
+            ),
+
+            // This Device button
+            if (_myIP != null)
+              _buildActionChip(
+                icon: Icons.phone_android,
+                label: 'This Device',
+                onTap: () {
+                  if (_myIP != null) {
+                    ipController.text = _myIP!;
+                    setState(() {});
+                  }
+                },
+                isLoading: false,
+                isActive: false,
+              ),
+          ],
+        ),
+        if (_scanStatus != null) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _scanStatus!,
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildActionChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isLoading,
+    required bool isActive,
+  }) {
+    return InkWell(
+      onTap: isLoading ? null : onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive
+              ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+              : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isActive
+                ? Theme.of(context).primaryColor
+                : Colors.grey.shade200,
+            width: isActive ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              Icon(
+                icon,
+                size: 16,
+                color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade600,
+              ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+          onPressed: loading ? null : () => Navigator.pop(context, false),
+          child: Text(
+            AppLocalizations.of(context)!.cancel,
+            style: TextStyle(fontSize: 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    ipController.dispose();
+    super.dispose();
+  }
+}
+
+// ============= MOBILE VIEW =============
+class _MobileServerConnect extends StatefulWidget {
+  const _MobileServerConnect();
+
+  @override
+  State<_MobileServerConnect> createState() => _MobileServerConnectState();
+}
+
+class _MobileServerConnectState extends State<_MobileServerConnect> {
+  final TextEditingController ipController = TextEditingController();
+  bool loading = false;
+  bool autoFinding = false;
+  String? _scanStatus;
+  String? _myIP;
+  bool _isServer = false;
+  String? _currentServerIP;
+  bool _connectedToLocalhost = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    setState(() => loading = true);
+    try {
+      final ip = await _getLocalIP();
+      final isServer = await ApiServices().isServerDevice();
+      final currentIP = await ApiServices().getSavedServerIP();
+      final isLocalhost = ApiServices().isLocalhost;
+
+      if (mounted) {
+        setState(() {
+          _myIP = ip;
+          _isServer = isServer;
+          _currentServerIP = currentIP;
+          _connectedToLocalhost = isLocalhost;
+        });
+        if (isLocalhost) {
+          ipController.text = '';
+        } else if (currentIP != null && currentIP.isNotEmpty) {
+          ipController.text = currentIP;
+        }
+      }
+    } catch (e) {
+      // Ignore
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<String?> _getLocalIP() async {
+    try {
+      final interfaces = await NetworkInterface.list();
+      for (var interface in interfaces) {
+        final name = interface.name.toLowerCase();
+        if (name.contains('virtual') || name.contains('vmware') || name.contains('virtualbox') ||
+            name.contains('bluetooth') || name.contains('loopback') || name.contains('hyper-v') ||
+            name.contains('wsl') || name.contains('docker') || name.contains('vpn') || name.contains('tunnel')) {
+          continue;
+        }
+        if (name.contains('wi-fi') || name.contains('wifi') || name.contains('wireless') || name.contains('wlan') ||
+            name.contains('ethernet') || name.contains('lan') || name.contains('eth')) {
+          for (var addr in interface.addresses) {
+            if (addr.type == InternetAddressType.IPv4 && !addr.isLoopback &&
+                !addr.address.startsWith('169.254') && !addr.address.startsWith('0.')) {
+              return addr.address;
+            }
+          }
+        }
+      }
+      for (var interface in interfaces) {
+        final name = interface.name.toLowerCase();
+        if (name.contains('virtual') || name.contains('vmware') || name.contains('virtualbox') ||
+            name.contains('bluetooth') || name.contains('loopback') || name.contains('hyper-v') ||
+            name.contains('wsl') || name.contains('docker') || name.contains('vpn') || name.contains('tunnel')) {
+          continue;
+        }
+        for (var addr in interface.addresses) {
+          if (addr.type == InternetAddressType.IPv4 && !addr.isLoopback &&
+              !addr.address.startsWith('169.254') && !addr.address.startsWith('0.')) {
+            return addr.address;
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore
+    }
+    return null;
+  }
+
+  Future<bool> _tryConnect(String ip) async {
+    final urls = ['http://$ip/rapi/get_ip.php', 'http://$ip:80/rapi/get_ip.php'];
+    for (final url in urls) {
+      try {
+        final dio = Dio(BaseOptions(
+          connectTimeout: const Duration(seconds: 2),
+          receiveTimeout: const Duration(seconds: 2),
+          validateStatus: (status) => status != null && status < 500,
+        ));
+        final response = await dio.get(url);
+        if (response.statusCode == 200 && response.data is Map) {
+          final data = response.data;
+          if (data['success'] == true) {
+            final connectedIP = data['ip'] ?? ip;
+            final isLocalConnection = (connectedIP == 'localhost' || connectedIP == '127.0.0.1' || connectedIP == '::1');
+            await ApiServices().setServerIP(isLocalConnection ? 'localhost' : ip, port: '80');
+            if (mounted) {
+              setState(() {
+                _currentServerIP = isLocalConnection ? 'localhost' : ip;
+                _connectedToLocalhost = isLocalConnection;
+                ipController.text = isLocalConnection ? '' : ip;
+              });
+              ToastManager.show(
+                context: context,
+                title: "Connected",
+                message: isLocalConnection ? "Connected to localhost" : "Connected to $ip",
+                type: ToastType.success,
+              );
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) Navigator.pop(context, true);
+              });
+            }
+            return true;
+          }
+        }
+      } catch (e) {
+        continue;
+      }
+    }
+    return false;
+  }
+
+  Future<void> _connectToLocalhost() async {
+    setState(() { loading = true; _scanStatus = 'Connecting to localhost...'; });
+    try {
+      if (await _tryConnect('localhost')) return;
+      if (await _tryConnect('127.0.0.1')) return;
+      if (mounted) {
+        ToastManager.show(
+          context: context,
+          title: "Connection Failed",
+          message: "Could not connect to localhost. Is XAMPP running?",
+          type: ToastType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() { loading = false; _scanStatus = null; });
+    }
+  }
+
+  Future<void> _quickConnect() async {
+    setState(() { autoFinding = true; loading = true; _scanStatus = 'Searching for servers...'; });
+    try {
+      if (_isServer && await _tryConnect('localhost')) return;
+      final savedIP = await ApiServices().getSavedServerIP();
+      if (savedIP != null && savedIP.isNotEmpty && await _tryConnect(savedIP)) return;
+      if (_myIP != null && !_connectedToLocalhost && await _tryConnect(_myIP!)) return;
+      final localIP = _myIP ?? await _getLocalIP();
+      if (localIP != null) {
+        final parts = localIP.split('.');
+        if (parts.length == 4) {
+          final subnet = '${parts[0]}.${parts[1]}.${parts[2]}';
+          final subnetsToTry = <String>[subnet];
+          if (subnet != '192.168.0') subnetsToTry.add('192.168.0');
+          if (subnet != '192.168.1') subnetsToTry.add('192.168.1');
+          if (subnet != '10.0.0') subnetsToTry.add('10.0.0');
+          for (final currentSubnet in subnetsToTry) {
+            final priorityIPs = ['$currentSubnet.109', '$currentSubnet.100', '$currentSubnet.50', '$currentSubnet.10', '$currentSubnet.20', '$currentSubnet.30', '$currentSubnet.1'];
+            for (final ip in priorityIPs) {
+              if (ip == localIP) continue;
+              setState(() => _scanStatus = 'Checking $ip...');
+              if (await _tryConnect(ip)) return;
+            }
+            for (int i = 2; i <= 254; i++) {
+              final ip = '$currentSubnet.$i';
+              if (priorityIPs.contains(ip) || ip == localIP) continue;
+              setState(() => _scanStatus = 'Scanning $ip...');
+              if (await _tryConnect(ip)) return;
+              await Future.delayed(const Duration(milliseconds: 50));
+            }
+          }
+        }
+      }
+      if (mounted) {
+        setState(() => _scanStatus = null);
+        ToastManager.show(
+          context: context,
+          title: "No Server Found",
+          message: "Could not find any server. Please check if the server is running and try again.",
+          type: ToastType.error,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _scanStatus = null);
+        ToastManager.show(
+          context: context,
+          title: "Scan Failed",
+          message: "An error occurred while scanning the network.",
+          type: ToastType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() { autoFinding = false; loading = false; _scanStatus = null; });
+    }
+  }
+
+  Future<void> connect() async {
+    final ip = ipController.text.trim();
+    if (ip.isEmpty) {
+      ToastManager.show(
+        context: context,
+        title: "IP Required",
+        message: "Please enter the server address.",
+        type: ToastType.warning,
+      );
+      return;
+    }
+    if (ip.toLowerCase() == 'localhost' || ip == '127.0.0.1') {
+      await _connectToLocalhost();
+      return;
+    }
+    setState(() => loading = true);
+    try {
+      if (!await _tryConnect(ip) && mounted) {
+        ToastManager.show(
+          context: context,
+          title: "Connection Failed",
+          message: "Could not connect to $ip. Make sure the server is running.",
+          type: ToastType.error,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastManager.show(
+          context: context,
+          title: "Connection Failed",
+          message: "Failed to connect to $ip",
+          type: ToastType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> _disconnect() async {
+    setState(() => loading = true);
+    try {
+      await ApiServices().setServerIP('localhost');
+      if (mounted) {
+        setState(() { _currentServerIP = null; _connectedToLocalhost = true; ipController.text = ''; });
+        ToastManager.show(
+          context: context,
+          title: "Disconnected",
+          message: "Reset to localhost connection.",
+          type: ToastType.info,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final locale = AppLocalizations.of(context)!;
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.92,
+        constraints: const BoxConstraints(maxWidth: 400),
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,36 +1136,163 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
 
-              // Current Connection Status
+              // Status
               _buildConnectionStatus(),
-
-              const SizedBox(height: 16),
-
-              // This device info
-              if (_myIP != null) _buildDeviceInfo(),
-
-              const SizedBox(height: 16),
-
-              // Connection Options
-              _buildConnectionOptions(),
-
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // Manual IP Input
-              _buildManualInput(),
+              TextField(
+                controller: ipController,
+                decoration: InputDecoration(
+                  hintText: 'Enter server IP',
+                  prefixIcon: const Icon(Icons.computer, size: 20),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  isDense: true,
+                  suffixIcon: ipController.text.isNotEmpty
+                      ? IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    onPressed: () { ipController.clear(); setState(() {}); },
+                  )
+                      : null,
+                ),
+                enabled: !loading,
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 12),
 
+              // Quick Actions - Mobile Stacked
+              Column(
+                children: [
+                  if (_isServer)
+                    _buildActionChipMobile(
+                      icon: Icons.computer,
+                      label: _connectedToLocalhost ? 'Localhost ✓' : 'Localhost',
+                      onTap: _connectToLocalhost,
+                      isLoading: loading,
+                      isActive: _connectedToLocalhost,
+                    ),
+                  const SizedBox(height: 6),
+                  _buildActionChipMobile(
+                    icon: Icons.wifi_find,
+                    label: autoFinding ? 'Searching...' : 'Auto Find',
+                    onTap: _quickConnect,
+                    isLoading: loading || autoFinding,
+                    isActive: false,
+                  ),
+                  if (_myIP != null) ...[
+                    const SizedBox(height: 6),
+                    _buildActionChipMobile(
+                      icon: Icons.phone_android,
+                      label: 'This Device',
+                      onTap: () {
+                        if (_myIP != null) {
+                          ipController.text = _myIP!;
+                          setState(() {});
+                        }
+                      },
+                      isLoading: false,
+                      isActive: false,
+                    ),
+                  ],
+                  const SizedBox(height: 6),
+                  _buildActionChipMobile(
+                    icon: Icons.save,
+                    label: 'Saved IP',
+                    onTap: () async {
+                      final savedIP = await ApiServices().getSavedServerIP();
+                      if (savedIP != null && savedIP.isNotEmpty) {
+                        ipController.text = savedIP;
+                        setState(() {});
+                      }
+                    },
+                    isLoading: false,
+                    isActive: false,
+                  ),
+                ],
+              ),
+              if (_scanStatus != null) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                      const SizedBox(width: 10),
+                      Expanded(child: Text(_scanStatus!, style: TextStyle(fontSize: 12, color: Colors.grey.shade700))),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
 
-              // Help box
-              _buildHelpBox(),
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: loading ? null : () => Navigator.pop(context, false),
+                      child: Text(AppLocalizations.of(context)!.cancel),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: (loading || ipController.text.trim().isEmpty) ? null : connect,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: loading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : Text(AppLocalizations.of(context)!.connect),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-              const SizedBox(height: 20),
-
-              // Action Buttons
-              _buildActionButtons(),
+  Widget _buildActionChipMobile({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isLoading,
+    required bool isActive,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: InkWell(
+        onTap: isLoading ? null : onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isActive ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade200, width: isActive ? 2 : 1),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isLoading)
+                const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+              else
+                Icon(icon, size: 16, color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade600),
+              const SizedBox(width: 6),
+              Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade700)),
             ],
           ),
         ),
@@ -535,327 +1301,458 @@ class _ServerConnectDialogState extends State<ServerConnectDialog> {
   }
 
   Widget _buildConnectionStatus() {
+    Color color;
+    String text;
+    IconData icon;
+
     if (!_connectedToLocalhost && _currentServerIP != null) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.orange.shade50,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.orange.shade200),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.link, size: 16, color: Colors.orange.shade700),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Connected to: $_currentServerIP',
-                    style: TextStyle(fontSize: 12, color: Colors.orange.shade700, fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    'You can switch to another server below',
-                    style: TextStyle(fontSize: 11, color: Colors.orange.shade600),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
+      color = Colors.orange;
+      text = 'Connected to $_currentServerIP';
+      icon = Icons.link;
+    } else if (_connectedToLocalhost && _isServer) {
+      color = Colors.green;
+      text = 'Connected to localhost';
+      icon = Icons.check_circle;
+    } else {
+      color = Colors.grey;
+      text = 'Not connected';
+      icon = Icons.link_off;
     }
 
-    if (_connectedToLocalhost && _isServer) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.green.shade50,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.green.shade200),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.check_circle, size: 16, color: Colors.green.shade700),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Connected to localhost (this device)',
-                    style: TextStyle(fontSize: 12, color: Colors.green.shade700, fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    'You can connect to another server if needed',
-                    style: TextStyle(fontSize: 11, color: Colors.green.shade600),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildDeviceInfo() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(Icons.phone_android, size: 16, color: Colors.blue.shade700),
-              const SizedBox(width: 8),
-              Text(
-                'This Device',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blue.shade700),
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: color)),
+          ),
+          if (!_connectedToLocalhost && _currentServerIP != null)
+            TextButton(
+              onPressed: loading ? null : _disconnect,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'IP: $_myIP',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.blue.shade900),
-          ),
-          if (_isServer) ...[
-            const SizedBox(height: 4),
-            Text(
-              '✓ This device can act as a server',
-              style: TextStyle(fontSize: 11, color: Colors.blue.shade600),
+              child: const Text('Disconnect', style: TextStyle(fontSize: 11, color: Colors.red)),
             ),
-          ],
         ],
       ),
     );
   }
 
-  Widget _buildConnectionOptions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Quick Connect Options:',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
-        ),
-        const SizedBox(height: 8),
+  @override
+  void dispose() {
+    ipController.dispose();
+    super.dispose();
+  }
+}
 
-        // Option 1: Connect to Localhost (if this device can be server)
-        if (_isServer)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: loading ? null : _connectToLocalhost,
-                icon: const Icon(Icons.computer, size: 18),
-                label: Text(_connectedToLocalhost ? 'Reconnect to Localhost' : 'Connect to Localhost (This PC)'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  foregroundColor: _connectedToLocalhost ? Colors.green.shade700 : null,
-                  side: BorderSide(color: _connectedToLocalhost ? Colors.green : Colors.grey.shade300),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                ),
+// ============= TABLET VIEW =============
+class _TabletServerConnect extends StatefulWidget {
+  const _TabletServerConnect();
+
+  @override
+  State<_TabletServerConnect> createState() => _TabletServerConnectState();
+}
+
+class _TabletServerConnectState extends State<_TabletServerConnect> {
+  final TextEditingController ipController = TextEditingController();
+  bool loading = false;
+  bool autoFinding = false;
+  String? _scanStatus;
+  String? _myIP;
+  bool _isServer = false;
+  String? _currentServerIP;
+  bool _connectedToLocalhost = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  // Copy all the same methods from desktop view
+  // (I'll keep it concise - same logic as desktop)
+
+  Future<void> _initialize() async {
+    setState(() => loading = true);
+    try {
+      final ip = await _getLocalIP();
+      final isServer = await ApiServices().isServerDevice();
+      final currentIP = await ApiServices().getSavedServerIP();
+      final isLocalhost = ApiServices().isLocalhost;
+      if (mounted) {
+        setState(() {
+          _myIP = ip;
+          _isServer = isServer;
+          _currentServerIP = currentIP;
+          _connectedToLocalhost = isLocalhost;
+        });
+        if (isLocalhost) {
+          ipController.text = '';
+        } else if (currentIP != null && currentIP.isNotEmpty) {
+          ipController.text = currentIP;
+        }
+      }
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<String?> _getLocalIP() async {
+    try {
+      final interfaces = await NetworkInterface.list();
+      for (var interface in interfaces) {
+        final name = interface.name.toLowerCase();
+        if (name.contains('virtual') || name.contains('vmware') || name.contains('virtualbox') ||
+            name.contains('bluetooth') || name.contains('loopback') || name.contains('hyper-v') ||
+            name.contains('wsl') || name.contains('docker') || name.contains('vpn') || name.contains('tunnel')) {
+          continue;
+        }
+        if (name.contains('wi-fi') || name.contains('wifi') || name.contains('wireless') || name.contains('wlan') ||
+            name.contains('ethernet') || name.contains('lan') || name.contains('eth')) {
+          for (var addr in interface.addresses) {
+            if (addr.type == InternetAddressType.IPv4 && !addr.isLoopback &&
+                !addr.address.startsWith('169.254') && !addr.address.startsWith('0.')) {
+              return addr.address;
+            }
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  Future<bool> _tryConnect(String ip) async {
+    final urls = ['http://$ip/rapi/get_ip.php', 'http://$ip:80/rapi/get_ip.php'];
+    for (final url in urls) {
+      try {
+        final dio = Dio(BaseOptions(connectTimeout: const Duration(seconds: 2), receiveTimeout: const Duration(seconds: 2)));
+        final response = await dio.get(url);
+        if (response.statusCode == 200 && response.data is Map) {
+          final data = response.data;
+          if (data['success'] == true) {
+            final connectedIP = data['ip'] ?? ip;
+            final isLocalConnection = (connectedIP == 'localhost' || connectedIP == '127.0.0.1' || connectedIP == '::1');
+            await ApiServices().setServerIP(isLocalConnection ? 'localhost' : ip, port: '80');
+            if (mounted) {
+              setState(() {
+                _currentServerIP = isLocalConnection ? 'localhost' : ip;
+                _connectedToLocalhost = isLocalConnection;
+                ipController.text = isLocalConnection ? '' : ip;
+              });
+              ToastManager.show(context: context, title: "Connected", message: isLocalConnection ? "Connected to localhost" : "Connected to $ip", type: ToastType.success);
+              WidgetsBinding.instance.addPostFrameCallback((_) { if (mounted) Navigator.pop(context, true); });
+            }
+            return true;
+          }
+        }
+      } catch (e) { continue; }
+    }
+    return false;
+  }
+
+  Future<void> _connectToLocalhost() async {
+    setState(() { loading = true; _scanStatus = 'Connecting to localhost...'; });
+    try {
+      if (await _tryConnect('localhost')) return;
+      if (await _tryConnect('127.0.0.1')) return;
+      if (mounted) {
+        ToastManager.show(context: context, title: "Connection Failed", message: "Could not connect to localhost. Is XAMPP running?", type: ToastType.error);
+      }
+    } finally {
+      if (mounted) setState(() { loading = false; _scanStatus = null; });
+    }
+  }
+
+  Future<void> _quickConnect() async {
+    setState(() { autoFinding = true; loading = true; _scanStatus = 'Searching...'; });
+    try {
+      if (_isServer && await _tryConnect('localhost')) return;
+      final savedIP = await ApiServices().getSavedServerIP();
+      if (savedIP != null && savedIP.isNotEmpty && await _tryConnect(savedIP)) return;
+      if (_myIP != null && !_connectedToLocalhost && await _tryConnect(_myIP!)) return;
+      if (mounted) {
+        setState(() => _scanStatus = null);
+        ToastManager.show(context: context, title: "No Server Found", message: "Could not find any server.", type: ToastType.error);
+      }
+    } finally {
+      if (mounted) setState(() { autoFinding = false; loading = false; _scanStatus = null; });
+    }
+  }
+
+  Future<void> connect() async {
+    final ip = ipController.text.trim();
+    if (ip.isEmpty) {
+      ToastManager.show(context: context, title: "Required", message: "Enter server IP address", type: ToastType.warning);
+      return;
+    }
+    if (ip.toLowerCase() == 'localhost' || ip == '127.0.0.1') {
+      await _connectToLocalhost();
+      return;
+    }
+    setState(() => loading = true);
+    try {
+      if (!await _tryConnect(ip) && mounted) {
+        ToastManager.show(context: context, title: "Connection Failed", message: "Could not connect to $ip", type: ToastType.error);
+      }
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> _disconnect() async {
+    setState(() => loading = true);
+    try {
+      await ApiServices().setServerIP('localhost');
+      if (mounted) {
+        setState(() { _currentServerIP = null; _connectedToLocalhost = true; ipController.text = ''; });
+        ToastManager.show(context: context, title: "Disconnected", message: "Reset to localhost connection.", type: ToastType.info);
+      }
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final locale = AppLocalizations.of(context)!;
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.7,
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Icon(Icons.dns, size: 22, color: theme.primaryColor),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(locale.connectToServer, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 22),
+                    onPressed: () => Navigator.pop(context, false),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
               ),
-            ),
-          ),
+              const SizedBox(height: 16),
 
-        // Option 2: Auto Find Server
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: loading ? null : _quickConnect,
-            icon: autoFinding
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.wifi_find, size: 18),
-            label: Text(autoFinding ? 'Searching...' : 'Auto Find Server on Network'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-            ),
-          ),
-        ),
+              // Status
+              _buildConnectionStatus(),
+              const SizedBox(height: 16),
 
-        if (_scanStatus != null) ...[
-          const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 12,
-                  height: 12,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _scanStatus!,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+              // Manual IP with Connect button
+              Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: TextField(
+                      controller: ipController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter server IP',
+                        prefixIcon: const Icon(Icons.computer, size: 20),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                        isDense: true,
+                        suffixIcon: ipController.text.isNotEmpty
+                            ? IconButton(icon: const Icon(Icons.clear, size: 18), onPressed: () { ipController.clear(); setState(() {}); })
+                            : null,
+                      ),
+                      enabled: !loading,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 1,
+                    child: ElevatedButton(
+                      onPressed: (loading || ipController.text.trim().isEmpty) ? null : connect,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: loading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : Text('Connect', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Quick Actions (Wrap)
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (_isServer)
+                    _buildActionChip(
+                      icon: Icons.computer,
+                      label: _connectedToLocalhost ? 'Localhost ✓' : 'Localhost',
+                      onTap: _connectToLocalhost,
+                      isLoading: loading,
+                      isActive: _connectedToLocalhost,
+                    ),
+                  _buildActionChip(
+                    icon: Icons.wifi_find,
+                    label: autoFinding ? 'Searching...' : 'Auto Find',
+                    onTap: _quickConnect,
+                    isLoading: loading || autoFinding,
+                    isActive: false,
+                  ),
+                  if (_myIP != null)
+                    _buildActionChip(
+                      icon: Icons.phone_android,
+                      label: 'This Device',
+                      onTap: () { if (_myIP != null) { ipController.text = _myIP!; setState(() {}); } },
+                      isLoading: false,
+                      isActive: false,
+                    ),
+                  _buildActionChip(
+                    icon: Icons.save,
+                    label: 'Saved IP',
+                    onTap: () async {
+                      final savedIP = await ApiServices().getSavedServerIP();
+                      if (savedIP != null && savedIP.isNotEmpty) { ipController.text = savedIP; setState(() {}); }
+                    },
+                    isLoading: false,
+                    isActive: false,
+                  ),
+                ],
+              ),
+              if (_scanStatus != null) ...[
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(6)),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                      const SizedBox(width: 10),
+                      Expanded(child: Text(_scanStatus!, style: TextStyle(fontSize: 13, color: Colors.grey.shade700))),
+                    ],
                   ),
                 ),
               ],
-            ),
+              const SizedBox(height: 16),
+
+              // Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: loading ? null : () => Navigator.pop(context, false),
+                    child: Text(AppLocalizations.of(context)!.cancel),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ],
+        ),
+      ),
     );
   }
 
-  Widget _buildManualInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(),
-        const SizedBox(height: 8),
-        Text(
-          'Or Enter Server IP Manually:',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
+  Widget _buildActionChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isLoading,
+    required bool isActive,
+  }) {
+    return InkWell(
+      onTap: isLoading ? null : onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade200, width: isActive ? 2 : 1),
         ),
-        const SizedBox(height: 8),
-        Row(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: TextField(
-                controller: ipController,
-                decoration: InputDecoration(
-                  hintText: 'e.g. 192.168.0.109 or localhost',
-                  prefixIcon: const Icon(Icons.computer, size: 20),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  isDense: true,
-                  suffixIcon: ipController.text.isNotEmpty
-                      ? IconButton(
-                    icon: const Icon(Icons.clear, size: 18),
-                    onPressed: () {
-                      ipController.clear();
-                      setState(() {});
-                    },
-                  )
-                      : null,
-                ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                enabled: !loading,
-                style: const TextStyle(fontSize: 14),
-                onChanged: (_) => setState(() {}),
-              ),
-            ),
+            if (isLoading)
+              const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+            else
+              Icon(icon, size: 16, color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade600),
+            const SizedBox(width: 6),
+            Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade700)),
           ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildHelpBox() {
+  Widget _buildConnectionStatus() {
+    Color color;
+    String text;
+    IconData icon;
+
+    if (!_connectedToLocalhost && _currentServerIP != null) {
+      color = Colors.orange;
+      text = 'Connected to $_currentServerIP';
+      icon = Icons.link;
+    } else if (_connectedToLocalhost && _isServer) {
+      color = Colors.green;
+      text = 'Connected to localhost';
+      icon = Icons.check_circle;
+    } else {
+      color = Colors.grey;
+      text = 'Not connected';
+      icon = Icons.link_off;
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline, size: 16, color: Colors.grey.shade600),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Connection Tips:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          _buildTip('Use "Connect to Localhost" if this PC is running the Server'),
-          _buildTip('Use "Auto Find" to scan network for servers'),
-          _buildTip('Enter IP manually if you know the server address'),
-          _buildTip('On server PC: Run "ipconfig" in CMD to find IP'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTip(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('• ', style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              text,
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-            ),
+            child: Text(text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: color)),
           ),
+          if (!_connectedToLocalhost && _currentServerIP != null)
+            TextButton(
+              onPressed: loading ? null : _disconnect,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text('Disconnect', style: TextStyle(fontSize: 12, color: Colors.red)),
+            ),
         ],
       ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        // Disconnect button (only show if connected to remote server)
-        if (_currentServerIP != null && !_connectedToLocalhost)
-          TextButton(
-            onPressed: loading ? null : _disconnect,
-            child: const Text('Reset to Localhost', style: TextStyle(color: Colors.red)),
-          ),
-
-        const Spacer(),
-
-        TextButton(
-          onPressed: loading ? null : () => Navigator.pop(context, false),
-          child:  Text(AppLocalizations.of(context)!.cancel),
-        ),
-        const SizedBox(width: 8),
-        ElevatedButton.icon(
-          onPressed: (loading || ipController.text.trim().isEmpty) ? null : connect,
-          icon: loading
-              ? const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-          )
-              : const Icon(Icons.link, size: 16),
-          label: Text(loading ? AppLocalizations.of(context)!.connecting : AppLocalizations.of(context)!.connect),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-        ),
-      ],
     );
   }
 
