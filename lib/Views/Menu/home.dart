@@ -305,6 +305,7 @@ class _DesktopState extends State<_Desktop> with AutomaticKeepAliveClientMixin {
                           width: 150,
                           child: Text(
                             comName,
+                            style: Theme.of(context).textTheme.titleSmall,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,

@@ -93,9 +93,9 @@ class _DesktopState extends State<_Desktop> {
     final List<Map<String, dynamic>> financeButtons = [
       if(login.hasPermission(79) ?? false)
       {"title": tr.accountStatement, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.accStatement},
-      if (!(login.hasPermission(79) ?? false) && (login.hasPermission(81) ?? false))
+      if(login.hasPermission(81) ?? false)
       {"title": tr.glStatement, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.glStatement},
-      if(login.hasPermission(80) ?? false)
+      if (!(login.hasPermission(81) ?? false) && (login.hasPermission(80) ?? false))
       {"title": tr.glStatementSingleDate, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.glStatementSingleDate},
       if(login.hasPermission(82) ?? false)
       {"title": tr.creditors, "icon": FontAwesomeIcons.arrowTrendUp, "action": ActionKey.payable},
