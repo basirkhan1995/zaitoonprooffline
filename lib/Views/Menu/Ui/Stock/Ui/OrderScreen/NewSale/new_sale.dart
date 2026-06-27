@@ -206,7 +206,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       }
     }
   }
-
+  int? ordNumber;
   @override
   void initState() {
     super.initState();
@@ -267,6 +267,8 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       _clearAllControllers();
     });
   }
+
+
 
   @override
   void dispose() {
@@ -388,6 +390,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
 
             if (state is SaleInvoiceLoaded && state.exchangeRate != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                 ordNumber = state.orderId;
                 // Update all local amount controllers when exchange rate changes
                 for (var item in state.items) {
                   final controller = _localeAmountControllers[item.rowId];
@@ -435,6 +438,9 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
             }
 
             if (state is SaleInvoiceLoaded && _isEditMode) {
+              setState(() {
+                ordNumber = state.orderId;
+              });
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 // Set customer name
                 if (state.customer != null) {
@@ -481,7 +487,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
               elevation: 0,
               backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
               titleSpacing: 0,
-              title: Text((widget.orderId != null)? "${tr.update.toUpperCase()} ${tr.sale.toUpperCase()} #${widget.orderId}" : tr.saleEntry,
+              title: Text((widget.orderId != null)? "${tr.update.toUpperCase()} ${tr.sale.toUpperCase()} #$ordNumber" : tr.saleEntry,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 20)),
               actionsPadding: EdgeInsets.symmetric(horizontal: 10),
               actions: [
@@ -524,7 +530,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                 ZOutlineButton(
                   toolTip: "${tr.print} - F9",
                   icon: FontAwesomeIcons.print,
-                  onPressed: () => _onSalePrint(invoiceNumber: null),
+                  onPressed: () => _onSalePrint(invoiceNumber: ordNumber.toString()),
                   label: Text(tr.print.toUpperCase()),
                 ),
                 const SizedBox(width: 8),
