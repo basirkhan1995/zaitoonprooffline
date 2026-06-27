@@ -77,6 +77,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
   final FocusNode _supplierFocusNode = FocusNode();
   final FocusNode _accountFocusNode = FocusNode();
   bool _shouldAutoFocusProduct = true;
+  int? ordNumber;
   void _confirmDeleteOrder() {
     final tr = AppLocalizations.of(context)!;
     final purState = context.read<PurchaseInvoiceBloc>().state;
@@ -396,6 +397,9 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
             }
           }
           if (state is PurchaseInvoiceLoaded && _isEditMode) {
+            setState(() {
+              ordNumber = state.orderId;
+            });
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _shouldAutoFocusProduct = true;
               // Set supplier name
@@ -436,7 +440,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
           appBar: AppBar(
             title: Text(
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 20),
-                widget.orderId == null ? tr.purchaseEntry : "${tr.update.toUpperCase()} ${tr.purchase.toUpperCase()} #${widget.orderId}"),
+                widget.orderId == null ? tr.purchaseEntry : "${tr.update.toUpperCase()} ${tr.purchase.toUpperCase()} #$ordNumber"),
             elevation: 0,
             backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
             titleSpacing: 0,
@@ -468,7 +472,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
               const SizedBox(width: 8),
               ZOutlineButton(
                 icon: FontAwesomeIcons.print,
-                onPressed: _onPrint,
+                onPressed:()=> _onPrint(invoiceNumber: ordNumber.toString()),
 
                 label: Text(tr.print),
               ),
@@ -1510,8 +1514,8 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
     // Determine the invoice number to use
     final String finalInvoiceNumber;
     if (invoiceNumber != null && invoiceNumber.isNotEmpty) {
-      finalInvoiceNumber = invoiceNumber;
-    } else if (widget.orderId != null && widget.orderId! > 0) {
+      finalInvoiceNumber = ordNumber.toString();
+    } else if (ordNumber == null) {
       finalInvoiceNumber = widget.orderId.toString();
     } else {
       finalInvoiceNumber = '';
@@ -1540,7 +1544,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
     company.comFacebook = authState.loginData.company?.comFb ?? "";
     company.comInstagram = authState.loginData.company?.comInsta ?? "";
     company.comWhatsApp = authState.loginData.company?.comWhatsapp ?? "";
-    company.invoiceNumber = widget.orderId;
+    company.invoiceNumber = ordNumber;
     company.statementDate = DateTime.now().toFullDateTime;
 
     final base64Logo = authState.loginData.company?.comLogo;
