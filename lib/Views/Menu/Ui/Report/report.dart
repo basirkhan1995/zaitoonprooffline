@@ -101,7 +101,8 @@ class _DesktopState extends State<_Desktop> {
       {"title": tr.creditors, "icon": FontAwesomeIcons.arrowTrendUp, "action": ActionKey.payable},
       if(login.hasPermission(83) ?? false)
       {"title": tr.debtors, "icon": FontAwesomeIcons.arrowTrendDown, "action": ActionKey.receivable},
-     // {"title": tr.accounts, "icon": Icons.account_circle, "action": ActionKey.accountsReport},
+      if(login.hasPermission(98) ?? false)
+        {"title": tr.accounts, "icon": Icons.account_circle_sharp, "action": ActionKey.allBalances},
     ];
 
     final List<Map<String, dynamic>> stockButtons = [
@@ -131,9 +132,7 @@ class _DesktopState extends State<_Desktop> {
       if(login.hasPermission(96) ?? false)
       {"title": tr.transactionDetails, "icon": Icons.qr_code_2_rounded, "action": ActionKey.transactionByRef},
       if(login.hasPermission(97) ?? false)
-      {"title": "${tr.transactions} ${tr.report}", "icon": Icons.line_axis_sharp, "action": ActionKey.transactionReport},
-      if(login.hasPermission(98) ?? false)
-      {"title": tr.allBalancesTitle, "icon": Icons.money, "action": ActionKey.allBalances},
+      {"title": tr.allTransactions, "icon": Icons.line_axis_sharp, "action": ActionKey.transactionReport},
     ];
 
     final List<Map<String, dynamic>> activitiesButtons = [

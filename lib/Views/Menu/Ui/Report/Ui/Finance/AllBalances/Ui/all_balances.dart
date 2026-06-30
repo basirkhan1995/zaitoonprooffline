@@ -735,7 +735,7 @@ class _DesktopState extends State<_Desktop> {
       appBar: AppBar(
         titleSpacing: 0,
         toolbarHeight: 57,
-        title: Text(tr.allBalancesTitle),
+        title: Text(tr.accounts),
         actionsPadding: EdgeInsets.symmetric(horizontal: 10),
         actions: [
           Padding(
@@ -879,10 +879,7 @@ class _DesktopState extends State<_Desktop> {
                                 width: 100,
                                 child: Text(ab.trdBranch.toString())),
                             SizedBox(
-                                width: 30,
-                                child: Text(ab.acgId.toString())),
-                            SizedBox(
-                                width: 220,
+                                width: 250,
                                 child: Text(ab.acgName.toString())),
                             SizedBox(
                                 width: 150,

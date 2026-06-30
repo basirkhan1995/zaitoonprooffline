@@ -2425,7 +2425,7 @@ class _MobileViewState extends State<_MobileView> {
   }
 }
 
-// Desktop View (unchanged from original)
+
 class _DesktopView extends StatefulWidget {
   const _DesktopView();
 
