@@ -1,14 +1,8 @@
-// To parse this JSON data, do
-//
-//     final goodShiftModel = goodShiftModelFromMap(jsonString);
-
 import 'dart:convert';
 
 List<GoodShiftModel> goodShiftModelFromMap(String str) => List<GoodShiftModel>.from(json.decode(str).map((x) => GoodShiftModel.fromMap(x)));
 
 String goodShiftModelToMap(List<GoodShiftModel> data) => json.encode(List<dynamic>.from(data.map((x) => x.toMap())));
-
-
 
 class GoodShiftModel {
   final int? ordId;

@@ -1618,10 +1618,8 @@ class Repositories {
   }
 
   ///Shift Goods ...............................................................
-  Future<List<GoodShiftModel>> getShifts({
-    int? orderId,
-    CancelToken? cancelToken,
-  }) async {
+  // In repositories.dart
+  Future<List<GoodShiftModel>> getShifts({int? orderId, CancelToken? cancelToken}) async {
     final queryParams = {'ordID': orderId};
     final response = await api.get(
       endpoint: "/inventory/goodsShifting.php",
@@ -1637,23 +1635,18 @@ class Repositories {
       return [];
     }
 
-    // Handle single shift detail with records
     if (response.data is Map<String, dynamic>) {
       final data = response.data as Map<String, dynamic>;
       final shift = GoodShiftModel.fromMap(data);
-
-      // Parse records if they exist
       if (data.containsKey('records') && data['records'] is List) {
         shift.records = (data['records'] as List)
             .whereType<Map<String, dynamic>>()
             .map((record) => ShiftRecord.fromMap(record))
             .toList();
       }
-
       return [shift];
     }
 
-    // Handle list of shifts
     if (response.data is List) {
       return (response.data as List)
           .whereType<Map<String, dynamic>>()
@@ -1678,6 +1671,31 @@ class Repositories {
     };
 
     final response = await api.post(
+      endpoint: "/inventory/goodsShifting.php",
+      data: data,
+    );
+
+    return response.data is Map<String, dynamic>
+        ? response.data
+        : {'msg': 'Invalid response format'};
+  }
+
+  Future<Map<String, dynamic>> updateShift({
+    required int ordID,
+    required String usrName,
+    required String account,
+    required String amount,
+    required List<ShiftRecord> records,
+  }) async {
+    final data = {
+      "ordID": ordID,
+      "usrName": usrName,
+      "account": account,
+      "amount": amount,
+      "records": records.map((r) => r.toMap()).toList(),
+    };
+
+    final response = await api.put(
       endpoint: "/inventory/goodsShifting.php",
       data: data,
     );

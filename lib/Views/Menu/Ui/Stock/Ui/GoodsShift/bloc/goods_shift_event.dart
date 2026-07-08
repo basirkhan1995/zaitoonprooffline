@@ -31,6 +31,23 @@ class AddGoodsShiftEvent extends GoodsShiftEvent {
   List<Object?> get props => [usrName, account, amount, records];
 }
 
+class UpdateGoodsShiftEvent extends GoodsShiftEvent {
+  final int ordID;
+  final String usrName;
+  final String account;
+  final String amount;
+  final List<ShiftRecord> records;
+  const UpdateGoodsShiftEvent({
+    required this.ordID,
+    required this.usrName,
+    required this.account,
+    required this.amount,
+    required this.records,
+  });
+  @override
+  List<Object?> get props => [ordID, usrName, account, amount, records];
+}
+
 class DeleteGoodsShiftEvent extends GoodsShiftEvent {
   final int orderId;
   final String usrName;
