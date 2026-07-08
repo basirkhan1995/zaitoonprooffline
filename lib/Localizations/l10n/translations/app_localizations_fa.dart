@@ -1127,7 +1127,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get storage => 'انبار';
 
   @override
-  String get storages => 'ذخایر';
+  String get storages => 'گدام';
 
   @override
   String get location => 'موقعیت';
@@ -2175,10 +2175,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get accountsAndUsers => 'حسابها و کاربران';
 
   @override
-  String get fromStorage => 'از مخزن';
+  String get fromStorage => 'از گدام';
 
   @override
-  String get toStorage => 'به مخزن';
+  String get toStorage => 'به گدام';
 
   @override
   String get totalItems => 'جمع تعداد';

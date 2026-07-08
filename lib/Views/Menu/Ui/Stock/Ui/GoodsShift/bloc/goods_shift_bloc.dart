@@ -98,6 +98,7 @@ class GoodsShiftBloc extends Bloc<GoodsShiftEvent, GoodsShiftState> {
 
       if (msg.toLowerCase().contains('success')) {
         emit(GoodsShiftUpdatedState(message: 'Goods shift updated successfully'));
+        // Reload the list
         final shifts = await _repo.getShifts();
         _cachedShifts = shifts;
         emit(GoodsShiftLoadedState(shifts));

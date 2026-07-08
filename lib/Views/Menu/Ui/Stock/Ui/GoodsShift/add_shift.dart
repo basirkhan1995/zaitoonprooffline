@@ -443,6 +443,9 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
 
   Widget _buildItemsHeader(AppLocalizations tr) {
     final color = Theme.of(context).colorScheme;
+    TextStyle? title = Theme.of(context).textTheme.titleSmall?.copyWith(
+      color: color.surface,
+    );
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
@@ -451,12 +454,12 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
       ),
       child: Row(
         children: [
-          const SizedBox(width: 40, child: Text('#', textAlign: TextAlign.center)),
-          Expanded(flex: 5, child: Text(tr.products, textAlign: TextAlign.left)),
-          Expanded(flex: 3, child: Text(tr.fromStorage, textAlign: TextAlign.left)),
-          Expanded(flex: 3, child: Text(tr.toStorage, textAlign: TextAlign.left)),
-           SizedBox(width: 80, child: Text(tr.qty, textAlign: TextAlign.center)),
-           SizedBox(width: 60, child: Text(tr.actions, textAlign: TextAlign.center)),
+          SizedBox(width: 40, child: Text('#',style: title, textAlign: TextAlign.center)),
+          Expanded(flex: 5, child: Text(tr.products,style: title,  textAlign: TextAlign.start)),
+          Expanded(flex: 2, child: Text(tr.fromStorage,style: title,  textAlign: TextAlign.start)),
+          Expanded(flex: 2, child: Text(tr.toStorage,style: title,  textAlign: TextAlign.start)),
+           Expanded(flex: 2, child: Text(tr.qty, style: title, textAlign: TextAlign.start)),
+           SizedBox(width: 60, child: Text(tr.actions,style: title,  textAlign: TextAlign.center)),
         ].map((child) => DefaultTextStyle(
           style: TextStyle(color: color.surface),
           child: child,
@@ -468,8 +471,6 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
   Widget _buildItemRow(int index, AppLocalizations tr) {
     final color = Theme.of(context).colorScheme;
     final nodes = _rowFocusNodes[index];
-    // Remove this line - it's not being used
-    // final record = _records[index];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -558,12 +559,12 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
 
           // From Storage (Auto-filled from product, read-only)
           Expanded(
-            flex: 3,
+            flex: 2,
             child: TextField(
               controller: _fromStorageControllers[index],
               readOnly: true,
-              decoration: const InputDecoration(
-                hintText: 'From Storage',
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.fromStorage,
                 border: InputBorder.none,
                 isDense: true,
               ),
@@ -572,7 +573,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
 
           // To Storage - Searchable storage selection
           Expanded(
-            flex: 3,
+            flex: 2,
             child: GenericUnderlineTextfield<StorageModel, StorageBloc, StorageState>(
               controller: _toStorageControllers[index],
               hintText: tr.toStorage,
@@ -600,8 +601,8 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
           ),
 
           // Quantity
-          SizedBox(
-            width: 80,
+          Expanded(
+            flex: 2,
             child: TextField(
               controller: _qtyControllers[index],
               focusNode: nodes[1],
