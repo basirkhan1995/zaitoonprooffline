@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
@@ -16,6 +17,7 @@ import '../../../../../../../../Features/Widgets/outline_button.dart';
 import '../../../../../../../../Features/Widgets/search_field.dart';
 import '../../../../../../../Auth/bloc/auth_bloc.dart';
 import '../Pdf/pdf.dart';
+import '../Receivables/ar_excel.dart';
 
 class PayablesView extends StatelessWidget {
   const PayablesView({super.key});
@@ -440,7 +442,47 @@ class _DesktopState extends State<_Desktop> {
     searchController.dispose();
     super.dispose();
   }
+  void onExcel() {
+    final locale = AppLocalizations.of(context)!;
+    final state = context.read<ArApBloc>().state;
 
+    List<ArApModel> payablesList = [];
+
+    if (state is ArApLoadedState) {
+      payablesList = state.apAccounts;
+    }
+
+    if (payablesList.isEmpty) {
+      Utils.showOverlayMessage(
+        context,
+        message: locale.noData,
+        isError: true,
+      );
+      return;
+    }
+
+    // Get company info from auth state
+    final authState = context.read<AuthBloc>().state;
+    String? companyName, companyAddress, companyPhone, companyEmail;
+
+    if (authState is AuthenticatedState) {
+      // Set your company info here from auth state
+    }
+
+    // Generate filename with date
+    String fileName = "Payables_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.xlsx";
+
+    ArApExcelService.exportToExcel(
+      accounts: payablesList,
+      reportType: "AP",
+      fileName: fileName,
+      context: context,
+      companyName: companyName,
+      companyAddress: companyAddress,
+      companyPhone: companyPhone,
+      companyEmail: companyEmail,
+    );
+  }
   @override
   Widget build(BuildContext context) {
     final title = Theme.of(context).textTheme.titleMedium;
@@ -485,6 +527,15 @@ class _DesktopState extends State<_Desktop> {
                       icon: FontAwesomeIcons.solidFilePdf,
                       label: Text("PDF"),
                       onPressed: onPDF,
+                    ),
+
+                    ZOutlineButton(
+                      width: 110,
+                      icon: FontAwesomeIcons.solidFileExcel,
+                      label: const Text("EXCEL"),
+                      isActive: true,
+                      backgroundHover: Colors.green,
+                      onPressed: onExcel,
                     ),
                   ],
                 ),
