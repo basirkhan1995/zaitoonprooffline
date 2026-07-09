@@ -472,15 +472,7 @@ class _DesktopState extends State<_Desktop> {
       return;
     }
 
-    // Get company info from auth state
-    final authState = context.read<AuthBloc>().state;
     String? companyName, companyAddress, companyPhone, companyEmail;
-
-    if (authState is AuthenticatedState) {
-      // Set your company info here from auth state
-      // companyName = authState.user?.companyName;
-      // etc.
-    }
 
     // Generate filename with date
     String fileName = "Receivables_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.xlsx";
