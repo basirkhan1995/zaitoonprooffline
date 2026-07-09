@@ -1134,11 +1134,11 @@ class _DesktopState extends State<_Desktop> {
       if (orderName == null) return "";
       switch (orderName) {
         case "Purchase":
-          return "${tr.purchaseTitle} ${tr.invoiceTitle}";
+          return tr.purchaseTitle;
         case "Sale":
-          return "${tr.saleTitle} ${tr.invoiceTitle}";
+          return tr.saleTitle;
         case "Estimate":
-          return "${tr.estimateTitle} ${tr.invoiceTitle}";
+          return tr.estimateTitle;
         default:
           return "";
       }
@@ -1325,15 +1325,17 @@ class _DesktopState extends State<_Desktop> {
                 SizedBox(
                     width: 180,
                     child: Text(tr.referenceNumber,style: titleStyle)),
-                Expanded(
+                SizedBox(
+                  width: 180,
                     child: Text(tr.party,style: titleStyle)),
-
+                Expanded(
+                    child: Text(tr.narration,style: titleStyle)),
                 SizedBox(
                     width: 150,
                     child: Text(tr.branch,style: titleStyle,)),
                 SizedBox(
                     width: 150,
-                    child: Text(tr.totalTitle,style: titleStyle,)),
+                    child: Text(tr.totalTitle,style: titleStyle,textAlign: TextAlign.end)),
               ],
             ),
           ),
@@ -1385,7 +1387,7 @@ class _DesktopState extends State<_Desktop> {
                           children: [
                             SizedBox(
                                 width: 50,
-                                child: Text(ord.ordId.toString())),
+                                child: Text(ord.ordId.toString(),style: Theme.of(context).textTheme.titleMedium)),
                             SizedBox(
                                 width: 100,
                                 child: Text(ord.timing.toFormattedDate())),
@@ -1393,15 +1395,17 @@ class _DesktopState extends State<_Desktop> {
                             SizedBox(
                                 width: 180,
                                 child: Text(ord.ordTrnRef ??"")),
-                            Expanded(
+                            SizedBox(
+                              width: 180,
                                 child: Text(ord.fullName??"")),
-
+                            Expanded(
+                                child: Text(ord.narration??"")),
                             SizedBox(
                                 width: 150,
                                 child: Text(ord.ordBranchName ??"")),
                             SizedBox(
                                 width: 150,
-                                child: Text("${ord.totalBill.toAmount()} $baseCcy" )),
+                                child: Text("${ord.totalBill.toAmount()} $baseCcy",style: Theme.of(context).textTheme.titleSmall,textAlign: TextAlign.end,)),
                           ],
                         ),
                       ),

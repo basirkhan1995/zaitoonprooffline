@@ -18,6 +18,7 @@ class OrderReportModel {
   final int? ordBranch;
   final String? ordTrnRef;
   final String? ordxRef;
+  final String? narration;
   final String? totalBill;
   final DateTime? timing;
 
@@ -26,6 +27,7 @@ class OrderReportModel {
     this.ordId,
     this.ordName,
     this.ordPersonal,
+    this.narration,
     this.fullName,
     this.ordBranchName,
     this.ordBranch,
@@ -47,6 +49,7 @@ class OrderReportModel {
     String? ordxRef,
     String? totalBill,
     DateTime? timing,
+    String? narration,
   }) =>
       OrderReportModel(
         no: no ?? this.no,
@@ -60,6 +63,7 @@ class OrderReportModel {
         ordxRef: ordxRef ?? this.ordxRef,
         totalBill: totalBill ?? this.totalBill,
         timing: timing ?? this.timing,
+        narration: narration ?? this.narration,
       );
 
   factory OrderReportModel.fromMap(Map<String, dynamic> json) => OrderReportModel(
@@ -73,6 +77,7 @@ class OrderReportModel {
     ordTrnRef: json["ordTrnRef"],
     ordxRef: json["ordxRef"],
     totalBill: json["total_bill"],
+    narration: json["narration"],
     timing: json["timing"] == null ? null : DateTime.parse(json["timing"]),
   );
 
@@ -87,6 +92,7 @@ class OrderReportModel {
     "ordTrnRef": ordTrnRef,
     "ordxRef": ordxRef,
     "total_bill": totalBill,
+    "narration":narration,
     "timing": "${timing!.year.toString().padLeft(4, '0')}-${timing!.month.toString().padLeft(2, '0')}-${timing!.day.toString().padLeft(2, '0')}",
   };
 }
