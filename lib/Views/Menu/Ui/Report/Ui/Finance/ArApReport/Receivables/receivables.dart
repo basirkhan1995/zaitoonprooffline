@@ -499,7 +499,6 @@ class _DesktopState extends State<_Desktop> {
   @override
   Widget build(BuildContext context) {
     final title = Theme.of(context).textTheme.titleMedium;
-    final subTitle = Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.outline);
     final tr = AppLocalizations.of(context)!;
 
     return BlocBuilder<ArApBloc, ArApState>(
@@ -599,11 +598,11 @@ class _DesktopState extends State<_Desktop> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     SizedBox(width: 120, child: Text(tr.accountNumber, style: title)),
                     Expanded(child: Text(tr.accountName, style: title)),
-                    SizedBox(width: 200, child: Text(tr.accountLimit, style: title)),
-                    Expanded(child: Text(tr.signatory, style: title)),
                     Text(tr.balance, style: title),
                   ],
                 ),
@@ -657,17 +656,6 @@ class _DesktopState extends State<_Desktop> {
                                 Expanded(
                                   child: Text(ar.accName ?? "", style: title),
                                 ),
-                                SizedBox(
-                                  width: 200,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(ar.accLimit == "Unlimited"? tr.unlimited : ar.accLimit?.toAmount() ?? '0', style: title),
-                                      Text(ar.accCurrency ?? "", style: subTitle),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(child: Text(ar.fullName ?? "", style: title)),
                                 Text("${ar.balance.toAmount()} ${ar.accCurrency}", style: title),
                               ],
                             ),

@@ -146,6 +146,7 @@ class _DesktopState extends State<_Desktop> {
     ];
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
