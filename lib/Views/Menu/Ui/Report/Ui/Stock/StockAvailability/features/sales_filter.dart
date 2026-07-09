@@ -47,7 +47,6 @@ class SalesFilterDropdown extends StatelessWidget {
     );
   }
 }
-
 class SalesFilterItem {
   final String? value;
   final String label;
