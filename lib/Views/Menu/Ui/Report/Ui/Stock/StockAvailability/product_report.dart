@@ -1055,6 +1055,7 @@ class _DesktopState extends State<_Desktop> {
   int? productId;
   int? isNoStock;
   int? _selectedCategory;
+  int _selectedView = 0;
   final FocusNode _searchFocusNode = FocusNode();
   String? _getBaseCurrency() {
     try {
@@ -1107,6 +1108,77 @@ class _DesktopState extends State<_Desktop> {
       productController.clear();
     });
     context.read<ProductReportBloc>().add(ResetProductReportEvent());
+  }
+
+  // Helper method for toggle segments
+  Widget _buildToggleSegment(
+      BuildContext context, {
+        required String label,
+        required IconData icon,
+        required bool isSelected,
+        required VoidCallback onTap,
+        bool isWarning = false,
+      }) {
+    final color = Theme.of(context).colorScheme;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(3),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(3),
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(3),
+            color: isSelected
+                ? (isWarning ? Colors.orange.withValues(alpha: .2) : color.primary.withValues(alpha: .1))
+                : Colors.transparent,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected
+                    ? (isWarning ? Colors.orange : color.primary)
+                    : color.onSurface.withValues(alpha: .5),
+              ),
+              SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isSelected
+                      ? (isWarning ? Colors.orange : color.primary)
+                      : color.onSurface.withValues(alpha: .5),
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+              if (isWarning && isSelected) ...[
+                SizedBox(width: 4),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -1186,6 +1258,7 @@ class _DesktopState extends State<_Desktop> {
               children: [
 
                 Expanded(
+                  flex: 2,
                   child: ProductsSearchField(
                     showBorder: true,
                     controller: productController,
@@ -1218,44 +1291,72 @@ class _DesktopState extends State<_Desktop> {
                     border: Border.all(
                       color: Theme.of(context).colorScheme.secondary.withValues(alpha: .3),
                     ),
-                    color: Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: .3),
                   ),
-                  child: Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(3),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(3),
-                      onTap: () {
-                        setState(() {
-                          productId = null;
-                          productController.clear();
-                        });
-                        if(productId == null && productController.text.isEmpty){
-                          context.read<ProductReportBloc>().add(LoadProductsReportEvent(
-                              isNoStock: isNoStock,
-                              storageId: storageId,
-                              productId: productId,
-                              categoryId: _selectedCategory
-                          ));
-                        }
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.clear_all, size: 16),
-                            SizedBox(width: 4),
-                            Text(tr.all, style: TextStyle(fontSize: 14)),
-                          ],
-                        ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // All button
+                      _buildToggleSegment(
+                        context,
+                        label: tr.all,
+                        icon: Icons.inventory_2_outlined,
+                        isSelected: _selectedView == 0,
+                        onTap: () {
+                          setState(() {
+                            _selectedView = 0;
+                            productId = null;
+                            productController.clear();
+                          });
+                          context.read<ProductReportBloc>().add(
+                              LoadProductsReportEvent(
+                                isNoStock: isNoStock,
+                                storageId: storageId,
+                                productId: productId,
+                                categoryId: _selectedCategory,
+                                salesFilter: _selectedSalesFilter,
+                                lowStock: 0,
+                              )
+                          );
+                        },
                       ),
-                    ),
+
+                      // Divider
+                      Container(
+                        width: 1,
+                        height: 30,
+                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: .2),
+                      ),
+
+                      // Low Stock button
+                      _buildToggleSegment(
+                        context,
+                        label: tr.lowStock,
+                        icon: Icons.warning_amber_rounded,
+                        isSelected: _selectedView == 1,
+                        isWarning: true,
+                        onTap: () {
+                          setState(() {
+                            _selectedView = 1;
+                            productId = null;
+                            productController.clear();
+                          });
+                          context.read<ProductReportBloc>().add(
+                              LoadProductsReportEvent(
+                                isNoStock: isNoStock,
+                                storageId: storageId,
+                                productId: productId,
+                                categoryId: _selectedCategory,
+                                salesFilter: _selectedSalesFilter,
+                                lowStock: 1,
+                              )
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
 
-                SizedBox(
-                  width: 250,
+                Expanded(
                   child: ProductCategoryDropdown(
                     showAllOption: true,
                     onCategorySelected: (cat) {
@@ -1263,8 +1364,7 @@ class _DesktopState extends State<_Desktop> {
                     },
                   ),
                 ),
-                SizedBox(
-                  width: 250,
+                Expanded(
                   child: StorageDropDown(
                     height: 40,
                     title: tr.storage,
@@ -1276,8 +1376,7 @@ class _DesktopState extends State<_Desktop> {
                     },
                   ),
                 ),
-                SizedBox(
-                  width: 250,
+                Expanded(
                   child: StatusDropdown(
                     height: 40,
                     items: [
@@ -1294,8 +1393,7 @@ class _DesktopState extends State<_Desktop> {
                   ),
                 ),
                 // Add this to your desktop build method
-                SizedBox(
-                  width: 200,
+                Expanded(
                   child: SalesFilterDropdown(
                     height: 40,
                     value: _selectedSalesFilter,
