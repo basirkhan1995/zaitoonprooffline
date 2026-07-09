@@ -1387,7 +1387,7 @@ class _DesktopState extends State<_Desktop> {
                           children: [
                             SizedBox(
                                 width: 50,
-                                child: Text(ord.ordId.toString(),style: Theme.of(context).textTheme.titleMedium)),
+                                child: Text(ord.ordId.toString(),style: Theme.of(context).textTheme.titleSmall)),
                             SizedBox(
                                 width: 100,
                                 child: Text(ord.timing.toFormattedDate())),
@@ -1405,7 +1405,7 @@ class _DesktopState extends State<_Desktop> {
                                 child: Text(ord.ordBranchName ??"")),
                             SizedBox(
                                 width: 150,
-                                child: Text("${ord.totalBill.toAmount()} $baseCcy",style: Theme.of(context).textTheme.titleSmall,textAlign: TextAlign.end,)),
+                                child: Text("${ord.totalBill.toAmount()} $baseCcy",style: Theme.of(context).textTheme.titleMedium,textAlign: TextAlign.end,)),
                           ],
                         ),
                       ),
