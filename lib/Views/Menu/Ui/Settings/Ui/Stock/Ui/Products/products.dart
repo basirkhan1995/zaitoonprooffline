@@ -332,11 +332,6 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                 width: 100,
                 child: Text(tr.category, style: titleStyle),
               ),
-
-              SizedBox(
-                width: 90,
-                child: Text(tr.status, style: titleStyle),
-              ),
             ],
           ),
         ),
@@ -524,15 +519,6 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
               SizedBox(
                 width: 100,
                 child: Text(product.pcName.toString()),
-              ),
-
-              SizedBox(
-                width: 90,
-                child: StatusBadge(
-                  status: product.proStatus!,
-                  trueValue: tr.active,
-                  falseValue: tr.inactive,
-                ),
               ),
             ],
           ),
