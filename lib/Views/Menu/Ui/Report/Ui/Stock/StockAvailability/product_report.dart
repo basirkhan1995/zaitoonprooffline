@@ -28,6 +28,7 @@ import '../../../../Settings/Ui/Stock/Ui/Products/add_edit_product.dart';
 import '../../../../Settings/Ui/Stock/Ui/Products/bloc/products_bloc.dart';
 import '../../../../Settings/Ui/Stock/Ui/Products/model/product_model.dart';
 import '../../UserReport/status_drop.dart';
+import 'features/sales_filter.dart';
 import 'model/product_report_model.dart';
 
 
@@ -1066,11 +1067,12 @@ class _DesktopState extends State<_Desktop> {
       return "";
     }
   }
-
+  String? _selectedSalesFilter;
   @override
   void initState() {
     super.initState();
     baseCcy = _getBaseCurrency();
+    _selectedSalesFilter = null;
     myLocale = context.read<LocalizationBloc>().state.languageCode;
     context.read<ProductReportBloc>().add(ResetProductReportEvent());
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1288,6 +1290,29 @@ class _DesktopState extends State<_Desktop> {
                       setState(() {
                         isNoStock = e;
                       });
+                    },
+                  ),
+                ),
+                // Add this to your desktop build method
+                SizedBox(
+                  width: 200,
+                  child: SalesFilterDropdown(
+                    height: 40,
+                    value: _selectedSalesFilter,
+                    onChanged: (e) {
+                      setState(() {
+                        _selectedSalesFilter = e;
+                      });
+                      // Auto-apply filter or wait for user to click apply
+                      context.read<ProductReportBloc>().add(
+                          LoadProductsReportEvent(
+                            isNoStock: isNoStock,
+                            storageId: storageId,
+                            productId: productId,
+                            categoryId: _selectedCategory,
+                            salesFilter: e,
+                          )
+                      );
                     },
                   ),
                 ),

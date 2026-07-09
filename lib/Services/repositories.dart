@@ -2649,6 +2649,7 @@ class Repositories {
     int? categoryId,
     int? isNoStock,
     int? lowStock,
+    String? salesFilter
   }) async {
     final response = await api.post(
       endpoint: "/reports/stockAvailability.php",
@@ -2658,6 +2659,7 @@ class Repositories {
         "category" : categoryId,
         "availability": isNoStock,
         "lsq": lowStock,
+        "salesFilter": salesFilter,
       },
     );
 

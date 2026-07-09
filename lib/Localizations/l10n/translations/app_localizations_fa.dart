@@ -2148,10 +2148,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get clearFilters => 'حذف فلتر';
 
   @override
-  String get outOfStock => 'عدم موجودی';
+  String get outOfStock => 'ناموجود';
 
   @override
-  String get available => 'موجودی';
+  String get available => 'موجود';
 
   @override
   String get driverRegistration => 'ثبت راننده';
@@ -3385,4 +3385,19 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get stockReport => 'گزارشات کالاها';
+
+  @override
+  String get salesFilter => 'فلتر فروشات';
+
+  @override
+  String get mostSold => 'پرفروش ترین';
+
+  @override
+  String get lessSold => 'کم‌ فروش‌ ترین';
+
+  @override
+  String get notSold => 'فروش نرفته';
+
+  @override
+  String get allProducts => 'همه کالا ها';
 }

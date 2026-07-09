@@ -11,10 +11,11 @@ class LoadProductsReportEvent extends ProductReportEvent{
   final int? categoryId;
   final int? isNoStock;
   final int? lowStock;
+  final String? salesFilter;
 
-  const LoadProductsReportEvent({this.productId, this.storageId, this.categoryId, this.isNoStock, this.lowStock});
+  const LoadProductsReportEvent({this.productId, this.storageId, this.categoryId, this.isNoStock, this.lowStock,this.salesFilter});
   @override
-  List<Object?> get props => [productId, storageId,categoryId, isNoStock, lowStock];
+  List<Object?> get props => [productId, storageId,categoryId, isNoStock, lowStock,salesFilter];
 }
 
 class ResetProductReportEvent extends ProductReportEvent{

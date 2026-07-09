@@ -716,7 +716,7 @@
   "usersHintReport": "Use the filters above to quickly find the users you need.",
   "clearFilters": "Clear Filters",
   "outOfStock": "Out of stock",
-  "available": "Available",
+  "available": "Available Products",
   "driverRegistration": "Driver Registration",
   "verified": "Verified",
   "fcp": "FCP",
@@ -1122,5 +1122,10 @@
   "totalVolume": "Total Volume",
   "marketValue": "Total Market Value",
   "unAuthorize": "Unauthorize",
-  "stockReport": "Stock Report"
+  "stockReport": "Stock Report",
+  "salesFilter": "Sales Filter",
+  "mostSold": "Most Sold",
+  "lessSold": "Less Sold",
+  "notSold": "Not Sold",
+  "allProducts": "All Products"
 }

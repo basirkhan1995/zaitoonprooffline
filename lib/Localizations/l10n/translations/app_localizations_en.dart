@@ -2159,7 +2159,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get outOfStock => 'Out of stock';
 
   @override
-  String get available => 'Available';
+  String get available => 'Available Products';
 
   @override
   String get driverRegistration => 'Driver Registration';
@@ -3396,4 +3396,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stockReport => 'Stock Report';
+
+  @override
+  String get salesFilter => 'Sales Filter';
+
+  @override
+  String get mostSold => 'Most Sold';
+
+  @override
+  String get lessSold => 'Less Sold';
+
+  @override
+  String get notSold => 'Not Sold';
+
+  @override
+  String get allProducts => 'All Products';
 }

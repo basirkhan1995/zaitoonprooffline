@@ -715,8 +715,8 @@
   "cashBalances": "موجودی نقدی",
   "usersHintReport": "فلټرونه وکاروئ څو ژر هغه کاروونکي پیدا کړئ چې تاسو ورته اړتیا لرئ.\n",
   "clearFilters": "حذف فلتر",
-  "outOfStock": "عدم موجودی",
-  "available": "موجودی",
+  "outOfStock": "ناموجود",
+  "available": "موجود",
   "driverRegistration": "ثبت راننده",
   "verified": "وضعیت تأیید",
   "fcp": "تغییر رمز",
@@ -1122,5 +1122,10 @@
   "totalVolume": "ټول  پیسې",
   "marketValue": "کل ارزش بازار",
   "unAuthorize": "از تایید کشیدن",
-  "stockReport": "گزارشات کالاها"
+  "stockReport": "گزارشات کالاها",
+  "salesFilter": "فلتر فروشات",
+  "mostSold": "ډیر پلورل شوی",
+  "lessSold": "لږ پلورل شوی",
+  "notSold": "نه پلورل شوی",
+  "allProducts": "ټول محصولات"
 }

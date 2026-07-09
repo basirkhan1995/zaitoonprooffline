@@ -4279,7 +4279,7 @@ abstract class AppLocalizations {
   /// No description provided for @available.
   ///
   /// In en, this message translates to:
-  /// **'Available'**
+  /// **'Available Products'**
   String get available;
 
   /// No description provided for @driverRegistration.
@@ -6717,6 +6717,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stock Report'**
   String get stockReport;
+
+  /// No description provided for @salesFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales Filter'**
+  String get salesFilter;
+
+  /// No description provided for @mostSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Sold'**
+  String get mostSold;
+
+  /// No description provided for @lessSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Less Sold'**
+  String get lessSold;
+
+  /// No description provided for @notSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Sold'**
+  String get notSold;
+
+  /// No description provided for @allProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'All Products'**
+  String get allProducts;
 }
 
 class _AppLocalizationsDelegate

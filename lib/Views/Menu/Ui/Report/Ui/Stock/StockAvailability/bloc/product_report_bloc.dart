@@ -13,7 +13,14 @@ class ProductReportBloc extends Bloc<ProductReportEvent, ProductReportState> {
     on<LoadProductsReportEvent>((event, emit) async{
       emit(ProductReportLoadingState());
       try{
-        final stock = await _repo.stockAvailabilityReport(productId: event.productId, storageId: event.storageId,categoryId: event.categoryId, lowStock: event.lowStock, isNoStock: event.isNoStock,);
+        final stock = await _repo.stockAvailabilityReport(
+          productId: event.productId,
+          storageId: event.storageId,
+          categoryId: event.categoryId,
+          lowStock: event.lowStock,
+          isNoStock: event.isNoStock,
+          salesFilter: event.salesFilter
+        );
         emit(ProductReportLoadedState(stock));
       }catch(e){
         emit(ProductReportErrorState(e.toString()));

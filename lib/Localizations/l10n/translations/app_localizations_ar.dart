@@ -2151,10 +2151,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get clearFilters => 'حذف فلتر';
 
   @override
-  String get outOfStock => 'عدم موجودی';
+  String get outOfStock => 'ناموجود';
 
   @override
-  String get available => 'موجودی';
+  String get available => 'موجود';
 
   @override
   String get driverRegistration => 'ثبت راننده';
@@ -3388,4 +3388,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get stockReport => 'گزارشات کالاها';
+
+  @override
+  String get salesFilter => 'فلتر فروشات';
+
+  @override
+  String get mostSold => 'ډیر پلورل شوی';
+
+  @override
+  String get lessSold => 'لږ پلورل شوی';
+
+  @override
+  String get notSold => 'نه پلورل شوی';
+
+  @override
+  String get allProducts => 'ټول محصولات';
 }

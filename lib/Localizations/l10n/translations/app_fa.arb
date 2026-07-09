@@ -715,8 +715,8 @@
   "cashBalances": "موجودی نقدی",
   "usersHintReport": "با انتخاب وضعیت، شعبه یا نقش، فهرست کاربران مورد نظر خود را مشاهده کنید.",
   "clearFilters": "حذف فلتر",
-  "outOfStock": "عدم موجودی",
-  "available": "موجودی",
+  "outOfStock": "ناموجود",
+  "available": "موجود",
   "driverRegistration": "ثبت راننده",
   "verified": "وضعیت تأیید",
   "fcp": "تغییر رمز",
@@ -1122,5 +1122,10 @@
   "totalVolume": "مجموعه کل",
   "marketValue": "کل ارزش بازار",
   "unAuthorize": "از تایید کشیدن",
-  "stockReport": "گزارشات کالاها"
+  "stockReport": "گزارشات کالاها",
+  "salesFilter": "فلتر فروشات",
+  "mostSold": "پرفروش ترین",
+  "lessSold": "کم‌ فروش‌ ترین",
+  "notSold": "فروش نرفته",
+  "allProducts": "همه کالا ها"
 }
