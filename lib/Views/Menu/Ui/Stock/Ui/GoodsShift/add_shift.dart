@@ -69,6 +69,21 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
     if (authState is AuthenticatedState) {
       _userName = authState.loginData.usrName;
     }
+
+    // Auto-focus the first product field after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          _focusFirstProductField();
+        }
+      });
+    });
+  }
+
+  void _focusFirstProductField() {
+    if (_rowFocusNodes.isNotEmpty && _rowFocusNodes[0].isNotEmpty) {
+      _rowFocusNodes[0][0].requestFocus();
+    }
   }
 
   @override
@@ -117,7 +132,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
       stkQtyInBatch: 0,
     ));
 
-    // Add focus nodes for new row (product, qty, toStorage)
+    // Focus nodes: [Product, Quantity, ToStorage]
     _rowFocusNodes.add([
       FocusNode(), // Product
       FocusNode(), // Quantity
@@ -141,6 +156,16 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
       _selectedToStorages.removeAt(index);
       _records.removeAt(index);
       _rowFocusNodes.removeAt(index);
+    });
+
+    // Focus the previous row's product field or first row if available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_rowFocusNodes.isNotEmpty) {
+        final focusIndex = index > 0 ? index - 1 : 0;
+        if (_rowFocusNodes[focusIndex].isNotEmpty) {
+          _rowFocusNodes[focusIndex][0].requestFocus();
+        }
+      }
     });
   }
 
@@ -174,6 +199,37 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
       total += record.quantity!;
     }
     return total;
+  }
+
+  void _addNewRowAndFocus() {
+    final lastRecord = _records.isNotEmpty ? _records.last : null;
+
+    // Don't add new row if last record is empty
+    if (lastRecord != null &&
+        (lastRecord.stkProduct == null || lastRecord.stkProduct == 0)) {
+      // Focus the existing empty row's product field with delay
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted && _rowFocusNodes.isNotEmpty && _rowFocusNodes.last.isNotEmpty) {
+            _rowFocusNodes.last[0].requestFocus();
+          }
+        });
+      });
+      return;
+    }
+
+    setState(() {
+      _addEmptyItem();
+    });
+
+    // Focus the new row's product field with delay
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted && _rowFocusNodes.isNotEmpty && _rowFocusNodes.last.isNotEmpty) {
+          _rowFocusNodes.last[0].requestFocus();
+        }
+      });
+    });
   }
 
   @override
@@ -218,7 +274,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
               icon: Icons.refresh,
               width: 110,
               height: 38,
-              label: Text(tr.clear),
+              label: Text(tr.newKeyword),
               onPressed: _isSaving ? null : () {
                 setState(() {
                   _records.clear();
@@ -236,17 +292,21 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                   _hasError = false;
                   _errorMessage = null;
                 });
+                // Refocus after clearing
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _focusFirstProductField();
+                });
               },
             ),
             const SizedBox(width: 8),
-            ZOutlineButton(
-              width: 110,
-              height: 38,
-              icon: Icons.print,
-              label: Text(tr.print),
-              onPressed: null,
-            ),
-            const SizedBox(width: 8),
+            // ZOutlineButton(
+            //   width: 110,
+            //   height: 38,
+            //   icon: Icons.print,
+            //   label: Text(tr.print),
+            //   onPressed: null,
+            // ),
+            // const SizedBox(width: 8),
             ZButton(
               width: 110,
               height: 38,
@@ -341,9 +401,10 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                             SmartThousandsDecimalFormatter(),
                           ],
                           onSubmit: (_) {
-                            if (_rowFocusNodes.isNotEmpty && _rowFocusNodes[0].isNotEmpty) {
-                              _rowFocusNodes[0][0].requestFocus();
-                            }
+                            // After amount, focus first product field
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _focusFirstProductField();
+                            });
                           },
                         ),
                       ),
@@ -359,7 +420,8 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
 
                   // Items list
                   ...List.generate(_records.length, (index) {
-                    return _buildItemRow(index, tr);
+                    final isLastRow = index == _records.length - 1;
+                    return _buildItemRow(index, isLastRow, tr);
                   }),
 
                   // Add item button
@@ -371,11 +433,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                           width: 120,
                           icon: Icons.add,
                           label: Text(tr.addItem),
-                          onPressed: _isSaving ? null : () {
-                            setState(() {
-                              _addEmptyItem();
-                            });
-                          },
+                          onPressed: _isSaving ? null : _addNewRowAndFocus,
                         ),
                       ),
                     ],
@@ -458,8 +516,8 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
           Expanded(flex: 5, child: Text(tr.products,style: title,  textAlign: TextAlign.start)),
           Expanded(flex: 2, child: Text(tr.fromStorage,style: title,  textAlign: TextAlign.start)),
           Expanded(flex: 2, child: Text(tr.toStorage,style: title,  textAlign: TextAlign.start)),
-           Expanded(flex: 2, child: Text(tr.qty, style: title, textAlign: TextAlign.start)),
-           SizedBox(width: 60, child: Text(tr.actions,style: title,  textAlign: TextAlign.center)),
+          Expanded(flex: 2, child: Text(tr.qty, style: title, textAlign: TextAlign.start)),
+          SizedBox(width: 60, child: Text(tr.actions,style: title,  textAlign: TextAlign.center)),
         ].map((child) => DefaultTextStyle(
           style: TextStyle(color: color.surface),
           child: child,
@@ -468,7 +526,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
     );
   }
 
-  Widget _buildItemRow(int index, AppLocalizations tr) {
+  Widget _buildItemRow(int index, bool isLastRow, AppLocalizations tr) {
     final color = Theme.of(context).colorScheme;
     final nodes = _rowFocusNodes[index];
 
@@ -496,7 +554,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
             child: ProductSearchField<ProductsStockModel, ProductsBloc, ProductsState>(
               controller: _productControllers[index],
               hintText: tr.products,
-              focusNode: nodes[0],
+              focusNode: nodes[0], // Product field focus
               bloc: context.read<ProductsBloc>(),
               searchFunction: (bloc, query) => bloc.add(LoadProductsStockEvent(input: query)),
               fetchAllFunction: (bloc) => bloc.add(LoadProductsStockEvent()),
@@ -544,12 +602,21 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                   landedPurPrice: landedPurPrice,
                   qtyInBatch: qtyInBatch,
                 );
+
+                // After product selected, move focus to ToStorage field
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (nodes.length > 2) {
+                    nodes[2].requestFocus(); // Focus ToStorage
+                  }
+                });
               },
               onSubmit: () {
-                // Move to quantity field
-                if (nodes.length > 1) {
-                  nodes[1].requestFocus();
-                }
+                // If product field submitted, move to ToStorage
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (nodes.length > 2) {
+                    nodes[2].requestFocus();
+                  }
+                });
               },
               openOverlayOnFocus: true,
               showAllOnFocus: true,
@@ -577,7 +644,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
             child: GenericUnderlineTextfield<StorageModel, StorageBloc, StorageState>(
               controller: _toStorageControllers[index],
               hintText: tr.toStorage,
-              focusNode: nodes[2],
+              focusNode: nodes[2], // ToStorage field focus
               bloc: context.read<StorageBloc>(),
               fetchAllFunction: (bloc) => bloc.add(LoadStorageEvent()),
               searchFunction: (bloc, query) => bloc.add(LoadStorageEvent()),
@@ -594,9 +661,24 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
               onSelected: (storage) {
                 _selectedToStorages[index] = storage;
                 _updateRecord(index, toStorage: storage.stgId);
+
+                // After storage selected, move focus to Quantity
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (nodes.length > 1) {
+                    nodes[1].requestFocus(); // Focus Quantity
+                  }
+                });
               },
               title: '',
               enabled: !_isSaving,
+              onSubmitted: (e) {
+                // If storage field submitted, move to Quantity
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (nodes.length > 1) {
+                    nodes[1].requestFocus();
+                  }
+                });
+              },
             ),
           ),
 
@@ -605,7 +687,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
             flex: 2,
             child: TextField(
               controller: _qtyControllers[index],
-              focusNode: nodes[1],
+              focusNode: nodes[1], // Quantity field focus
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
@@ -620,14 +702,28 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                 _updateRecord(index, quantity: qty);
               },
               onSubmitted: (_) {
-                // Move to toStorage field
-                if (nodes.length > 2) {
-                  nodes[2].requestFocus();
+                // After quantity submitted:
+                // - If it's the last row, add a new row and focus its product
+                // - Otherwise, focus the next row's product
+                if (isLastRow) {
+                  // Check if last record has product selected
+                  final lastRecord = _records.last;
+                  if (lastRecord.stkProduct != null && lastRecord.stkProduct! > 0) {
+                    // Add new row
+                    _addNewRowAndFocus();
+                  } else {
+                    // Focus the same row's product if empty
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (nodes.isNotEmpty) {
+                        nodes[0].requestFocus();
+                      }
+                    });
+                  }
                 } else {
-                  // Add new row if this is the last field
-                  _addEmptyItem();
+                  // Focus next row's product field
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (index + 1 < _rowFocusNodes.length) {
+                    if (_rowFocusNodes.length > index + 1 &&
+                        _rowFocusNodes[index + 1].isNotEmpty) {
                       _rowFocusNodes[index + 1][0].requestFocus();
                     }
                   });
@@ -655,12 +751,15 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
 
     return Container(
       padding: const EdgeInsets.all(16),
+      width: 400,
       decoration: BoxDecoration(
         color: color.surface,
         border: Border.all(color: color.outline.withValues(alpha: .3)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -669,8 +768,9 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
               Icon(Icons.summarize, size: 22, color: color.primary),
             ],
           ),
-          Divider(color: color.outline.withValues(alpha: .2)),
-
+          SizedBox(height: 5),
+          Divider(thickness: 1.5, color: color.outline.withValues(alpha: .5)),
+          SizedBox(height: 5),
           // Total Items
           _buildSummaryRow(
             label: tr.totalItems,
@@ -685,25 +785,24 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
             isAmount: false,
           ),
 
-          Divider(color: color.outline.withValues(alpha: .2)),
+
 
           // Account and Amount from form
-          if (_accountController.text.isNotEmpty && _amountController.text.isNotEmpty)
+          if (_accountController.text.isNotEmpty && _amountController.text.isNotEmpty)...[
+            Divider(color: color.outline.withValues(alpha: .2)),
             _buildSummaryRow(
               label: '${tr.accounts} / ${tr.amount}',
               value: double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0,
               isAmount: true,
             ),
+          ]
+
         ],
       ),
     );
   }
 
-  Widget _buildSummaryRow({
-    required String label,
-    required double value,
-    bool isAmount = true,
-  }) {
+  Widget _buildSummaryRow({required String label, required double value, bool isAmount = true}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -781,7 +880,6 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
         Utils.showOverlayMessage(context, message: 'Please enter a valid quantity for item ${i + 1}', isError: true);
         return;
       }
-
     }
 
     // Log the records being sent for debugging
