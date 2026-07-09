@@ -962,13 +962,16 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
     required PurchaseInvoiceItem item,
     required List<FocusNode> nodes,
     required bool isLastRow,
+
   }) {
     final rowIndex = _rowFocusNodes.indexOf(nodes);
+    final isLocked = widget.orderId != null;
 
     return _PurchaseItemRow(
       item: item,
       nodes: nodes,
       isLastRow: isLastRow,
+      isLocked: isLocked,
       rowIndex: rowIndex,
       onFocusNewRow: (rowIndex) {
         _setupRowFocus(rowIndex);
@@ -1683,6 +1686,7 @@ class _PurchaseItemRow extends StatefulWidget {
   final Function(int)? onFocusNewRow;
   final bool isLastRow;
   final int rowIndex;
+  final bool isLocked;
   final Map<String, TextEditingController> qtyControllers;
   final Map<String, TextEditingController> batchControllers;
   final Map<String, TextEditingController> sellPriceControllers;
@@ -1701,6 +1705,7 @@ class _PurchaseItemRow extends StatefulWidget {
     required this.nodes,
     required this.isLastRow,
     required this.rowIndex,
+    this.isLocked = false,
     required this.qtyControllers,
     required this.batchControllers,
     required this.sellPriceControllers,
@@ -1749,7 +1754,20 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
     _localAmountController = TextEditingController(text: _getLocalAmountText());
     _lastExchangeRate = _getCurrentExchangeRate();
     _currentPurchasePrice = widget.item.purPrice ?? 0.0;
-    _initializeSellPriceController();
+
+    // 🔴 Initialize sell price controller
+    _sellPriceController = TextEditingController();
+
+    // 🔴 SIMPLE: If we have proSPP from API, display it directly
+    if (widget.item.sellPricePercentage != null &&
+        widget.item.sellPricePercentage! > 0) {
+      _isPercentageMode = true;
+      _sellPriceController.text = widget.item.sellPricePercentage!.toStringAsFixed(1);
+    } else {
+      _initializeSellPriceController();
+    }
+
+    widget.sellPriceControllers[widget.item.rowId] = _sellPriceController;
   }
 
   // Helper method to get local amount text
@@ -2089,6 +2107,15 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
       widget.sellPriceControllers[widget.item.rowId] = _sellPriceController;
     }
 
+    // 🔴 SIMPLE: If we have a percentage from API, just display it
+    if (widget.item.sellPricePercentage != null &&
+        widget.item.sellPricePercentage! > 0) {
+      _isPercentageMode = true;
+      _sellPriceController.text = widget.item.sellPricePercentage!.toStringAsFixed(1);
+      return; // ✅ DONE - no calculations needed
+    }
+
+    // Only use amount logic if NO percentage is stored
     if (currentValue > 0) {
       if (currentValue <= 100 && _currentPurchasePrice > 0) {
         final amountFromPercentage = _currentPurchasePrice * (currentValue / 100);
@@ -2274,7 +2301,6 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
   void didUpdateWidget(covariant _PurchaseItemRow oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Skip if same instance (performance boost)
     if (identical(oldWidget.item, widget.item)) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2305,14 +2331,21 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
         }
       }
 
-      // Update purchase price and local amount if they changed from outside
+      // 🔴 SIMPLE: If proSPP changed, update display directly
+      if (widget.item.sellPricePercentage != oldWidget.item.sellPricePercentage &&
+          widget.item.sellPricePercentage != null &&
+          widget.item.sellPricePercentage! > 0) {
+        _isPercentageMode = true;
+        _sellPriceController.text = widget.item.sellPricePercentage!.toStringAsFixed(1);
+      }
+
+      // Update purchase price and local amount
       final currentExchangeRate = _getCurrentExchangeRate();
       bool needsUpdate = false;
 
       if (widget.item.purPrice != oldWidget.item.purPrice) {
         _currentPurchasePrice = widget.item.purPrice ?? 0.0;
 
-        // Update purchase price controller
         final priceController = widget.purchasePriceControllers[widget.item.rowId];
         if (priceController != null && widget.item.purPrice != null) {
           final newPriceText = widget.item.purPrice!.toAmount();
@@ -2325,17 +2358,12 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
         needsUpdate = true;
       }
 
-      // Update local amount if exchange rate changed or purchase price changed
+      // Update local amount
       if (currentExchangeRate != _lastExchangeRate || needsUpdate) {
         _lastExchangeRate = currentExchangeRate;
         if (!_isEditingLocalAmount) {
           _updateLocalAmountFromPurchasePrice();
         }
-      }
-
-      // Update sell price if in percentage mode
-      if (needsUpdate && _isPercentageMode && !_isUpdating) {
-        _updateSellPriceFromPercentage();
       }
     });
   }
@@ -2703,8 +2731,8 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
                               _isPercentageMode
-                                  ? RegExp(r'^\d{0,3}(?:\.\d{0,2})?')
-                                  : RegExp(r'^\d*\.?\d{0,2}'),
+                                  ? RegExp(r'^[0-9]*\.?[0-9]{0,2}')
+                                  : RegExp(r'^[0-9]*\.?[0-9]{0,2}'),
                             ),
                           ],
                           decoration: InputDecoration(
@@ -2747,7 +2775,9 @@ class _PurchaseItemRowState extends State<_PurchaseItemRow> {
                             _isPercentageMode ? Icons.percent : Icons.attach_money,
                             size: 16,
                           ),
-                          onPressed: _toggleMode,
+                          onPressed: widget.isLocked && widget.item.sellPricePercentage != null
+                              ? null // No toggle when locked
+                              : _toggleMode,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                           tooltip: _isPercentageMode ? 'Switch to amount' : 'Switch to percentage',

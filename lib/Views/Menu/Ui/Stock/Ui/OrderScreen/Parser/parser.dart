@@ -90,6 +90,7 @@ class OrderParser {
         'salePrice': double.tryParse(record['stkSalePrice']?.toString() ?? '0') ?? 0,
         'landedPrice': double.tryParse(record['stkLandedPurPrice']?.toString() ?? '0') ?? 0,
         'discount': double.tryParse(record['stkDiscount']?.toString() ?? '0') ?? 0,
+        'sellPercentage': double.tryParse(record['proSPP']?.toString() ?? '0') ?? 0,
       });
     }
     return records;

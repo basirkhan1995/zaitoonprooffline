@@ -95,6 +95,7 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
       for (var i = 0; i < records.length; i++) {
         final record = records[i];
         final stkId = record['stkID'];
+        final sellPercentage = record['sellPercentage'] as double? ?? 0.0;
         items.add(PurchaseInvoiceItem(
           itemId: '${record['stkID']}_${DateTime.now().millisecondsSinceEpoch}_$i',
           productId: record['productId'].toString(),
@@ -105,10 +106,13 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
           purPrice: record['purchasePrice'],
           landedPrice: record['landedPrice'],
           sellPriceAmount: record['sellPercentage'] ?? 0,
-          sellPricePercentage: record['sellPercentage'],
+          sellPricePercentage: sellPercentage,
           storageId: record['storageId'],
           stkId: stkId,
           storageName: record['storageName'] as String,
+          sellPriceAmountOriginal: sellPercentage > 0 && record['purchasePrice'] > 0
+              ? (record['purchasePrice'] * (sellPercentage / 100))
+              : 0,
         ));
       }
 
