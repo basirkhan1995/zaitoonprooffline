@@ -1,4 +1,3 @@
-// backup_event.dart
 part of 'backup_bloc.dart';
 
 sealed class BackupEvent extends Equatable {
@@ -32,4 +31,18 @@ class RenameBackupEvent extends BackupEvent {
 
   @override
   List<Object?> get props => [oldPath, newPath];
+}
+
+class RestoreBackupEvent extends BackupEvent {
+  final String filePath;
+
+  const RestoreBackupEvent(this.filePath);
+
+  @override
+  List<Object?> get props => [filePath];
+}
+
+class CheckMySQLConnectionEvent extends BackupEvent {
+  @override
+  List<Object?> get props => [];
 }

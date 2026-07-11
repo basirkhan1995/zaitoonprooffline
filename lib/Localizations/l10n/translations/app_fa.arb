@@ -1129,5 +1129,12 @@
   "notSold": "فروش نرفته",
   "allProducts": "همه کالا ها",
   "recentBackup": "پشتیبانی های اخیر",
-  "renameTitle": "تغییر نام"
+  "renameTitle": "تغییر نام",
+  "restoreDatabase": "بازگردانی دیتابیس",
+  "restoreMessage": "این عملیات پایگاه داده فعلی شما را بازنویسی می‌کند. این عملیات قابل بازگشت نیست!",
+  "restoreTitle": "بازگردانی",
+  "restoreComplete": "بازگردانی کامل شد",
+  "restoreSuccessMessage": "پایگاه داده با موفقیت بازگردانی شد!",
+  "restoreFailed": "بازگردانی ناموفق",
+  "showInFolder": "باز کردن پوشه"
 }

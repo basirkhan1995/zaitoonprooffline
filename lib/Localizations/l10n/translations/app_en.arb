@@ -1129,5 +1129,12 @@
   "notSold": "Not Sold",
   "allProducts": "All Products",
   "recentBackup": "Recent Backups",
-  "renameTitle": "Rename"
+  "renameTitle": "Rename",
+  "restoreDatabase": "Restore Database",
+  "restoreMessage": "This will overwrite your current database. This action cannot be undone!",
+  "restoreTitle": "Restore",
+  "restoreComplete": "Restore Complete",
+  "restoreSuccessMessage": "Database has been restored successfully!",
+  "restoreFailed": "Restore Failed",
+  "showInFolder": "Show in folder"
 }

@@ -3409,4 +3409,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get renameTitle => 'تغییر نام';
+
+  @override
+  String get restoreDatabase => 'بازگردانی دیتابیس';
+
+  @override
+  String get restoreMessage =>
+      'دا به ستاسو اوسنی ډیټابیس له منځه یوسي. دا عمل بیرته نه شي اخیستل کیدای!';
+
+  @override
+  String get restoreTitle => 'بیرته راګرځول';
+
+  @override
+  String get restoreComplete => 'بیرته راګرځول بشپړ شو';
+
+  @override
+  String get restoreSuccessMessage =>
+      'ډیټابیس په بریالیتوب سره بیرته راګرځول شو!';
+
+  @override
+  String get restoreFailed => 'بیرته راګرځول ناکام شو';
+
+  @override
+  String get showInFolder => 'باز کردن پوشه';
 }

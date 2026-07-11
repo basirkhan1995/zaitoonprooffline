@@ -3406,4 +3406,26 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get renameTitle => 'تغییر نام';
+
+  @override
+  String get restoreDatabase => 'بازگردانی دیتابیس';
+
+  @override
+  String get restoreMessage =>
+      'این عملیات پایگاه داده فعلی شما را بازنویسی می‌کند. این عملیات قابل بازگشت نیست!';
+
+  @override
+  String get restoreTitle => 'بازگردانی';
+
+  @override
+  String get restoreComplete => 'بازگردانی کامل شد';
+
+  @override
+  String get restoreSuccessMessage => 'پایگاه داده با موفقیت بازگردانی شد!';
+
+  @override
+  String get restoreFailed => 'بازگردانی ناموفق';
+
+  @override
+  String get showInFolder => 'باز کردن پوشه';
 }

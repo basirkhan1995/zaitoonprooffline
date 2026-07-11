@@ -3478,4 +3478,75 @@ class Repositories {
     return UsrProfileModel.fromMap(response.data);
   }
 
+  Future<void> restoreBackup(String filePath, {Function(String)? onProgress}) async {
+    try {
+      final host = 'localhost';
+      final port = '3306';
+      final username = 'root';
+      final database = 'autoparts';
+
+      String mysqlPath;
+      if (Platform.isWindows) {
+        mysqlPath = 'C:\\xamp\\mysql\\bin\\mysql.exe';
+      } else if (Platform.isMacOS) {
+        mysqlPath = '/Applications/XAMP/xampfiles/bin/mysql';
+      } else {
+        mysqlPath = '/opt/lampp/bin/mysql';
+      }
+
+      final mysqlFile = File(mysqlPath);
+      if (!await mysqlFile.exists()) {
+        throw Exception('MySQL executable not found at: $mysqlPath');
+      }
+
+      final backupFile = File(filePath);
+      if (!await backupFile.exists()) {
+        throw Exception('Backup file not found at: $filePath');
+      }
+
+      onProgress?.call('Starting MySQL restore...');
+
+      // Use Process.start for all platforms (more reliable with stdin)
+      final process = await Process.start(
+        mysqlPath,
+        [
+          '-h', host,
+          '-P', port,
+          '-u', username,
+          '--default-character-set=utf8mb4',
+          database,
+        ],
+        runInShell: true,
+      );
+
+      // Get file size for progress
+      final fileSize = await backupFile.length();
+      var bytesRead = 0;
+
+      // Stream the file with progress
+      await backupFile.openRead().map((chunk) {
+        bytesRead += chunk.length;
+        final progress = (bytesRead / fileSize * 100).toStringAsFixed(1);
+        onProgress?.call('Restoring: $progress%');
+        return chunk;
+      }).pipe(process.stdin);
+
+      // Close stdin when done
+      await process.stdin.close();
+
+      // Wait for process to complete
+      final exitCode = await process.exitCode;
+
+      if (exitCode != 0) {
+        final stderr = await process.stderr
+            .transform(utf8.decoder)
+            .join();
+        throw Exception('Restore failed (exit code: $exitCode): $stderr');
+      }
+
+      onProgress?.call('Restore completed successfully!');
+    } catch (e) {
+      throw Exception('Database restore failed: $e');
+    }
+  }
 }

@@ -3417,4 +3417,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get renameTitle => 'Rename';
+
+  @override
+  String get restoreDatabase => 'Restore Database';
+
+  @override
+  String get restoreMessage =>
+      'This will overwrite your current database. This action cannot be undone!';
+
+  @override
+  String get restoreTitle => 'Restore';
+
+  @override
+  String get restoreComplete => 'Restore Complete';
+
+  @override
+  String get restoreSuccessMessage =>
+      'Database has been restored successfully!';
+
+  @override
+  String get restoreFailed => 'Restore Failed';
+
+  @override
+  String get showInFolder => 'Show in folder';
 }

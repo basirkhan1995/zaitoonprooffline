@@ -1,4 +1,3 @@
-// backup_state.dart
 part of 'backup_bloc.dart';
 
 sealed class BackupState extends Equatable {
@@ -38,6 +37,22 @@ final class BackupRenameSuccess extends BackupState {
   List<Object> get props => [];
 }
 
+final class BackupRestoreSuccess extends BackupState {
+  const BackupRestoreSuccess();
+
+  @override
+  List<Object> get props => [];
+}
+
+final class BackupRestoreProgress extends BackupState {
+  final String message;
+
+  const BackupRestoreProgress(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
 final class BackupsLoaded extends BackupState {
   final List<FileSystemEntity> backups;
 
@@ -54,4 +69,14 @@ final class BackupError extends BackupState {
 
   @override
   List<Object> get props => [message];
+}
+
+final class MySQLConnectionStatus extends BackupState {
+  final bool isConnected;
+  final String message;
+
+  const MySQLConnectionStatus({required this.isConnected, required this.message});
+
+  @override
+  List<Object> get props => [isConnected, message];
 }

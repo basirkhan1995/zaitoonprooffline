@@ -1129,5 +1129,12 @@
   "notSold": "نه پلورل شوی",
   "allProducts": "ټول محصولات",
   "recentBackup": "وروستي بیک اپونه",
-  "renameTitle": "تغییر نام"
+  "renameTitle": "تغییر نام",
+  "restoreDatabase": "بازگردانی دیتابیس",
+  "restoreMessage": "دا به ستاسو اوسنی ډیټابیس له منځه یوسي. دا عمل بیرته نه شي اخیستل کیدای!",
+  "restoreTitle": "بیرته راګرځول",
+  "restoreComplete": "بیرته راګرځول بشپړ شو",
+  "restoreSuccessMessage": "ډیټابیس په بریالیتوب سره بیرته راګرځول شو!",
+  "restoreFailed": "بیرته راګرځول ناکام شو",
+  "showInFolder": "باز کردن پوشه"
 }

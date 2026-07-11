@@ -107,13 +107,13 @@ class _BackupContent extends StatelessWidget {
                     builder: (context, state) {
                       return ZOutlineButton(
                         height: 45,
-                        isActive: true,
+
                         onPressed: state is BackupLoading
                             ? null
                             : () {
                           context.read<BackupBloc>().add(DownloadBackupEvent());
                         },
-                        icon: Icons.cloud_download,
+                        icon: Icons.cloud_download_outlined,
                         label: state is BackupLoading
                             ? SizedBox(
                           width: 16,
@@ -140,9 +140,9 @@ class _BackupContent extends StatelessWidget {
             child: Row(
               spacing: 10,
               children: [
-                Icon(Icons.backup),
+                Icon(Icons.backup_rounded),
                 Text(
-                  tr.existingBackups,
+                  tr.recentBackup,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -168,14 +168,20 @@ class _BackupContent extends StatelessWidget {
                       context: context, message: tr.successMessage, type: ToastType.success);
                   context.read<BackupBloc>().add(LoadBackupsEvent());
                 }
+                if (state is BackupRestoreSuccess) {
+                  ToastManager.show(
+                      title: tr.restoreComplete,
+                      context: context,
+                      message: tr.restoreSuccessMessage,
+                      type: ToastType.success);
+                  context.read<BackupBloc>().add(LoadBackupsEvent());
+                }
                 if (state is BackupError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error: ${state.message}'),
-                      backgroundColor: Colors.red,
-                      duration: const Duration(seconds: 3),
-                    ),
-                  );
+                  ToastManager.show(
+                      title: tr.errorTitle,
+                      context: context,
+                      message: state.message,
+                      type: ToastType.error);
                 }
               },
               builder: (context, state) {
@@ -208,7 +214,7 @@ class _BackupContent extends StatelessWidget {
                             hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: .05),
                             contentPadding: EdgeInsets.symmetric(horizontal: 8),
                             title: Text(
-                              fileName, // This now shows only the file name
+                              fileName,
                               style: const TextStyle(fontWeight: FontWeight.w500),
                             ),
                             subtitle: Column(
@@ -233,6 +239,9 @@ class _BackupContent extends StatelessWidget {
                               icon: Icon(Icons.more_vert),
                               onSelected: (value) {
                                 switch (value) {
+                                  case 'restore':
+                                    _showRestoreDialog(context, file.path);
+                                    break;
                                   case 'rename':
                                     _showRenameDialog(context, file.path);
                                     break;
@@ -249,12 +258,22 @@ class _BackupContent extends StatelessWidget {
                               },
                               itemBuilder: (context) => [
                                 PopupMenuItem(
+                                  value: 'restore',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.restore, color: Colors.orange),
+                                      const SizedBox(width: 8),
+                                        Text(tr.restoreDatabase),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem(
                                   value: 'rename',
                                   child: Row(
                                     children: [
                                       Icon(Icons.edit, color: Theme.of(context).colorScheme.primary),
                                       const SizedBox(width: 8),
-                                      const Text('Rename'),
+                                        Text(tr.renameTitle),
                                     ],
                                   ),
                                 ),
@@ -264,7 +283,7 @@ class _BackupContent extends StatelessWidget {
                                     children: [
                                       Icon(Icons.folder_open, color: Theme.of(context).colorScheme.primary),
                                       const SizedBox(width: 8),
-                                      const Text('Show in Folder'),
+                                        Text(tr.showInFolder),
                                     ],
                                   ),
                                 ),
@@ -284,7 +303,7 @@ class _BackupContent extends StatelessWidget {
                                     children: [
                                       Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                                       const SizedBox(width: 8),
-                                      const Text('Delete'),
+                                        Text(tr.delete),
                                     ],
                                   ),
                                 ),
@@ -297,6 +316,20 @@ class _BackupContent extends StatelessWidget {
                         ),
                       );
                     },
+                  );
+                } else if (state is BackupRestoreProgress) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text(
+                          state.message,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
                   );
                 } else if (state is BackupError) {
                   return Center(
@@ -325,6 +358,90 @@ class _BackupContent extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  void _showRestoreDialog(BuildContext context, String filePath) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5)
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.restore, color: Colors.orange),
+            SizedBox(width: 8),
+            Text(AppLocalizations.of(context)!.restoreDatabase),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Warning message
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: .1),
+                border: Border.all(color: Colors.orange.withValues(alpha: .3)),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.restoreMessage,
+                      style: TextStyle(fontSize: 15, color: Colors.orange.shade800),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+
+            // File info
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Restoring from:',
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    filePath.split(Platform.pathSeparator).last,
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ZOutlineButton(
+            isActive: true,
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.read<BackupBloc>().add(RestoreBackupEvent(filePath));
+            },
+            icon: Icons.restore,
+            label: Text(AppLocalizations.of(context)!.restoreTitle),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showDeleteDialog(BuildContext context, String filePath) {
@@ -422,42 +539,34 @@ class _BackupContent extends StatelessWidget {
       Uri uri;
 
       if (Platform.isAndroid) {
-        // For Android, use file:// URI
         uri = Uri.parse('file://$directory');
       } else if (Platform.isIOS) {
-        // iOS - doesn't support opening folders directly
         if (context.mounted) {
           _showFolderLocation(context, filePath);
         }
         return;
       } else if (Platform.isWindows) {
-        // Windows - use file:// URI
         uri = Uri.parse('file:///${directory.replaceAll('\\', '/')}');
       } else if (Platform.isMacOS) {
-        // macOS - use file:// URI
         uri = Uri.parse('file://$directory');
       } else {
-        // Linux and others
         uri = Uri.parse('file://$directory');
       }
 
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        // Fallback: show dialog with the path
         if (context.mounted) {
           _showFolderLocation(context, filePath);
         }
       }
     } catch (e) {
-      // If opening fails, show the folder location dialog
       if (context.mounted) {
         _showFolderLocation(context, filePath);
       }
     }
   }
 
-  // Keep this as fallback for iOS and error cases
   void _showFolderLocation(BuildContext context, String filePath) {
     final file = File(filePath);
     final directory = file.parent.path;
@@ -510,7 +619,6 @@ class _BackupContent extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                // Try opening again
                 _openFolder(context, filePath);
               },
               child: const Text('Try Again'),
@@ -534,6 +642,14 @@ class _BackupContent extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            ListTile(
+              leading: const Icon(Icons.restore, color: Colors.orange),
+              title: const Text('Restore Database'),
+              onTap: () {
+                Navigator.pop(context);
+                _showRestoreDialog(context, filePath);
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.edit),
               title: const Text('Rename'),
