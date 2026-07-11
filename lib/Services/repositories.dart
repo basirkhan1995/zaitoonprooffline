@@ -3555,7 +3555,7 @@ class Repositories {
       String backupDir;
 
       if (Platform.isWindows) {
-        backupDir = 'D:\\xamp\\mysql\\data\\backups'; // Adjust to your backup folder
+        backupDir = 'C:\\xamp\\mysql\\data\\backups';
       } else if (Platform.isMacOS) {
         backupDir = '/Applications/XAMP/xampfiles/data/backups';
       } else {
