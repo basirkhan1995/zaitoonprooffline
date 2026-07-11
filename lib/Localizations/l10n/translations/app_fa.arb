@@ -1127,5 +1127,7 @@
   "mostSold": "پرفروش ترین",
   "lessSold": "کم‌ فروش‌ ترین",
   "notSold": "فروش نرفته",
-  "allProducts": "همه کالا ها"
+  "allProducts": "همه کالا ها",
+  "recentBackup": "پشتیبانی های اخیر",
+  "renameTitle": "تغییر نام"
 }

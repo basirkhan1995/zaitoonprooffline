@@ -3403,4 +3403,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get allProducts => 'ټول محصولات';
+
+  @override
+  String get recentBackup => 'وروستي بیک اپونه';
+
+  @override
+  String get renameTitle => 'تغییر نام';
 }

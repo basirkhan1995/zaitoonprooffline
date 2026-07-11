@@ -1127,5 +1127,7 @@
   "mostSold": "Most Sold",
   "lessSold": "Less Sold",
   "notSold": "Not Sold",
-  "allProducts": "All Products"
+  "allProducts": "All Products",
+  "recentBackup": "Recent Backups",
+  "renameTitle": "Rename"
 }

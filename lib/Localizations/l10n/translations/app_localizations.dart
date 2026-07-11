@@ -6747,6 +6747,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All Products'**
   String get allProducts;
+
+  /// No description provided for @recentBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Backups'**
+  String get recentBackup;
+
+  /// No description provided for @renameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get renameTitle;
 }
 
 class _AppLocalizationsDelegate

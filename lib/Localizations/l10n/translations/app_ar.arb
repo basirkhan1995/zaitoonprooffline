@@ -1127,5 +1127,7 @@
   "mostSold": "ډیر پلورل شوی",
   "lessSold": "لږ پلورل شوی",
   "notSold": "نه پلورل شوی",
-  "allProducts": "ټول محصولات"
+  "allProducts": "ټول محصولات",
+  "recentBackup": "وروستي بیک اپونه",
+  "renameTitle": "تغییر نام"
 }

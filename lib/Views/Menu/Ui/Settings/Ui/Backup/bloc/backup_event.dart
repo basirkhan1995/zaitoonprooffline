@@ -23,3 +23,13 @@ class DeleteBackupEvent extends BackupEvent {
   @override
   List<Object?> get props => [filePath];
 }
+
+class RenameBackupEvent extends BackupEvent {
+  final String oldPath;
+  final String newPath;
+
+  const RenameBackupEvent(this.oldPath, this.newPath);
+
+  @override
+  List<Object?> get props => [oldPath, newPath];
+}

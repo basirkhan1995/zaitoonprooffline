@@ -3411,4 +3411,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allProducts => 'All Products';
+
+  @override
+  String get recentBackup => 'Recent Backups';
+
+  @override
+  String get renameTitle => 'Rename';
 }

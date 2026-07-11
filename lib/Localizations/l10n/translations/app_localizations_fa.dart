@@ -3400,4 +3400,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get allProducts => 'همه کالا ها';
+
+  @override
+  String get recentBackup => 'پشتیبانی های اخیر';
+
+  @override
+  String get renameTitle => 'تغییر نام';
 }

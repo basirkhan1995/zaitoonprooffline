@@ -2879,6 +2879,28 @@ class Repositories {
 
     return File(filePath);
   }
+  Future<void> renameBackup(String oldPath, String newPath) async {
+    try {
+      final file = File(oldPath);
+
+      // Check if the source file exists
+      if (!await file.exists()) {
+        throw Exception('Source file does not exist');
+      }
+
+      // Check if a file with the new name already exists
+      final newFile = File(newPath);
+      if (await newFile.exists()) {
+        throw Exception('A file with this name already exists');
+      }
+
+      // Rename the file
+      await file.rename(newPath);
+    } catch (e) {
+
+      throw Exception('Failed to rename backup: $e');
+    }
+  }
   Future<List<FileSystemEntity>> getBackupFiles() async {
     final baseDir = await _getBackupBaseDirectory();
     final backupDir = Directory('${baseDir.path}/ZaitoonBackups');

@@ -24,6 +24,20 @@ final class BackupDownloadSuccess extends BackupState {
   List<Object> get props => [filePath];
 }
 
+final class BackupDeleteSuccess extends BackupState {
+  const BackupDeleteSuccess();
+
+  @override
+  List<Object> get props => [];
+}
+
+final class BackupRenameSuccess extends BackupState {
+  const BackupRenameSuccess();
+
+  @override
+  List<Object> get props => [];
+}
+
 final class BackupsLoaded extends BackupState {
   final List<FileSystemEntity> backups;
 
