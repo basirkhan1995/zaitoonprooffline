@@ -46,3 +46,13 @@ class CheckMySQLConnectionEvent extends BackupEvent {
   @override
   List<Object?> get props => [];
 }
+
+class PickAndRestoreBackupEvent extends BackupEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+class OpenBackupFolderEvent extends BackupEvent {
+  @override
+  List<Object?> get props => [];
+}

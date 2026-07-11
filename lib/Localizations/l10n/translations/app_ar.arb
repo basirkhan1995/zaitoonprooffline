@@ -1136,5 +1136,9 @@
   "restoreComplete": "بیرته راګرځول بشپړ شو",
   "restoreSuccessMessage": "ډیټابیس په بریالیتوب سره بیرته راګرځول شو!",
   "restoreFailed": "بیرته راګرځول ناکام شو",
-  "showInFolder": "باز کردن پوشه"
+  "showInFolder": "باز کردن پوشه",
+  "sqlMessage": "فایل پشتیبانی خود را انتخاب نمایید.",
+  "fileInfo": "جزئیات فایل",
+  "noBackupFound": "هیچ پشتیبانی یافت نشد",
+  "renameBackup": "تغییر نام فایل"
 }

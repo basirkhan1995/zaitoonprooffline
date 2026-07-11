@@ -7,6 +7,7 @@ import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Other/toast.dart';
 import 'package:zaitoonpro/Features/Widgets/no_data_widget.dart';
 import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
+import 'package:zaitoonpro/Features/Widgets/textfield_entitled.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'bloc/backup_bloc.dart';
 
@@ -71,6 +72,7 @@ class _BackupContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
     return Scaffold(
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -89,10 +91,12 @@ class _BackupContent extends StatelessWidget {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
+                  SizedBox(height: 5),
                   Text(
                     tr.downloadBackupMsg,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.outline.withValues(alpha: .8),
+                      fontSize: 14
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -105,28 +109,57 @@ class _BackupContent extends StatelessWidget {
                       }
                     },
                     builder: (context, state) {
-                      return ZOutlineButton(
-                        height: 45,
+                      return Row(
+                        spacing: 8,
 
-                        onPressed: state is BackupLoading
-                            ? null
-                            : () {
-                          context.read<BackupBloc>().add(DownloadBackupEvent());
-                        },
-                        icon: Icons.cloud_download_outlined,
-                        label: state is BackupLoading
-                            ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        children: [
+                          ZOutlineButton(
+                            height: 45,
+                            isActive: true,
+                            onPressed: state is BackupLoading
+                                ? null
+                                : () {
+                              context.read<BackupBloc>().add(DownloadBackupEvent());
+                            },
+                            icon: Icons.cloud_download_outlined,
+                            label: state is BackupLoading
+                                ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                                : Text(
+                              tr.downloadLatestBackup,
+                              style: const TextStyle(fontSize: 16),
+                            ),
                           ),
-                        )
-                            : Text(
-                          tr.downloadLatestBackup,
-                          style: const TextStyle(fontSize: 16),
-                        ),
+                          ZOutlineButton(
+                            height: 45,
+
+                            onPressed: state is BackupLoading
+                                ? null
+                                : () {
+                              _showBrowseRestoreDialog(context);
+                            },
+                            icon: Icons.folder_outlined,
+                            label: state is BackupLoading
+                                ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                                : Text(
+                              tr.browse,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -189,7 +222,7 @@ class _BackupContent extends StatelessWidget {
                   if (state.backups.isEmpty) {
                     return Center(
                       child: NoDataWidget(
-                        message: "No Backup found",
+                        message: tr.noBackupFound,
                         onRefresh: (){
                           context.read<BackupBloc>().add(LoadBackupsEvent());
                         },
@@ -293,7 +326,7 @@ class _BackupContent extends StatelessWidget {
                                     children: [
                                       Icon(Icons.info, color: Theme.of(context).colorScheme.primary),
                                       const SizedBox(width: 8),
-                                      const Text('File Info'),
+                                        Text(tr.fileInfo),
                                     ],
                                   ),
                                 ),
@@ -309,9 +342,6 @@ class _BackupContent extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            onTap: () {
-                              _showFileOptions(context, file.path);
-                            },
                           ),
                         ),
                       );
@@ -349,7 +379,72 @@ class _BackupContent extends StatelessWidget {
       ),
     );
   }
+  void _showBrowseRestoreDialog(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
 
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5)
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.folder_open, color: Theme.of(context).colorScheme.primary),
+            SizedBox(width: 8),
+            Text(tr.restoreDatabase),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+               tr.sqlMessage,
+              style: TextStyle(fontSize: 15),
+            ),
+            SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: .1),
+                border: Border.all(color: Colors.orange.withValues(alpha: .3)),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      tr.restoreMessage  ,
+                      style: TextStyle(fontSize: 15, color: Colors.orange.shade800),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(tr.cancel),
+          ),
+          ZOutlineButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              // Open file picker and restore
+              context.read<BackupBloc>().add(PickAndRestoreBackupEvent());
+            },
+            icon: Icons.file_open,
+            label: Text(tr.browse),
+
+          ),
+        ],
+      ),
+    );
+  }
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1048576) return '${(bytes / 1024).toStringAsFixed(2)} KB';
@@ -451,20 +546,21 @@ class _BackupContent extends StatelessWidget {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5)
         ),
-        title: const Text('Delete Backup'),
-        content: const Text('Are you sure you want to delete this backup file?'),
+        title: Text(AppLocalizations.of(context)!.delete),
+        content: Text(AppLocalizations.of(context)!.deleteMessage),
         actions: [
-          TextButton(
+          ZOutlineButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            label: Text(AppLocalizations.of(context)!.cancel),
           ),
-          TextButton(
+          ZOutlineButton(
+            isActive: true,
+            backgroundHover: Theme.of(context).colorScheme.error,
             onPressed: () {
               context.read<BackupBloc>().add(DeleteBackupEvent(filePath));
               Navigator.pop(context);
             },
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-            child: Text(AppLocalizations.of(context)!.delete),
+            label: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -475,29 +571,21 @@ class _BackupContent extends StatelessWidget {
     final file = File(filePath);
     final currentName = file.path.split('/').last;
     final textController = TextEditingController(text: currentName);
-
+    final tr = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5)
         ),
-        title: const Text('Rename Backup'),
+        title: Text(tr.renameBackup),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Enter new name for the backup file:'),
-            const SizedBox(height: 8),
-            TextField(
+            ZTextFieldEntitled(
               controller: textController,
-              autofocus: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                hintText: 'Enter new file name',
-              ),
-              onSubmitted: (value) {
+              title: tr.fileInfo,
+              onSubmit: (value) {
                 if (value.isNotEmpty && value != currentName) {
                   final parentDir = file.parent.path;
                   final newPath = '$parentDir/$value';
@@ -509,11 +597,12 @@ class _BackupContent extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(
+          ZOutlineButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            label: Text(tr.cancel),
           ),
-          ElevatedButton(
+          ZOutlineButton(
+            isActive: true,
             onPressed: () {
               final newName = textController.text.trim();
               if (newName.isNotEmpty && newName != currentName) {
@@ -523,7 +612,7 @@ class _BackupContent extends StatelessWidget {
                 Navigator.pop(context);
               }
             },
-            child: const Text('Rename'),
+            label: Text(tr.renameTitle),
           ),
         ],
       ),
@@ -625,71 +714,6 @@ class _BackupContent extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    );
-  }
-
-  void _showFileOptions(BuildContext context, String filePath) {
-    showModalBottomSheet(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8)
-          )
-      ),
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.restore, color: Colors.orange),
-              title: const Text('Restore Database'),
-              onTap: () {
-                Navigator.pop(context);
-                _showRestoreDialog(context, filePath);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Rename'),
-              onTap: () {
-                Navigator.pop(context);
-                _showRenameDialog(context, filePath);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.folder_open),
-              title: const Text('Show in Folder'),
-              onTap: () {
-                Navigator.pop(context);
-                _openFolder(context, filePath);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: const Text('View File Info'),
-              onTap: () {
-                Navigator.pop(context);
-                _showFileInfo(context, filePath);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Delete Backup'),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteDialog(context, filePath);
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.close),
-              title: const Text('Cancel'),
-              onTap: () => Navigator.pop(context),
-            ),
-          ],
-        ),
       ),
     );
   }

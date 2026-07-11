@@ -1136,5 +1136,9 @@
   "restoreComplete": "بازگردانی کامل شد",
   "restoreSuccessMessage": "پایگاه داده با موفقیت بازگردانی شد!",
   "restoreFailed": "بازگردانی ناموفق",
-  "showInFolder": "باز کردن پوشه"
+  "showInFolder": "باز کردن پوشه",
+  "sqlMessage": "فایل پشتیبانی خود را انتخاب نمایید.",
+  "fileInfo": "جزئیات فایل",
+  "noBackupFound": "هیچ پشتیبانی یافت نشد",
+  "renameBackup": "تغییر نام فایل"
 }

@@ -6801,6 +6801,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show in folder'**
   String get showInFolder;
+
+  /// No description provided for @sqlMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a .sql backup file to restore.'**
+  String get sqlMessage;
+
+  /// No description provided for @fileInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'File info'**
+  String get fileInfo;
+
+  /// No description provided for @noBackupFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No backup found'**
+  String get noBackupFound;
+
+  /// No description provided for @renameBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Backup'**
+  String get renameBackup;
 }
 
 class _AppLocalizationsDelegate

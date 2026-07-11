@@ -3487,7 +3487,7 @@ class Repositories {
 
       String mysqlPath;
       if (Platform.isWindows) {
-        mysqlPath = 'C:\\xamp\\mysql\\bin\\mysql.exe';
+        mysqlPath = 'D:\\xamp\\mysql\\bin\\mysql.exe';
       } else if (Platform.isMacOS) {
         mysqlPath = '/Applications/XAMP/xampfiles/bin/mysql';
       } else {
@@ -3547,6 +3547,36 @@ class Repositories {
       onProgress?.call('Restore completed successfully!');
     } catch (e) {
       throw Exception('Database restore failed: $e');
+    }
+  }
+  // In repositories.dart
+  Future<void> openBackupFolder() async {
+    try {
+      String backupDir;
+
+      if (Platform.isWindows) {
+        backupDir = 'D:\\xamp\\mysql\\data\\backups'; // Adjust to your backup folder
+      } else if (Platform.isMacOS) {
+        backupDir = '/Applications/XAMP/xampfiles/data/backups';
+      } else {
+        backupDir = '/opt/lampp/data/backups';
+      }
+
+      final dir = Directory(backupDir);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+
+      // Open folder using system file explorer
+      if (Platform.isWindows) {
+        await Process.run('explorer', [backupDir]);
+      } else if (Platform.isMacOS) {
+        await Process.run('open', [backupDir]);
+      } else {
+        await Process.run('xdg-open', [backupDir]);
+      }
+    } catch (e) {
+      throw Exception('Failed to open backup folder: $e');
     }
   }
 }

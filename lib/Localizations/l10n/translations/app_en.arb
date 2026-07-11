@@ -1136,5 +1136,9 @@
   "restoreComplete": "Restore Complete",
   "restoreSuccessMessage": "Database has been restored successfully!",
   "restoreFailed": "Restore Failed",
-  "showInFolder": "Show in folder"
+  "showInFolder": "Show in folder",
+  "sqlMessage": "Select a .sql backup file to restore.",
+  "fileInfo": "File info",
+  "noBackupFound": "No backup found",
+  "renameBackup": "Rename Backup"
 }

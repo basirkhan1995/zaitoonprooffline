@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:zaitoonpro/Services/repositories.dart';
 
 part 'backup_event.dart';
@@ -16,8 +17,63 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     on<RenameBackupEvent>(_onRenameBackup);
     on<RestoreBackupEvent>(_onRestoreBackup);
     on<CheckMySQLConnectionEvent>(_onCheckMySQLConnection);
+    on<PickAndRestoreBackupEvent>(_onPickAndRestoreBackup);
+    on<OpenBackupFolderEvent>(_onOpenBackupFolder);
+  }
+  Future<void> _onPickAndRestoreBackup(
+      PickAndRestoreBackupEvent event,
+      Emitter<BackupState> emit,
+      ) async {
+    try {
+      // Open file picker
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['sql'],
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final filePath = result.files.first.path;
+        if (filePath != null) {
+          // Start restore
+          emit(BackupRestoreProgress('Starting restore from selected file...'));
+
+          await _repo.restoreBackup(
+            filePath,
+            onProgress: (message) {
+              emit(BackupRestoreProgress(message));
+            },
+          );
+
+          emit(BackupRestoreSuccess());
+
+          // Reload backups list
+          final backups = await _repo.getBackupFiles();
+          emit(BackupsLoaded(backups));
+        }
+      }
+    } catch (e) {
+      if (e.toString().contains('User cancelled')) {
+        // User cancelled the picker - just ignore
+        final backups = await _repo.getBackupFiles();
+        emit(BackupsLoaded(backups));
+      } else {
+        emit(BackupError(e.toString()));
+      }
+    }
   }
 
+  Future<void> _onOpenBackupFolder(
+      OpenBackupFolderEvent event,
+      Emitter<BackupState> emit,
+      ) async {
+    try {
+      // Open the backup folder
+      await _repo.openBackupFolder();
+    } catch (e) {
+      emit(BackupError('Failed to open backup folder: $e'));
+    }
+  }
   Future<void> _onDownloadBackup(
       DownloadBackupEvent event,
       Emitter<BackupState> emit,

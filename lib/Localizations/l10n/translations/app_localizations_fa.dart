@@ -3428,4 +3428,16 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get showInFolder => 'باز کردن پوشه';
+
+  @override
+  String get sqlMessage => 'فایل پشتیبانی خود را انتخاب نمایید.';
+
+  @override
+  String get fileInfo => 'جزئیات فایل';
+
+  @override
+  String get noBackupFound => 'هیچ پشتیبانی یافت نشد';
+
+  @override
+  String get renameBackup => 'تغییر نام فایل';
 }

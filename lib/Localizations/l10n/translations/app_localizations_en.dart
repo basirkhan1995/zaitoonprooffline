@@ -3440,4 +3440,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showInFolder => 'Show in folder';
+
+  @override
+  String get sqlMessage => 'Select a .sql backup file to restore.';
+
+  @override
+  String get fileInfo => 'File info';
+
+  @override
+  String get noBackupFound => 'No backup found';
+
+  @override
+  String get renameBackup => 'Rename Backup';
 }
