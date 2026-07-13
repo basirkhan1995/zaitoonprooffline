@@ -293,6 +293,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
     });
 
     return Container(
+      height: 250,
       margin: const EdgeInsets.only(top: 0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -353,7 +354,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
             child: Row(
               children: [
                 Expanded(
-                  flex: 2,
+                  flex: 4,
                   child: Text(
                     tr.storage,
                     style: TextStyle(
@@ -364,8 +365,8 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                   ),
                 ),
                 Expanded(
-                  flex: 2,
                   child: Text(
+                    textAlign: TextAlign.end,
                     tr.batchTitle,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
@@ -377,7 +378,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                 Expanded(
                   child: Text(
                     tr.qty,
-                    textAlign: TextAlign.right,
+                    textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -388,7 +389,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                 Expanded(
                   child: Text(
                     tr.totalItems,
-                    textAlign: TextAlign.right,
+                    textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -419,15 +420,15 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 4,
                       child: Text(
                         batch.storage?.toString() ?? "N/A",
                         style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                       ),
                     ),
                     Expanded(
-                      flex: 2,
                       child: Text(
+                        textAlign: TextAlign.end,
                         "$batchNumber",
                         style: textTheme.bodyMedium,
                       ),
@@ -435,7 +436,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                     Expanded(
                       child: Text(
                         quantity.toString(),
-                        textAlign: TextAlign.right,
+                        textAlign: TextAlign.end,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: quantity > 0 ? Colors.green : Colors.red,
@@ -445,7 +446,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                     Expanded(
                       child: Text(
                         (quantity * batchNumber).toString(),
-                        textAlign: TextAlign.right,
+                        textAlign: TextAlign.end,
                         style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                       ),
                     ),
