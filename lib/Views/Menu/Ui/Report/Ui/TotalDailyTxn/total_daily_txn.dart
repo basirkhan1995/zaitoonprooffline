@@ -115,7 +115,6 @@ class _DesktopState extends State<_Desktop> {
           if (data.isEmpty) {
             return const Center(child: SizedBox());
           }
-
           return LayoutBuilder(
             builder: (context, constraints) {
               const spacing = 8.0;
