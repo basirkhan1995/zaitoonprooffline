@@ -2688,7 +2688,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get averagePriceTitle => 'قیمت اوسط';
 
   @override
-  String get recentPriceTitle => 'آخرین قیمت';
+  String get recentPriceTitle => 'آخرین خرید';
 
   @override
   String get sellPrice => 'قیمت فروش';
@@ -3440,4 +3440,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get renameBackup => 'تغییر نام فایل';
+
+  @override
+  String get noStock => 'ناموجود';
+
+  @override
+  String get averagePurchasePrice => 'اوسط خرید';
 }

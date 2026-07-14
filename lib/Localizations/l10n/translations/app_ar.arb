@@ -892,7 +892,7 @@
   "forTitle": "لپاره",
   "pricingInformation": "قیمت ها",
   "averagePriceTitle": "قیمت اوسط",
-  "recentPriceTitle": "آخرین قیمت",
+  "recentPriceTitle": "آخرین خرید",
   "sellPrice": "قیمت فروش",
   "storageInfromation": "معلومات ذخایر",
   "codeTitle": "کد",
@@ -1140,5 +1140,7 @@
   "sqlMessage": "فایل پشتیبانی خود را انتخاب نمایید.",
   "fileInfo": "جزئیات فایل",
   "noBackupFound": "هیچ پشتیبانی یافت نشد",
-  "renameBackup": "تغییر نام فایل"
+  "renameBackup": "تغییر نام فایل",
+  "noStock": "ناموجود",
+  "averagePurchasePrice": "اوسط خرید"
 }

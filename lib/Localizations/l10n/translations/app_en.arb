@@ -892,7 +892,7 @@
   "forTitle": "for",
   "pricingInformation": "Pricing Information",
   "averagePriceTitle": "Average Price",
-  "recentPriceTitle": "Recent Price",
+  "recentPriceTitle": "Recent Purchase",
   "sellPrice": "Sell Price",
   "storageInfromation": "Storage Information",
   "codeTitle": "Code",
@@ -1140,5 +1140,7 @@
   "sqlMessage": "Select a .sql backup file to restore.",
   "fileInfo": "File info",
   "noBackupFound": "No backup found",
-  "renameBackup": "Rename Backup"
+  "renameBackup": "Rename Backup",
+  "noStock": "No Stock",
+  "averagePurchasePrice": "Average Purchase"
 }

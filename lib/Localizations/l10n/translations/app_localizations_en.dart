@@ -2698,7 +2698,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get averagePriceTitle => 'Average Price';
 
   @override
-  String get recentPriceTitle => 'Recent Price';
+  String get recentPriceTitle => 'Recent Purchase';
 
   @override
   String get sellPrice => 'Sell Price';
@@ -3452,4 +3452,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get renameBackup => 'Rename Backup';
+
+  @override
+  String get noStock => 'No Stock';
+
+  @override
+  String get averagePurchasePrice => 'Average Purchase';
 }

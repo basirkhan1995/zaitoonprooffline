@@ -1156,24 +1156,6 @@ class _DesktopState extends State<_Desktop> {
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
-              if (isWarning && isSelected) ...[
-                SizedBox(width: 4),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -1437,13 +1419,13 @@ class _DesktopState extends State<_Desktop> {
                     child: Text(tr.storage, style: titleStyle)),
                 SizedBox(
                     width: 120,
+                    child: Text(tr.averagePurchasePrice, style: titleStyle)),
+                SizedBox(
+                    width: 120,
                     child: Text(tr.recentPriceTitle, style: titleStyle)),
                 SizedBox(
                     width: 120,
                     child: Text(tr.salePrice, style: titleStyle)),
-                SizedBox(
-                    width: 120,
-                    child: Text(tr.averagePriceTitle, style: titleStyle)),
                 SizedBox(
                     width: 120,
                     child: Text(tr.qty, style: titleStyle)),
@@ -1455,7 +1437,9 @@ class _DesktopState extends State<_Desktop> {
                     child: Text(tr.unit, style: titleStyle)),
                 SizedBox(
                     width: 150,
-                    child: Text(tr.totalAmount, style: titleStyle)),
+                    child: Text(
+                        textAlign: TextAlign.end,
+                        tr.totalAmount, style: titleStyle)),
               ],
             ),
           ),
@@ -1544,18 +1528,20 @@ class _DesktopState extends State<_Desktop> {
                                     SizedBox(width: 50, child: Text((index + 1).toString())),
                                     Expanded(child: Text(stk.proName ?? "", style: style)),
                                     SizedBox(width: 120, child: Text(stk.stgName ?? "", style: Theme.of(context).textTheme.titleSmall)),
+                                    SizedBox(width: 120, child: Text("${stk.averagePrice.toAmount()} $baseCcy")),
                                     SizedBox(width: 120, child: Text("${stk.recentPurPrice.toAmount()} $baseCcy")),
                                     SizedBox(width: 120, child: Text("${stk.sellPrice.toAmount()} $baseCcy")),
-                                    SizedBox(width: 120, child: Text("${stk.averagePrice.toAmount()} $baseCcy")),
                                     SizedBox(width: 120, child: Text(
                                         stk.available.toAmount(decimal: 0) == "0"
-                                            ? "No Stock"
+                                            ? tr.noStock
                                             : stk.available.toAmount(decimal: 0),
                                         style: style
                                     )),
                                     SizedBox(width: 120, child: Text(stk.batch.toAmount(decimal: 0), style: Theme.of(context).textTheme.titleMedium)),
                                     SizedBox(width: 80, child: Text(stk.proUnit ?? "", style: Theme.of(context).textTheme.titleMedium)),
-                                    SizedBox(width: 150, child: Text("${stk.totalValue.toAmount(decimal: 2)} $baseCcy", style: Theme.of(context).textTheme.titleMedium)),
+                                    SizedBox(width: 150, child: Text(
+                                        textAlign: TextAlign.end,
+                                        "${stk.totalValue.toAmount(decimal: 2)} $baseCcy", style: Theme.of(context).textTheme.titleMedium)),
                                   ],
                                 ),
                               ),
@@ -1606,6 +1592,14 @@ class _DesktopState extends State<_Desktop> {
                               ),
                             ),
 
+                            // Vertical Divider
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Theme.of(context).dividerColor.withValues(alpha: .3),
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                            ),
+
                             // Total Quantity
                             Expanded(
                               child: Column(
@@ -1630,6 +1624,15 @@ class _DesktopState extends State<_Desktop> {
                               ),
                             ),
 
+                            // Vertical Divider
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Theme.of(context).dividerColor.withValues(alpha: .3),
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                            ),
+
+                            // Total Market Value
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -1646,11 +1649,19 @@ class _DesktopState extends State<_Desktop> {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.green.shade700, // Use a different color to distinguish
+                                      color: Colors.green.shade700,
                                     ),
                                   ),
                                 ],
                               ),
+                            ),
+
+                            // Vertical Divider
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Theme.of(context).dividerColor.withValues(alpha: .3),
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
                             ),
 
                             // Total Product Value

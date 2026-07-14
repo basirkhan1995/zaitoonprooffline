@@ -653,7 +653,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
   final Map<String, bool> _copiedStates = {};
   final TextEditingController searchController = TextEditingController();
   final invController = TextEditingController();
-  // Multi-select related variables
+
   final Set<int> _selectedOrderIds = {};
   bool _isSelectionMode = false;
   List<OrdersModel> cachedOrders = [];
@@ -1022,13 +1022,16 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                   ),
                     SizedBox(width: 100, child: Text(tr.date,style: titleStyle)),
                     SizedBox(width: 215, child: Text(tr.referenceNumber,style: titleStyle)),
+                  SizedBox(width: 100, child: Text(tr.invoiceType,style: titleStyle)),
                     Expanded(child: Text(tr.party,style: titleStyle)),
-                    SizedBox(width: 100, child: Text(tr.category,style: titleStyle)),
+
                     SizedBox(
                     width: 160,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: Text(tr.totalInvoice,style: titleStyle),
+                      child: Text(
+                          textAlign: TextAlign.end,
+                          tr.totalInvoice,style: titleStyle),
                     ),
                   ),
                     SizedBox(width: 115, child: Text(tr.status,style: titleStyle)),
@@ -1296,7 +1299,6 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
 
                                     // Order ID
                                     SizedBox(
-
                                       width:
                                       _isSelectionMode
                                           ? 74
@@ -1336,11 +1338,9 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                                           Expanded(
                                             child: Text(
                                               ord.ordId.toString(),
-
                                               style: TextStyle(
-                                                fontWeight: isSelected
-                                                    ? FontWeight.w600
-                                                    : FontWeight.normal,
+                                                fontWeight: FontWeight.w600
+
                                               ),
                                             ),
                                           ),
@@ -1378,6 +1378,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                                         ),
                                       ),
                                     ],
+
 
                                     // REF
                                     Row(
@@ -1481,7 +1482,17 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                                         ),
                                       ],
                                     ),
+                                    // TYPE
+                                    SizedBox(
+                                      width: 100,
 
+                                      child: Text(
+                                        Utils.getTransactionNames(
+                                          txn: ord.ordName ?? "",
+                                          context: context,
+                                        ),
+                                      ),
+                                    ),
                                     // PARTY
                                     Expanded(
                                       child: Text(
@@ -1500,17 +1511,6 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                                       ),
                                     ),
 
-                                    // TYPE
-                                    SizedBox(
-                                      width: 100,
-
-                                      child: Text(
-                                        Utils.getTransactionNames(
-                                          txn: ord.ordName ?? "",
-                                          context: context,
-                                        ),
-                                      ),
-                                    ),
 
                                     // TOTAL
                                     Container(
@@ -1541,7 +1541,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                                           fontSize: 14,
                                         ),
 
-                                        textAlign: TextAlign.start,
+                                        textAlign: TextAlign.end,
                                       ),
                                     ),
 

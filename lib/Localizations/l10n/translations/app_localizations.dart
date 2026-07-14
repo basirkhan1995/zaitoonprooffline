@@ -5335,7 +5335,7 @@ abstract class AppLocalizations {
   /// No description provided for @recentPriceTitle.
   ///
   /// In en, this message translates to:
-  /// **'Recent Price'**
+  /// **'Recent Purchase'**
   String get recentPriceTitle;
 
   /// No description provided for @sellPrice.
@@ -6825,6 +6825,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rename Backup'**
   String get renameBackup;
+
+  /// No description provided for @noStock.
+  ///
+  /// In en, this message translates to:
+  /// **'No Stock'**
+  String get noStock;
+
+  /// No description provided for @averagePurchasePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Purchase'**
+  String get averagePurchasePrice;
 }
 
 class _AppLocalizationsDelegate

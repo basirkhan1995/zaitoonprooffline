@@ -53,6 +53,23 @@ class _DesktopState extends State<_Desktop> {
   String fromDate = DateTime.now().toFormattedDate();
   String toDate = DateTime.now().toFormattedDate();
   String? ccyCode;
+
+  // Light pastel colors for cards
+  final List<Color> _cardColors = [
+    const Color(0xFFBBDEFB), // Light Blue 100
+    const Color(0xFFB2DFDB), // Teal 100
+    const Color(0xFFE1BEE7), // Purple 100
+    const Color(0xFFFFE0B2), // Orange 100
+    const Color(0xFFC5CAE9), // Indigo 100
+    const Color(0xFFF8BBD0), // Pink 100
+    const Color(0xFFB2EBF2), // Cyan 100
+    const Color(0xFFFFECB3), // Amber 100
+    const Color(0xFFD1C4E9), // Deep Purple 100
+    const Color(0xFFC8E6C9), // Green 100
+  ];
+
+  final Map<int, Color> _assignedColors = {};
+
   @override
   void initState() {
     final auth = context.read<AuthBloc>().state;
@@ -68,6 +85,13 @@ class _DesktopState extends State<_Desktop> {
         ),
       );
     });
+  }
+
+  Color _getCardColor(int index) {
+    if (!_assignedColors.containsKey(index)) {
+      _assignedColors[index] = _cardColors[index % _cardColors.length];
+    }
+    return _assignedColors[index]!;
   }
 
   @override
@@ -111,8 +135,6 @@ class _DesktopState extends State<_Desktop> {
 
               cardsPerRow = cardsPerRow.clamp(1, maxCardsPerRow);
 
-              final color = Theme.of(context).colorScheme;
-
               return Wrap(
                 spacing: spacing,
                 runSpacing: spacing,
@@ -121,6 +143,7 @@ class _DesktopState extends State<_Desktop> {
                   final percentText = "${item.percentage.toStringAsFixed(1)} %";
                   final percentColor = item.isIncrease ? Colors.green : Colors.red;
                   final icon = item.isIncrease ? Icons.trending_up : Icons.trending_down;
+                  final cardColor = _getCardColor(index);
 
                   // Calculate width for this specific card based on its row
                   final cardWidth = _calculateCardWidthForIndex(
@@ -137,17 +160,17 @@ class _DesktopState extends State<_Desktop> {
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.lightBlueAccent.withValues(alpha: .06),
+                          color: cardColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(
-                            color: color.primary.withValues(alpha: .3),
+                            color: cardColor.withValues(alpha: 1.9),
                             width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withValues(alpha: .05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
+                              color: cardColor.withValues(alpha: 0.1),
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
                             ),
                           ],
                         ),
@@ -212,12 +235,19 @@ class _DesktopState extends State<_Desktop> {
                                 ),
 
                                 // Transaction count
-                                Text(
-                                  '${item.today.totalCount ?? 0}',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 18,
-                                    color: theme.colorScheme.outline.withValues(alpha: .7),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: cardColor.withValues(alpha: 0.3),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    '${item.today.totalCount ?? 0}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      color: theme.colorScheme.outline.withValues(alpha: .7),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -270,8 +300,3 @@ class _DesktopState extends State<_Desktop> {
     return (availableWidth - fullRowSpacing) / cardsPerRow;
   }
 }
-
-
-
-
-
