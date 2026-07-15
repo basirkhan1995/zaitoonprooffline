@@ -341,7 +341,7 @@ class _DesktopState extends State<_Desktop> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: .05),
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: Theme.of(context).colorScheme.primary.withValues(alpha: .1),
@@ -726,7 +726,7 @@ class _DesktopState extends State<_Desktop> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Transaction History',
+                tr.cashFlow,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -793,7 +793,7 @@ class _DesktopState extends State<_Desktop> {
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: Colors.grey.shade200,
@@ -807,10 +807,10 @@ class _DesktopState extends State<_Desktop> {
             children: [
               Text(
                 txn.date != null
-                    ? '${txn.date!.year}/${txn.date!.month.toString().padLeft(2, '0')}/${txn.date!.day.toString().padLeft(2, '0')}'
+                    ? '${txn.date!.toFormattedDate()} | ${txn.date!.shamsiDateString}'
                     : 'N/A',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 14,
                   color: Colors.grey.shade600,
                   fontWeight: FontWeight.w500,
                 ),
@@ -828,7 +828,7 @@ class _DesktopState extends State<_Desktop> {
                   child: Text(
                     txn.status!,
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 12,
                       color: txn.status == 'Authorized'
                           ? Colors.green.shade700
                           : Colors.orange.shade700,
@@ -839,26 +839,30 @@ class _DesktopState extends State<_Desktop> {
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            txn.narration ?? '',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (txn.creditAccountName != null && txn.creditAccountName!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                '→ ${txn.creditAccountName}',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.blue.shade600,
+
+          Row(
+            spacing: 8,
+            children: [
+              if (txn.creditAccountName != null && txn.creditAccountName!.isNotEmpty)...[
+                Text(
+                  '${txn.creditAccountName} |',
+                  style: TextStyle(
+                    fontSize: 13,
+                  ),
                 ),
+              ],
+              Text(
+                txn.narration ?? '',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
+            ],
+          ),
+
           const SizedBox(height: 6),
           Row(
             children: [
@@ -875,7 +879,7 @@ class _DesktopState extends State<_Desktop> {
                         child: Text(
                           'DR',
                           style: TextStyle(
-                            fontSize: 8,
+                            fontSize: 15,
                             color: Colors.green.shade700,
                             fontWeight: FontWeight.bold,
                           ),
@@ -891,7 +895,7 @@ class _DesktopState extends State<_Desktop> {
                         child: Text(
                           'CR',
                           style: TextStyle(
-                            fontSize: 8,
+                            fontSize: 15,
                             color: Colors.red.shade700,
                             fontWeight: FontWeight.bold,
                           ),
@@ -901,7 +905,7 @@ class _DesktopState extends State<_Desktop> {
                     Text(
                       (debit > 0 ? debit : credit).toAmount(),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: debit > 0 ? Colors.green.shade700 : Colors.red.shade700,
                       ),
@@ -909,30 +913,21 @@ class _DesktopState extends State<_Desktop> {
                     Text(
                       ' $currency',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 15,
                         color: Colors.grey.shade600,
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
+              Text(
+                runningBalance.toAmount(),
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                   color: runningBalance >= 0
-                      ? Colors.blue.withValues(alpha: 0.08)
-                      : Colors.red.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  'Balance: ${runningBalance.toAmount()}',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: runningBalance >= 0
-                        ? Colors.blue.shade700
-                        : Colors.red.shade700,
-                  ),
+                      ? Colors.blue.shade700
+                      : Colors.red.shade700,
                 ),
               ),
             ],
