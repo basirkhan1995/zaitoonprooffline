@@ -119,10 +119,10 @@ class _DesktopState extends State<_Desktop> {
     ];
 
     final List<Map<String, dynamic>> transactionsButtons = [
-      if(login.hasPermission(92) ?? false)
-      {"title": tr.treasury, "icon":  FontAwesomeIcons.sackDollar, "action": ActionKey.allCashBalances},
+      // if(login.hasPermission(92) ?? false)
+      // {"title": tr.treasury, "icon":  FontAwesomeIcons.sackDollar, "action": ActionKey.allCashBalances},
       if(login.hasPermission(93) ?? false)
-      {"title": "${tr.treasury} (${tr.branch})", "icon": FontAwesomeIcons.sackDollar, "action": ActionKey.cashBalanceBranchWise},
+      {"title": "${tr.treasury}", "icon": FontAwesomeIcons.sackDollar, "action": ActionKey.cashBalanceBranchWise},
       if(login.hasPermission(94) ?? false)
       {"title": tr.exchangeRate, "icon": Icons.price_change_outlined, "action": ActionKey.exchangeRate},
       if(login.hasPermission(113) ?? false)
