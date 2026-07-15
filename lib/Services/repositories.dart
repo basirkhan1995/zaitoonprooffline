@@ -3550,7 +3550,6 @@ class Repositories {
       throw Exception('Database restore failed: $e');
     }
   }
-  // In repositories.dart
   Future<void> openBackupFolder() async {
     try {
       String backupDir;
