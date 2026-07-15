@@ -9,7 +9,7 @@ import 'package:zaitoonpro/Views/Menu/Ui/Reminder/features/due_drop.dart';
 import '../../../../Features/Date/z_generic_date.dart';
 import '../../../../Features/Generic/rounded_searchable_textfield.dart';
 import '../../../../Features/Other/thousand_separator.dart';
-import '../../../../Features/Other/zForm_dialog.dart';
+import '../../../../Features/Other/zDialog.dart';
 import '../../../../Features/Widgets/textfield_entitled.dart';
 import '../../../../Localizations/l10n/translations/app_localizations.dart';
 import '../../../Auth/bloc/auth_bloc.dart';

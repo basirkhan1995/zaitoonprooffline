@@ -5,6 +5,7 @@ import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Widgets/section_title.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Accounts/accounts.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/BalanceSheet/balance_sheet.dart';
+import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/ExpenseReport/expense_report.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/GLStatement/gl_statement.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Treasury/cash_branch.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/HR/AttendanceReport/attendance_report.dart';
@@ -20,7 +21,6 @@ import 'Ui/Finance/AllBalances/Ui/all_balances.dart';
 import 'Ui/Finance/ArApReport/Payables/payables.dart';
 import 'Ui/Finance/ArApReport/Receivables/receivables.dart';
 import 'Ui/Finance/ExchangeRate/exchange_rate.dart';
-import 'Ui/Finance/Treasury/all_cash.dart';
 import 'Ui/Finance/TrialBalance/trial_balance.dart';
 import 'Ui/Stock/StockAvailability/product_report.dart';
 import 'Ui/TransactionRef/transaction_ref.dart';
@@ -45,7 +45,7 @@ enum ActionKey {
   transactionByRef,
   transactionReport,
   allBalances,
-  allCashBalances,
+  expensesKey,
   cashBalanceBranchWise,
   exchangeRate,
 
@@ -103,6 +103,8 @@ class _DesktopState extends State<_Desktop> {
       {"title": tr.debtors, "icon": FontAwesomeIcons.arrowTrendDown, "action": ActionKey.receivable},
       if(login.hasPermission(98) ?? false)
         {"title": tr.accounts, "icon": Icons.account_circle_sharp, "action": ActionKey.allBalances},
+       if(login.hasPermission(92) ?? false)
+       {"title": tr.expenses, "icon":  FontAwesomeIcons.arrowDown, "action": ActionKey.expensesKey},
     ];
 
     final List<Map<String, dynamic>> stockButtons = [
@@ -119,8 +121,6 @@ class _DesktopState extends State<_Desktop> {
     ];
 
     final List<Map<String, dynamic>> transactionsButtons = [
-      // if(login.hasPermission(92) ?? false)
-      // {"title": tr.treasury, "icon":  FontAwesomeIcons.sackDollar, "action": ActionKey.allCashBalances},
       if(login.hasPermission(93) ?? false)
       {"title": tr.treasury, "icon": FontAwesomeIcons.sackDollar, "action": ActionKey.cashBalanceBranchWise},
       if(login.hasPermission(94) ?? false)
@@ -258,7 +258,7 @@ class _DesktopState extends State<_Desktop> {
       case ActionKey.payable: Utils.goto(context, PayablesView());
       case ActionKey.receivable: Utils.goto(context, ReceivablesView());
       case ActionKey.exchangeRate: Utils.goto(context, FxRateReportView());
-      case ActionKey.allCashBalances: Utils.goto(context, TreasuryView());
+      case ActionKey.expensesKey: Utils.goto(context, ExpenseReportView());
       case ActionKey.cashBalanceBranchWise: Utils.goto(context, CashBalancesBranchWiseView());
       case ActionKey.accountsReport: Utils.goto(context, AccountsReportView());
       case ActionKey.trialBalance: Utils.goto(context, TrialBalanceView());

@@ -23,7 +23,7 @@ import '../../../../../../../Features/Generic/underline_searchable_textfield.dar
 import '../../../../../../../Features/Other/alert_dialog.dart';
 import '../../../../../../../Features/Other/thousand_separator.dart';
 import '../../../../../../../Features/Other/utils.dart';
-import '../../../../../../../Features/Other/zForm_dialog.dart';
+import '../../../../../../../Features/Other/zDialog.dart';
 import '../../../../../../../Features/PrintSettings/print_preview.dart';
 import '../../../../../../../Features/PrintSettings/report_model.dart';
 import '../../../../../../../Features/Widgets/outline_button.dart';

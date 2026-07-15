@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
-import 'package:zaitoonpro/Features/Other/zForm_dialog.dart';
+import 'package:zaitoonpro/Features/Other/zDialog.dart';
 import 'package:zaitoonpro/Features/Widgets/no_data_widget.dart';
 import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';

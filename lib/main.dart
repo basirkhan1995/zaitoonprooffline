@@ -103,6 +103,7 @@ import 'Views/Menu/Ui/HR/Ui/UserDetail/Ui/Permissions/bloc/permissions_bloc.dart
 import 'Views/Menu/Ui/Projects/Ui/AllProjects/bloc/projects_bloc.dart';
 import 'Views/Menu/Ui/Reminder/bloc/reminder_bloc.dart';
 import 'Views/Menu/Ui/Report/Ui/Finance/AllBalances/bloc/all_balances_bloc.dart';
+import 'Views/Menu/Ui/Report/Ui/Finance/ExpenseReport/bloc/expense_report_bloc.dart';
 import 'Views/Menu/Ui/Report/Ui/HR/AttendanceReport/bloc/attendance_report_bloc.dart';
 import 'Views/Menu/Ui/Report/Ui/TransactionRef/bloc/txn_ref_report_bloc.dart';
 import 'Views/Menu/Ui/Report/Ui/TxnReport/bloc/txn_report_bloc.dart';
@@ -210,6 +211,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => PasswordBloc(Repositories(ApiServices()))),
         BlocProvider(create: (context) => ExchangeRateBloc(Repositories(ApiServices()))),
         BlocProvider(create: (context) => TransactionsBloc(Repositories(ApiServices()))),
+        BlocProvider(create: (context) => ExpenseReportBloc(Repositories(ApiServices()))),
         BlocProvider(create: (context) => CompanyProfileBloc(Repositories(ApiServices()))..add(LoadCompanyProfileEvent())),
         BlocProvider(create: (context) => BranchBloc(Repositories(ApiServices()))..add(LoadBranchesEvent())),
         BlocProvider(create: (context) => BranchLimitBloc(Repositories(ApiServices()))),

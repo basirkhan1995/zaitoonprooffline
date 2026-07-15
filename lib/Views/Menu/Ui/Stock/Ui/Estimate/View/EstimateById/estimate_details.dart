@@ -7,7 +7,7 @@ import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/thousand_separator.dart';
 import 'package:zaitoonpro/Features/Other/utils.dart';
-import 'package:zaitoonpro/Features/Other/zForm_dialog.dart';
+import 'package:zaitoonpro/Features/Other/zDialog.dart';
 import 'package:zaitoonpro/Features/Widgets/button.dart';
 import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
 import 'package:zaitoonpro/Features/Widgets/textfield_entitled.dart';

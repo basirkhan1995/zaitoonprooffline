@@ -120,6 +120,13 @@ class AppThemes {
     brightness: colorScheme.brightness,
     colorScheme: colorScheme,
     // Enhanced AppBar with elevation and shadow
+
+    dialogTheme: DialogThemeData(
+      elevation: 0,
+      backgroundColor: colorScheme.surface,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: colorScheme.surface,
       elevation: isLight ? 1 : 0,

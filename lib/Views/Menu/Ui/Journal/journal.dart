@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/utils.dart';
-import 'package:zaitoonpro/Features/Other/zForm_dialog.dart';
+import 'package:zaitoonpro/Features/Other/zDialog.dart';
 import 'package:zaitoonpro/Features/Widgets/status_badge.dart';
 import 'package:zaitoonpro/Localizations/Bloc/localizations_bloc.dart';
 import 'package:zaitoonpro/Views/Auth/models/login_model.dart';

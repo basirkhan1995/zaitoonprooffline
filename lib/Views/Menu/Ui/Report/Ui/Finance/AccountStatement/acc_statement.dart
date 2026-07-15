@@ -983,6 +983,7 @@ class _DesktopState extends State<_Desktop> {
                               showClearButton: true,
                             ),
                           ),
+
                           SizedBox(
                             width: 220,
                             child: ZRangeDatePicker(

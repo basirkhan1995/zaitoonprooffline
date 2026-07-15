@@ -6,7 +6,7 @@ import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'package:zaitoonpro/Views/Auth/bloc/auth_bloc.dart';
 import '../../../../../../../Features/Generic/rounded_searchable_textfield.dart';
-import '../../../../../../../Features/Other/zForm_dialog.dart';
+import '../../../../../../../Features/Other/zDialog.dart';
 import '../../../../Stakeholders/Ui/Accounts/bloc/accounts_bloc.dart';
 import '../../../../Stakeholders/Ui/Accounts/model/acc_model.dart';
 import 'bloc/purchase_invoice_bloc.dart';

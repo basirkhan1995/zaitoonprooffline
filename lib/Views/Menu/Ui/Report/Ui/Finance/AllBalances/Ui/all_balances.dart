@@ -824,13 +824,14 @@ class _DesktopState extends State<_Desktop> {
                 SizedBox(
                     width: 100, child: Text(tr.accountNumber, style: titleStyle)),
                 Expanded(child: Text(tr.accountName, style: titleStyle)),
-                SizedBox(
-                    width: 100, child: Text(tr.branchId, style: titleStyle)),
+
                 SizedBox(
                     width: 250,
                     child: Text(tr.accountCategory, style: titleStyle)),
                 SizedBox(
-                    width: 150, child: Text(tr.balance, style: titleStyle)),
+                    width: 150, child: Text(
+                    textAlign: TextAlign.end,
+                    tr.balance, style: titleStyle)),
               ],
             ),
           ),
@@ -875,15 +876,17 @@ class _DesktopState extends State<_Desktop> {
                                 width: 100,
                                 child: Text(ab.trdAccount.toString())),
                             Expanded(child: Text(ab.accName.toString())),
-                            SizedBox(
-                                width: 100,
-                                child: Text(ab.trdBranch.toString())),
+
                             SizedBox(
                                 width: 250,
                                 child: Text(ab.acgName.toString())),
                             SizedBox(
                                 width: 150,
                                 child: Text(
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                     "${ab.balance.toAmount()} ${ab.trdCcy}")),
                           ],
                         ),
