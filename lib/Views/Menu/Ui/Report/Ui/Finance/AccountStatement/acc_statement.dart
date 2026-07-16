@@ -69,8 +69,8 @@ class _MobileState extends State<_Mobile> {
   final formKey = GlobalKey<FormState>();
   Uint8List _companyLogo = Uint8List(0);
   final company = ReportModel();
-  String fromDate = DateTime.now().subtract(const Duration(days: 7)).toFormattedDate();
-  String toDate = DateTime.now().toFormattedDate();
+  String fromDate = DateTime.now().subtract(const Duration(days: 7)).toDateTime;
+  String toDate = DateTime.now().toDateTime;
 
   List<StmtRecord> records = [];
   AccountStatementModel? accountStatementModel;
@@ -568,8 +568,8 @@ class _DesktopState extends State<_Desktop> {
     final startOfMonth = DateTime(now.year, now.month, 1);
     final todayOfMonth = DateTime(now.year, now.month, now.day);
 
-    fromDate = startOfMonth.toFormattedDate();
-    toDate = todayOfMonth.toFormattedDate();
+    fromDate = startOfMonth.toApiStartDate();
+    toDate = todayOfMonth.toApiEndDate();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {});
     context.read<AccStatementBloc>().add(ResetAccStmtEvent());
@@ -1274,6 +1274,22 @@ class _DesktopState extends State<_Desktop> {
     );
   }
 
+  // void onSubmit(){
+  //   if(accNumber == null){
+  //     ToastManager.show(context: context,
+  //         title: "NO Account Selected",
+  //         message: "Please select an account.", type: ToastType.info);
+  //   }else{
+  //     context.read<AccStatementBloc>().add(
+  //       LoadAccountStatementEvent(
+  //         accountNumber: accNumber!,
+  //         fromDate: fromDate,
+  //         toDate: toDate,
+  //       ),
+  //     );
+  //   }
+  // }
+
   void onSubmit(){
     if(accNumber == null){
       ToastManager.show(context: context,
@@ -1283,8 +1299,8 @@ class _DesktopState extends State<_Desktop> {
       context.read<AccStatementBloc>().add(
         LoadAccountStatementEvent(
           accountNumber: accNumber!,
-          fromDate: fromDate,
-          toDate: toDate,
+          fromDate: fromDate.toApiStartDate(),
+          toDate: toDate.toApiEndDate(),
         ),
       );
     }
