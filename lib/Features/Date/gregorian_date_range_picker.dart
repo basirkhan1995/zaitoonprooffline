@@ -30,7 +30,6 @@ enum QuickOption {
   thisYear,
   allTime,
 }
-
 class GregorianDateRangePicker extends StatefulWidget {
   final ValueChanged<ZGregorianRangePicker> onRangeSelected;
   final ZGregorianRangePicker? initialRange;
@@ -48,7 +47,6 @@ class GregorianDateRangePicker extends StatefulWidget {
   @override
   GregorianDateRangePickerState createState() => GregorianDateRangePickerState();
 }
-
 class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
   late ZGregorianRangePicker _selectedRange;
   late DateTime _currentMonth;
