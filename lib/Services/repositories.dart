@@ -2866,7 +2866,7 @@ class Repositories {
         '${now.hour.toString().padLeft(2, '0')}-${now.minute.toString().padLeft(
         2, '0')}';
 
-    final filePath = '${backupDir.path}/zaitoon_backup_$formattedDate.sql';
+    final filePath = '${backupDir.path}/kayhan_backup_$formattedDate.sql';
 
     await api.downloadFile(
       endpoint: "/setting/backupLocally.php",
@@ -2902,6 +2902,112 @@ class Repositories {
       throw Exception('Failed to rename backup: $e');
     }
   }
+  Future<void> deleteBackup(String filePath) async {
+    final file = File(filePath);
+    if (await file.exists()) {
+      await file.delete();
+    }
+  }
+  Future<void> restoreBackup(String filePath, {Function(String)? onProgress}) async {
+    try {
+      final host = 'localhost';
+      final port = '3306';
+      final username = 'root';
+      final database = 'autoparts';
+
+      String mysqlPath;
+      if (Platform.isWindows) {
+        mysqlPath = 'D:\\xamp\\mysql\\bin\\mysql.exe';
+      } else if (Platform.isMacOS) {
+        mysqlPath = '/Applications/XAMP/xampfiles/bin/mysql';
+      } else {
+        mysqlPath = '/opt/lampp/bin/mysql';
+      }
+
+      final mysqlFile = File(mysqlPath);
+      if (!await mysqlFile.exists()) {
+        throw Exception('MySQL executable not found at: $mysqlPath');
+      }
+
+      final backupFile = File(filePath);
+      if (!await backupFile.exists()) {
+        throw Exception('Backup file not found at: $filePath');
+      }
+
+      onProgress?.call('Starting MySQL restore...');
+
+      // Use Process.start for all platforms (more reliable with stdin)
+      final process = await Process.start(
+        mysqlPath,
+        [
+          '-h', host,
+          '-P', port,
+          '-u', username,
+          '--default-character-set=utf8mb4',
+          database,
+        ],
+        runInShell: true,
+      );
+
+      // Get file size for progress
+      final fileSize = await backupFile.length();
+      var bytesRead = 0;
+
+      // Stream the file with progress
+      await backupFile.openRead().map((chunk) {
+        bytesRead += chunk.length;
+        final progress = (bytesRead / fileSize * 100).toStringAsFixed(1);
+        onProgress?.call('Restoring: $progress%');
+        return chunk;
+      }).pipe(process.stdin);
+
+      // Close stdin when done
+      await process.stdin.close();
+
+      // Wait for process to complete
+      final exitCode = await process.exitCode;
+
+      if (exitCode != 0) {
+        final stderr = await process.stderr
+            .transform(utf8.decoder)
+            .join();
+        throw Exception('Restore failed (exit code: $exitCode): $stderr');
+      }
+
+      onProgress?.call('Restore completed successfully!');
+    } catch (e) {
+      throw Exception('Database restore failed: $e');
+    }
+  }
+  Future<void> openBackupFolder() async {
+    try {
+      String backupDir;
+
+      if (Platform.isWindows) {
+        backupDir = 'C:\\xamp\\mysql\\data\\backups';
+      } else if (Platform.isMacOS) {
+        backupDir = '/Applications/XAMP/xampfiles/data/backups';
+      } else {
+        backupDir = '/opt/lampp/data/backups';
+      }
+
+      final dir = Directory(backupDir);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+
+      // Open folder using system file explorer
+      if (Platform.isWindows) {
+        await Process.run('explorer', [backupDir]);
+      } else if (Platform.isMacOS) {
+        await Process.run('open', [backupDir]);
+      } else {
+        await Process.run('xdg-open', [backupDir]);
+      }
+    } catch (e) {
+      throw Exception('Failed to open backup folder: $e');
+    }
+  }
   Future<List<FileSystemEntity>> getBackupFiles() async {
     final baseDir = await _getBackupBaseDirectory();
     final backupDir = Directory('${baseDir.path}/ZaitoonBackups');
@@ -2909,12 +3015,6 @@ class Repositories {
     final files = backupDir.listSync().whereType<File>().toList();
     files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
     return files;
-  }
-  Future<void> deleteBackup(String filePath) async {
-    final file = File(filePath);
-    if (await file.exists()) {
-      await file.delete();
-    }
   }
 
   ///Attendance ...............................................................
@@ -3478,108 +3578,6 @@ class Repositories {
 
     return UsrProfileModel.fromMap(response.data);
   }
-
-  Future<void> restoreBackup(String filePath, {Function(String)? onProgress}) async {
-    try {
-      final host = 'localhost';
-      final port = '3306';
-      final username = 'root';
-      final database = 'autoparts';
-
-      String mysqlPath;
-      if (Platform.isWindows) {
-        mysqlPath = 'D:\\xamp\\mysql\\bin\\mysql.exe';
-      } else if (Platform.isMacOS) {
-        mysqlPath = '/Applications/XAMP/xampfiles/bin/mysql';
-      } else {
-        mysqlPath = '/opt/lampp/bin/mysql';
-      }
-
-      final mysqlFile = File(mysqlPath);
-      if (!await mysqlFile.exists()) {
-        throw Exception('MySQL executable not found at: $mysqlPath');
-      }
-
-      final backupFile = File(filePath);
-      if (!await backupFile.exists()) {
-        throw Exception('Backup file not found at: $filePath');
-      }
-
-      onProgress?.call('Starting MySQL restore...');
-
-      // Use Process.start for all platforms (more reliable with stdin)
-      final process = await Process.start(
-        mysqlPath,
-        [
-          '-h', host,
-          '-P', port,
-          '-u', username,
-          '--default-character-set=utf8mb4',
-          database,
-        ],
-        runInShell: true,
-      );
-
-      // Get file size for progress
-      final fileSize = await backupFile.length();
-      var bytesRead = 0;
-
-      // Stream the file with progress
-      await backupFile.openRead().map((chunk) {
-        bytesRead += chunk.length;
-        final progress = (bytesRead / fileSize * 100).toStringAsFixed(1);
-        onProgress?.call('Restoring: $progress%');
-        return chunk;
-      }).pipe(process.stdin);
-
-      // Close stdin when done
-      await process.stdin.close();
-
-      // Wait for process to complete
-      final exitCode = await process.exitCode;
-
-      if (exitCode != 0) {
-        final stderr = await process.stderr
-            .transform(utf8.decoder)
-            .join();
-        throw Exception('Restore failed (exit code: $exitCode): $stderr');
-      }
-
-      onProgress?.call('Restore completed successfully!');
-    } catch (e) {
-      throw Exception('Database restore failed: $e');
-    }
-  }
-  Future<void> openBackupFolder() async {
-    try {
-      String backupDir;
-
-      if (Platform.isWindows) {
-        backupDir = 'C:\\xamp\\mysql\\data\\backups';
-      } else if (Platform.isMacOS) {
-        backupDir = '/Applications/XAMP/xampfiles/data/backups';
-      } else {
-        backupDir = '/opt/lampp/data/backups';
-      }
-
-      final dir = Directory(backupDir);
-      if (!await dir.exists()) {
-        await dir.create(recursive: true);
-      }
-
-      // Open folder using system file explorer
-      if (Platform.isWindows) {
-        await Process.run('explorer', [backupDir]);
-      } else if (Platform.isMacOS) {
-        await Process.run('open', [backupDir]);
-      } else {
-        await Process.run('xdg-open', [backupDir]);
-      }
-    } catch (e) {
-      throw Exception('Failed to open backup folder: $e');
-    }
-  }
-
 
   /// Expense Report
   Future<ExpenseReportModel> getExpenseReport({
