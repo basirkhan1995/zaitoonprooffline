@@ -2917,7 +2917,7 @@ class Repositories {
 
       String mysqlPath;
       if (Platform.isWindows) {
-        mysqlPath = 'D:\\xamp\\mysql\\bin\\mysql.exe';
+        mysqlPath = 'C:\\xamp\\mysql\\bin\\mysql.exe';
       } else if (Platform.isMacOS) {
         mysqlPath = '/Applications/XAMP/xampfiles/bin/mysql';
       } else {
