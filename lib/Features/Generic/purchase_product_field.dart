@@ -476,13 +476,13 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
                                       hintText: AppLocalizations.of(context)!.searchProducts,
                                       prefixIcon: Icon(Icons.search,
                                         color: Theme.of(context).colorScheme.primary,
-                                        size: 18,
+                                        size: 30,
                                       ),
                                       suffixIcon: _overlaySearchController.text.isNotEmpty
                                           ? IconButton(
                                         icon: Icon(Icons.clear,
                                           color: Theme.of(context).colorScheme.outline,
-                                          size: 18,
+                                          size: 20,
                                         ),
                                         onPressed: () {
                                           _overlaySearchController.clear();
@@ -536,22 +536,35 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
                                         flex: 3,
                                         child: Text(tr.productName, style: titleStyle),
                                       ),
+
                                       SizedBox(
-                                        width: 100,
-                                        child: Text(tr.unit,
-                                            textAlign: TextAlign.center,
-                                            style: titleStyle),
-                                      ),
-                                      SizedBox(
-                                        width: 120,
+                                        width: 80,
                                         child: Text(tr.brandTitle,
                                             textAlign: TextAlign.center,
                                             style: titleStyle),
                                       ),
                                       SizedBox(
-                                        width: 120,
+                                        width: 80,
                                         child: Text(tr.gradeTitle,
                                             textAlign: TextAlign.center,
+                                            style: titleStyle),
+                                      ),
+                                      SizedBox(
+                                        width: 80,
+                                        child: Text(tr.unit,
+                                            textAlign: TextAlign.center,
+                                            style: titleStyle),
+                                      ),
+                                      SizedBox(
+                                        width: 100,
+                                        child: Text(tr.totalQty,
+                                            textAlign: TextAlign.end,
+                                            style: titleStyle),
+                                      ),
+                                      SizedBox(
+                                        width: 100,
+                                        child: Text(tr.totalItems,
+                                            textAlign: TextAlign.end,
                                             style: titleStyle),
                                       ),
                                     ],
@@ -751,15 +764,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
             ),
           ),
           SizedBox(
-            width: 100,
-            child: Text(
-              product.proUnit ?? 'N/A',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13),
-            ),
-          ),
-          SizedBox(
-            width: 120,
+            width: 80,
             child: Text(
               product.proBrand ?? 'N/A',
               textAlign: TextAlign.center,
@@ -768,10 +773,38 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
             ),
           ),
           SizedBox(
-            width: 120,
+            width: 80,
             child: Text(
               product.proGrade ?? 'N/A',
               textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: 80,
+            child: Text(
+              product.proUnit ?? 'N/A',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
+
+
+          SizedBox(
+            width: 100,
+            child: Text(
+              product.totalQty ?? 'N/A',
+              textAlign: TextAlign.end,
+              style: const TextStyle(fontSize: 13),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: 100,
+            child: Text(
+              product.totalItems ?? 'N/A',
+              textAlign: TextAlign.end,
               style: const TextStyle(fontSize: 13),
               overflow: TextOverflow.ellipsis,
             ),
@@ -787,27 +820,9 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Product code and basic info (name removed as it's shown on top)
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: .03),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: .3)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${tr.productCode}: ${product.proCode ?? 'N/A'}',
-                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.outline),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
+
         _buildDetailCard(tr.basicInformation, [
+          _buildDetailItem(Icons.important_devices_sharp, tr.productCode, product.proCode ?? 'N/A'),
           _buildDetailItem(Icons.category, tr.unit, product.proUnit ?? 'N/A'),
           _buildDetailItem(Icons.branding_watermark, tr.brandTitle, product.proBrand ?? 'N/A'),
           _buildDetailItem(Icons.model_training, tr.modelTitle, product.proModel ?? 'N/A'),
@@ -849,7 +864,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
           ),
           const SizedBox(width: 12),
           SizedBox(
-            width: 150,
+            width: 100,
             child: Text('$label:', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
           ),
           Expanded(
