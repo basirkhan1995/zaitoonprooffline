@@ -2189,7 +2189,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toStorage => 'To Storage';
 
   @override
-  String get totalItems => 'Total Item';
+  String get totalItems => 'Total Items';
 
   @override
   String get shiftItems => 'Shift Items';

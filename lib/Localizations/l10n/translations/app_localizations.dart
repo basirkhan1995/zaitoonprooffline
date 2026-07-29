@@ -4339,7 +4339,7 @@ abstract class AppLocalizations {
   /// No description provided for @totalItems.
   ///
   /// In en, this message translates to:
-  /// **'Total Item'**
+  /// **'Total Items'**
   String get totalItems;
 
   /// No description provided for @shiftItems.

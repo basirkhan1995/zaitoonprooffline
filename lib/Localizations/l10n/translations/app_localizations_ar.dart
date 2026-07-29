@@ -2184,7 +2184,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get toStorage => 'به گدام';
 
   @override
-  String get totalItems => 'جمع تعداد';
+  String get totalItems => 'تعداد کل';
 
   @override
   String get shiftItems => 'کالاهای انتقالی';
@@ -3192,7 +3192,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get modelTitle => 'مدل';
 
   @override
-  String get totalQty => 'مقدار کل';
+  String get totalQty => 'تعداد کل';
 
   @override
   String get totalCostPludExpenses => 'مجموعه + مصارف';
