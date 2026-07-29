@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Other/shortcut.dart';
 import 'package:zaitoonpro/Features/Other/utils.dart';
-import 'package:zaitoonpro/Features/Other/zDialog.dart';
+import 'package:zaitoonpro/Features/Other/z_dialog.dart';
 import 'package:zaitoonpro/Features/Widgets/textfield_entitled.dart';
 import 'package:zaitoonpro/Views/Auth/models/login_model.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/StockAvailability/product_report.dart';

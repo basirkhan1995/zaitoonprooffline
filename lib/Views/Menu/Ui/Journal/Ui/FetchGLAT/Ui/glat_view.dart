@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
-import 'package:zaitoonpro/Features/Other/zDialog.dart';
+import 'package:zaitoonpro/Features/Other/z_dialog.dart';
 import 'package:zaitoonpro/Features/Widgets/no_data_widget.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Journal/Ui/FetchGLAT/Print/glat_print.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Journal/Ui/FetchGLAT/bloc/glat_bloc.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
-import 'package:zaitoonpro/Features/Other/zDialog.dart';
+import 'package:zaitoonpro/Features/Other/z_dialog.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Projects/Ui/AllProjects/model/pjr_model.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Projects/project_tabs.dart';
 

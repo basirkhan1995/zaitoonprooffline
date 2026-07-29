@@ -8,7 +8,7 @@ import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Other/thousand_separator.dart';
 import 'package:zaitoonpro/Features/Other/utils.dart';
-import 'package:zaitoonpro/Features/Other/zDialog.dart';
+import 'package:zaitoonpro/Features/Other/z_dialog.dart';
 import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
 import 'package:zaitoonpro/Features/Widgets/txn_status_widget.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';

@@ -985,7 +985,7 @@ class _DesktopState extends State<_Desktop> {
                           ),
 
                           SizedBox(
-                            width: 220,
+                            width: 275,
                             child: ZRangeDatePicker(
                               label: tr.selectDate,
                               initialStartDate: DateTime.tryParse(fromDate),

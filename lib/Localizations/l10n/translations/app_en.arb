@@ -478,7 +478,7 @@
   "accountExist": "Account already exists.",
   "glDependentMsg": "This account is not deleted.",
   "glTypes": "TXN Types",
-  "productName": "Name",
+  "productName": "Product Name",
   "productCode": "SKU",
   "transactionType": "Transaction Types",
   "deactive": "Inactive",

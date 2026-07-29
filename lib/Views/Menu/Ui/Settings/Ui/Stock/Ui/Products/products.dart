@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:zaitoonpro/Features/Other/cover.dart';
+import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
-import 'package:zaitoonpro/Features/Widgets/no_data_widget.dart';
 import 'package:zaitoonpro/Features/Widgets/status_badge.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,16 +68,16 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
     if (widget.isMobile) {
       // Mobile header - stacked layout
       return Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(tr.products, style: textTheme.titleLarge),
+            Text(tr.products, style: textTheme.headlineSmall),
             Text(
               tr.manageProductTitle,
               style: textTheme.bodySmall?.copyWith(color: color.outline),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ZSearchField(
               controller: searchController,
               hint: tr.search,
@@ -104,7 +103,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
               },
               icon: FontAwesomeIcons.magnifyingGlass,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -137,7 +136,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
     } else if (widget.isTablet) {
       // Tablet header - compact row layout
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Row(
@@ -146,7 +145,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(tr.products, style: textTheme.titleLarge),
+                      Text(tr.products, style: textTheme.headlineSmall),
                       Text(
                         tr.manageProductTitle,
                         style: textTheme.bodySmall?.copyWith(color: color.outline),
@@ -176,7 +175,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ZSearchField(
               controller: searchController,
               hint: tr.search,
@@ -207,10 +206,19 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
       );
     } else {
       // Desktop header
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 5),
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.surface,
+          border: Border(
+            bottom: BorderSide(
+              color: color.outline.withValues(alpha: .1),
+              width: 1,
+            ),
+          ),
+        ),
         child: Row(
-          spacing: 8,
+          spacing: 12,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
@@ -218,7 +226,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tr.products, style: textTheme.titleLarge),
+                  Text(tr.products, style: textTheme.headlineMedium),
                   Text(
                     tr.manageProductTitle,
                     style: textTheme.bodySmall?.copyWith(color: color.outline),
@@ -281,59 +289,149 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
 
   // Build table header for different screen sizes
   Widget _buildTableHeader(AppLocalizations tr, TextStyle? titleStyle, ColorScheme color) {
-
     if (widget.isMobile) {
-      // Mobile card view doesn't need table header
       return const SizedBox.shrink();
     } else if (widget.isTablet) {
-      // Tablet table header
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: color.primary.withValues(alpha: .1),
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           children: [
             Expanded(
               flex: 2,
-              child: Text(tr.productName, style: titleStyle),
+              child: Text(
+                tr.productName,
+                style: titleStyle?.copyWith(fontWeight: FontWeight.w600),
+              ),
             ),
+            const SizedBox(width: 16),
             SizedBox(
-              width: 100,
-              child: Text(tr.status, style: titleStyle),
+              width: 120,
+              child: Text(
+                tr.status,
+                style: titleStyle?.copyWith(fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
       );
     } else {
-      // Desktop table header
+      // Desktop header with better styling
       return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 8),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 70,
-                child: Text(tr.productCode, style: titleStyle),
-              ),
-
-              Expanded(
-                child: Text(tr.productName, style: titleStyle),
-              ),
-              SizedBox(
-                width: 150,
-                child: Text(tr.productCode, style: titleStyle),
-              ),
-              SizedBox(
-                width: 100,
-                child: Text(tr.unit, style: titleStyle),
-              ),
-              SizedBox(
-                width: 100,
-                child: Text(tr.category, style: titleStyle),
-              ),
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              color.primary,
+              color.primary.withValues(alpha: .85),
             ],
           ),
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: [
+            BoxShadow(
+              color: color.primary.withValues(alpha: .2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 60,
+              child: Text(
+                '#',
+                style: titleStyle?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.surface,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            SizedBox(
+              width: 120,
+              child: Text(
+                tr.productCode,
+                style: titleStyle?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.surface,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                tr.productName,
+                style: titleStyle?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.surface,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 120,
+              child: Text(
+                tr.category,
+                textAlign: TextAlign.center,
+                style: titleStyle?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.surface,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Text(
+                tr.qty,
+                style: titleStyle?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.surface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Text(
+                tr.totalItems,
+                style: titleStyle?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.surface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(
+              width: 80,
+              child: Text(
+                tr.unit,
+                style: titleStyle?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.surface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Text(
+                tr.status,
+                style: titleStyle?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.surface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -342,10 +440,10 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
   // Build product item based on screen size
   Widget _buildProductItem(ProductsModel product, int index, TextTheme textTheme, ColorScheme color, AppLocalizations tr) {
     if (widget.isMobile) {
-      // Mobile card view
+      // Mobile card view with better design
       return Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        elevation: 1,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -358,24 +456,26 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Product Name and Status
+                // Header Row: Name + Status
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
-                        product.proName ?? "",
+                        product.proName ?? '',
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     StatusBadge(
-                      status: product.proStatus!,
+                      status: product.proStatus ?? 1,
                       trueValue: tr.active,
                       falseValue: tr.inactive,
                     ),
@@ -383,144 +483,391 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                 ),
                 const SizedBox(height: 8),
 
-                // Product Code
-                ZCover(
-                  child: Text(
-                    product.proCode ?? "",
-                    style: textTheme.bodySmall?.copyWith(
-                      color: color.primary,
+                // Code with label
+                Row(
+                  children: [
+                    Icon(
+                      Icons.code,
+                      size: 14,
+                      color: color.outline,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                // Details
-                if (product.proDetails != null && product.proDetails!.isNotEmpty)
-                  Text(
-                    product.proDetails!,
-                    style: textTheme.bodyMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                const SizedBox(height: 4),
-
-                // Made In
-                if (product.proMadeIn != null && product.proMadeIn!.isNotEmpty)
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        size: 14,
+                    const SizedBox(width: 4),
+                    Text(
+                      '${tr.productCode}:',
+                      style: textTheme.bodySmall?.copyWith(
                         color: color.outline,
                       ),
-                      const SizedBox(width: 4),
-                      Expanded(
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: color.primary.withValues(alpha: .1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                         child: Text(
-                          product.proMadeIn!,
+                          product.proCode ?? '',
                           style: textTheme.bodySmall?.copyWith(
-                            color: color.outline,
+                            color: color.primary,
+                            fontWeight: FontWeight.w500,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+
+                // Category
+                Row(
+                  children: [
+                    Icon(
+                      Icons.category,
+                      size: 14,
+                      color: color.outline,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${tr.category}:',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: color.outline,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        product.pcName ?? '',
+                        style: textTheme.bodyMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Stats Row: Qty, Items, Unit
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: color.primary.withValues(alpha: .1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              tr.qty,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: color.outline,
+                              ),
+                            ),
+                            Text(
+                              product.totalQty?.toAmount(decimal: 0) ?? '0',
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: color.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: .1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              tr.totalItems,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: color.outline,
+                              ),
+                            ),
+                            Text(
+                              product.totalItems?.toAmount(decimal: 0) ?? '0',
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: color.secondary.withValues(alpha: .1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              tr.unit,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: color.outline,
+                              ),
+                            ),
+                            Text(
+                              product.proUnit ?? '',
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: color.secondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Details if available
+                if (product.proDetails != null && product.proDetails!.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.surfaceContainerHighest.withValues(alpha: .3),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: color.outline.withValues(alpha: .1),
+                      ),
+                    ),
+                    child: Text(
+                      product.proDetails!,
+                      style: textTheme.bodySmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                ],
               ],
             ),
           ),
         ),
       );
     } else if (widget.isTablet) {
-      // Tablet row view
-      return InkWell(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (context) => AddEditProductView(proId: product.proId),
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-          decoration: BoxDecoration(
-            color: index.isEven
-                ? color.primary.withValues(alpha: .05)
-                : Colors.transparent,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.proName ?? "",
-                      style: textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 2),
-                    ZCover(
-                      child: Text(
-                        product.proCode ?? "",
-                        style: textTheme.bodySmall,
+      // Tablet row view with better design
+      return MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: InkWell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => AddEditProductView(proId: product.proId),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: index.isEven
+                  ? color.surfaceContainerHighest.withValues(alpha: .3)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.proName ?? '',
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: color.primary.withValues(alpha: .1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          product.proCode ?? '',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: color.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 120,
+                  child: Center(
+                    child: StatusBadge(
+                      status: product.proStatus ?? 1,
+                      trueValue: tr.active,
+                      falseValue: tr.inactive,
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 100,
-                child: StatusBadge(
-                  status: product.proStatus!,
-                  trueValue: tr.active,
-                  falseValue: tr.inactive,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
     } else {
-      // Desktop row view
-      return InkWell(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (context) => AddEditProductView(proId: product.proId),
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          decoration: BoxDecoration(
-            color: index.isEven
-                ? color.surfaceContainer.withValues(alpha: .7)
-                : Colors.transparent,
-          ),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 70,
-                child: Text(product.proId.toString()),
-              ),
-              Expanded(
-                child: Text(
-                  product.proName ?? "",
-                  style: textTheme.titleMedium,
+      // Desktop row view with better styling
+      return MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: InkWell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => AddEditProductView(proId: product.proId),
+            );
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            decoration: BoxDecoration(
+              color: index.isEven
+                  ? color.surfaceContainerHighest.withValues(alpha: .3)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Row(
+              children: [
+                // ID
+                SizedBox(
+                  width: 60,
+                  child: Text(
+                    product.proId.toString(),
+                    style: textTheme.bodySmall?.copyWith(
+                      color: color.outline,
+                    ),
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 150,
-                child: Text(product.proCode ?? ""),
-              ),
-              SizedBox(
-                width: 100,
-                child: Text(product.proUnit.toString()),
-              ),
-              SizedBox(
-                width: 100,
-                child: Text(product.pcName.toString()),
-              ),
-            ],
+                const SizedBox(width: 8),
+
+                // Product Code
+                SizedBox(
+                  width: 120,
+                  child: Text(
+                    product.proCode ?? '',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: color.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+
+                  ),
+                ),
+
+                // Product Name
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    product.proName ?? '',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+
+                // Category
+                SizedBox(
+                  width: 120,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: color.secondary.withValues(alpha: .1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      product.pcName ?? '',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: color.secondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+
+                // Quantity
+                SizedBox(
+                  width: 100,
+                  child: Text(
+                    product.totalQty?.toAmount(decimal: 0) ?? '0',
+                    style: textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: color.primary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+
+                // Total Items
+                SizedBox(
+                  width: 100,
+                  child: Text(
+                    product.totalItems?.toAmount(decimal: 0) ?? '0',
+                    style: textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.green.shade700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+
+                // Unit
+                SizedBox(
+                  width: 80,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: color.outline.withValues(alpha: .1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      product.proUnit ?? '',
+                      style: textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+
+                // Status
+                SizedBox(
+                  width: 100,
+                  child: Center(
+                    child: StatusBadge(
+                      status: product.proStatus ?? 1,
+                      trueValue: tr.active,
+                      falseValue: tr.inactive,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -533,7 +880,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
     final color = Theme.of(context).colorScheme;
     final tr = AppLocalizations.of(context)!;
     TextStyle? titleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
-        color: Theme.of(context).colorScheme.surface
+      color: Theme.of(context).colorScheme.surface,
     );
 
     return Scaffold(
@@ -544,7 +891,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
           _buildHeader(tr, textTheme, color),
 
           if (!widget.isMobile) ...[
-            const SizedBox(height: 5),
+            const SizedBox(height: 4),
             // Table Header
             _buildTableHeader(tr, titleStyle, color),
           ],
@@ -553,10 +900,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
           Expanded(
             child: BlocConsumer<ProductsBloc, ProductsState>(
               listener: (context, state) {
-                // Handle Success State
                 if (state is ProductsSuccessState) {
-
-                  // Show success toast using your ToastManager
                   ToastManager.show(
                     context: context,
                     title: "Success",
@@ -567,9 +911,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                   );
                 }
 
-                // Handle Error State
                 if (state is ProductsErrorState) {
-                  // Show error toast using your ToastManager
                   ToastManager.show(
                     context: context,
                     title: "Error",
@@ -582,12 +924,50 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
               },
               builder: (context, state) {
                 if (state is ProductsLoadingState) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          color: color.primary,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          tr.loading,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: color.outline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 }
                 if (state is ProductsErrorState) {
-                  return NoDataWidget(
-                    message: state.message,
-                    onRefresh: onRefresh,
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 80,
+                          color: color.error.withValues(alpha: .5),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          state.message,
+                          style: textTheme.titleMedium?.copyWith(
+                            color: color.error,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ZOutlineButton(
+                          icon: Icons.refresh,
+                          onPressed: onRefresh,
+                          label: Text(tr.refresh),
+                        ),
+                      ],
+                    ),
                   );
                 }
                 if (state is ProductsLoadedState) {
@@ -598,24 +978,55 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                     final productName = item.proName?.toString().toLowerCase() ?? '';
                     final details = item.proDetails?.toLowerCase() ?? '';
                     final madeIn = item.proMadeIn?.toLowerCase() ?? '';
+                    final category = item.pcName?.toLowerCase() ?? '';
 
                     return code.contains(query) ||
                         productName.contains(query) ||
                         details.contains(query) ||
-                        madeIn.contains(query);
+                        madeIn.contains(query) ||
+                        category.contains(query);
                   }).toList();
 
                   if (filteredList.isEmpty) {
-                    return NoDataWidget(
-                      message: tr.noDataFound,
-                      onRefresh: onRefresh,
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.inventory_2_outlined,
+                            size: 80,
+                            color: color.outline.withValues(alpha: .5),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            searchController.text.isNotEmpty ? tr.noDataFound : tr.noDataFound,
+                            style: textTheme.titleMedium?.copyWith(
+                              color: color.outline,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            searchController.text.isNotEmpty ? "Try different search" : "Try refreshing",
+                            style: textTheme.bodySmall?.copyWith(
+                              color: color.outline,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ZOutlineButton(
+                            icon: Icons.refresh,
+                            onPressed: onRefresh,
+                            label: Text(tr.refresh),
+                          ),
+                        ],
+                      ),
                     );
                   }
 
                   return ListView.builder(
                     padding: widget.isMobile
                         ? const EdgeInsets.symmetric(vertical: 8)
-                        : EdgeInsets.zero,
+                        : const EdgeInsets.symmetric(vertical: 4),
                     itemCount: filteredList.length,
                     itemBuilder: (context, index) {
                       final product = filteredList[index];

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
-import 'package:zaitoonpro/Features/Other/zDialog.dart';
+import 'package:zaitoonpro/Features/Other/z_dialog.dart';
 
 class LoggedInUserView extends StatelessWidget {
   const LoggedInUserView({super.key});

@@ -1415,10 +1415,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get glTypes => 'گتگوری تراکنش';
 
   @override
-  String get productName => 'کالا نوم';
+  String get productName => 'محصول نوم';
 
   @override
-  String get productCode => 'کالا کد';
+  String get productCode => 'محصول کد';
 
   @override
   String get transactionType => 'نوع معاملات';

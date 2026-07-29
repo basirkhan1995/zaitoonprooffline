@@ -1421,7 +1421,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get glTypes => 'TXN Types';
 
   @override
-  String get productName => 'Name';
+  String get productName => 'Product Name';
 
   @override
   String get productCode => 'SKU';

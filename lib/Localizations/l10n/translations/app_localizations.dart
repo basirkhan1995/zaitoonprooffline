@@ -2851,7 +2851,7 @@ abstract class AppLocalizations {
   /// No description provided for @productName.
   ///
   /// In en, this message translates to:
-  /// **'Name'**
+  /// **'Product Name'**
   String get productName;
 
   /// No description provided for @productCode.

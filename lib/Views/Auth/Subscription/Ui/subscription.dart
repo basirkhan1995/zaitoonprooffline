@@ -5,7 +5,7 @@ import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dar
 import 'package:zaitoonpro/Views/Auth/Subscription/bloc/subscription_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Features/Date/gregorian_date_picker.dart';
-import '../../../../Features/Other/zDialog.dart';
+import '../../../../Features/Other/z_dialog.dart';
 import '../../../../Features/Widgets/outline_button.dart';
 import '../../../../Features/Widgets/textfield_entitled.dart';
 import '../../bloc/auth_bloc.dart';

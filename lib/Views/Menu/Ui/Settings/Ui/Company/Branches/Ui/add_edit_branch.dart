@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
-import 'package:zaitoonpro/Features/Other/zDialog.dart';
+import 'package:zaitoonpro/Features/Other/z_dialog.dart';
 import 'package:flutter/services.dart';
 import '../../../../../../../../../Features/Widgets/textfield_entitled.dart';
 import '../../../../../../../../../Localizations/l10n/translations/app_localizations.dart';

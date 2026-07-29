@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
-import 'package:zaitoonpro/Features/Other/zDialog.dart';
+import 'package:zaitoonpro/Features/Other/z_dialog.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/HR/Ui/Attendance/bloc/attendance_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/HR/Ui/Attendance/model/attendance_model.dart';

@@ -31,10 +31,14 @@ class ProductsModel {
   final String? pcName;
   final String? pcDescription;
   final int? pcStatus;
+  final String? totalQty;
+  final String? totalItems;
   final List<Batch>? batches;
 
   ProductsModel({
     this.proId,
+    this.totalQty,
+    this.totalItems,
     this.proName,
     this.proCode,
     this.proUnit,
@@ -83,12 +87,16 @@ class ProductsModel {
     String? pcDescription,
     int? pcStatus,
     List<Batch>? batches,
+    String? totalQty,
+    String? totalItems,
   }) =>
       ProductsModel(
         proId: proId ?? this.proId,
         proName: proName ?? this.proName,
         proCode: proCode ?? this.proCode,
         proUnit: proUnit ?? this.proUnit,
+        totalItems: totalItems ?? this.totalItems,
+        totalQty: totalQty ?? this.totalQty,
         proBrand: proBrand ?? this.proBrand,
         proMadeIn: proMadeIn ?? this.proMadeIn,
         proModel: proModel ?? this.proModel,
@@ -120,6 +128,8 @@ class ProductsModel {
     proModel: json["proModel"],
     proGrade: json["proGrade"],
     proCategory: json["proCategory"],
+    totalQty: json["total_quantity"],
+    totalItems: json["total_items"],
     proDetails: json["proDetails"],
     proLsNqty: json["proLSNQty"],
     proColor: json["proColor"],

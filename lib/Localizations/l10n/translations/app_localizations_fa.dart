@@ -1412,10 +1412,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get glTypes => 'گتگوری تراکنش';
 
   @override
-  String get productName => 'نام کالا';
+  String get productName => 'نام محصول';
 
   @override
-  String get productCode => 'کد کالا';
+  String get productCode => 'کد محصول';
 
   @override
   String get transactionType => 'نوع معاملات';
@@ -3053,7 +3053,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get companyTab => 'تب شرکت';
 
   @override
-  String get category => 'دسته‌بندی';
+  String get category => 'بخش';
 
   @override
   String get backup => 'پشتیبان‌گیری';

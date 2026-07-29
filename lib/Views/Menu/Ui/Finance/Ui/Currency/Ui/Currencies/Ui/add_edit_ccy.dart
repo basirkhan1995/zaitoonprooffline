@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Other/desktop_form_nav.dart';
 import '../../../../../../../../../Features/Other/utils.dart';
-import '../../../../../../../../../Features/Other/zDialog.dart';
+import '../../../../../../../../../Features/Other/z_dialog.dart';
 import '../../../../../../../../../Features/Widgets/textfield_entitled.dart';
 import '../../../../../../../../../Localizations/l10n/translations/app_localizations.dart';
 import '../bloc/currencies_bloc.dart';
