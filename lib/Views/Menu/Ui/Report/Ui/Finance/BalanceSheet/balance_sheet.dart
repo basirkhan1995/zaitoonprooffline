@@ -417,7 +417,7 @@ class _DesktopBalanceSheetState extends State<_DesktopBalanceSheet> {
 
     addSection(t.currentLiabilities, liability.currentLiability, (val) => totalCurrentLiability = val);
     addSection(t.ownerEquity, liability.ownersEquity, (val) => totalOwnerEquity = val);
-    addSection(t.stakeholders, liability.stakeholders, (val) => totalStakeholders = val);
+   // addSection(t.stakeholders, liability.stakeholders, (val) => totalStakeholders = val);
     addSection(t.netProfit, liability.netProfit, (val) => totalNetProfit = val);
 
     final totalLiabilitiesEquityCurrent = totalCurrentLiability +

@@ -3189,7 +3189,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get modelTitle => 'مدل';
 
   @override
-  String get totalQty => 'تعداد کل';
+  String get totalQty => 'تعداد';
 
   @override
   String get totalCostPludExpenses => 'مجموعه + مصارف';

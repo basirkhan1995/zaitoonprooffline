@@ -3198,7 +3198,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modelTitle => 'Model';
 
   @override
-  String get totalQty => 'Total QTY';
+  String get totalQty => 'QTY';
 
   @override
   String get totalCostPludExpenses => 'Total Cost (with Expenses)';

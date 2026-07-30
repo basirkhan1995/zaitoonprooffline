@@ -6325,7 +6325,7 @@ abstract class AppLocalizations {
   /// No description provided for @totalQty.
   ///
   /// In en, this message translates to:
-  /// **'Total QTY'**
+  /// **'QTY'**
   String get totalQty;
 
   /// No description provided for @totalCostPludExpenses.

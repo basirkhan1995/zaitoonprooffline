@@ -83,7 +83,6 @@ class BalanceSheetPrintSettings extends PrintServices {
   }) async {
     final doc = pw.Document();
 
-
     final prebuiltHeader = await header(report: company);
 
     doc.addPage(
@@ -103,12 +102,6 @@ class BalanceSheetPrintSettings extends PrintServices {
           ..._liabilitySection(data.liability, company, language),
         ],
         header: (context) => prebuiltHeader,
-        // footer: (context) => footer(
-        //   report: company,
-        //   context: context,
-        //   language: language,
-        //   logoImage: logoImage,
-        // ),
       ),
     );
 
@@ -158,9 +151,9 @@ class BalanceSheetPrintSettings extends PrintServices {
       padding: const pw.EdgeInsets.only(bottom: 6),
       child: zText(
         text: text,
-          fontSize: 15,
-          fontWeight: pw.FontWeight.bold,
-          color: pw.PdfColors.grey800,
+        fontSize: 15,
+        fontWeight: pw.FontWeight.bold,
+        color: pw.PdfColors.grey800,
       ),
     );
   }
@@ -280,12 +273,13 @@ class BalanceSheetPrintSettings extends PrintServices {
         liab.ownersEquity,
         language,
       ),
-      pw.SizedBox(height: 5),
-      ..._subSection(
-        tr(text: 'stakeholders', tr: language),
-        liab.stakeholders,
-        language,
-      ),
+      // STAKEHOLDERS SECTION - COMMENTED OUT
+      // pw.SizedBox(height: 5),
+      // ..._subSection(
+      //   tr(text: 'stakeholders', tr: language),
+      //   liab.stakeholders,
+      //   language,
+      // ),
       pw.SizedBox(height: 5),
       ..._subSection(
         tr(text: 'netProfit', tr: language),
@@ -348,17 +342,17 @@ class BalanceSheetPrintSettings extends PrintServices {
           pw.Expanded(
             flex: 3,
             child: zText(
-              text: cy.toAmount(),
-              textAlign: pw.TextAlign.right,
-              fontSize: 8
+                text: cy.toAmount(),
+                textAlign: pw.TextAlign.right,
+                fontSize: 8
             ),
           ),
           pw.Expanded(
             flex: 3,
             child: zText(
-              text: ly.toAmount(),
-              textAlign: pw.TextAlign.right,
-              fontSize: 8
+                text: ly.toAmount(),
+                textAlign: pw.TextAlign.right,
+                fontSize: 8
             ),
           ),
         ],
@@ -419,7 +413,7 @@ class BalanceSheetPrintSettings extends PrintServices {
           pw.Expanded(
             flex: 4,
             child: zText(
-             text:  label,
+              text:  label,
               fontSize: 11,
               fontWeight: pw.FontWeight.bold,
             ),
@@ -448,7 +442,7 @@ class BalanceSheetPrintSettings extends PrintServices {
   }
 
   // =========================
-  // TOTAL HELPERS
+  // TOTAL HELPERS - FIXED! Removed stakeholders from calculations
   // =========================
 
   double _sumCurrent(Assets a) =>
@@ -459,11 +453,13 @@ class BalanceSheetPrintSettings extends PrintServices {
       [...?a.currentAsset, ...?a.fixedAsset, ...?a.intangibleAsset]
           .fold(0, (p, e) => p + (double.tryParse(e.lastYear ?? "0") ?? 0));
 
+  // FIXED: Removed stakeholders from liability calculations
   double _sumLiabilityCurrent(Liability l) =>
-      [...?l.currentLiability, ...?l.ownersEquity, ...?l.stakeholders, ...?l.netProfit]
+      [...?l.currentLiability, ...?l.ownersEquity, ...?l.netProfit]
           .fold(0, (p, e) => p + (double.tryParse(e.currentYear ?? "0") ?? 0));
 
+  // FIXED: Removed stakeholders from liability calculations
   double _sumLiabilityLast(Liability l) =>
-      [...?l.currentLiability, ...?l.ownersEquity, ...?l.stakeholders, ...?l.netProfit]
+      [...?l.currentLiability, ...?l.ownersEquity, ...?l.netProfit]
           .fold(0, (p, e) => p + (double.tryParse(e.lastYear ?? "0") ?? 0));
 }
