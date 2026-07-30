@@ -2917,7 +2917,7 @@ class Repositories {
 
       String mysqlPath;
       if (Platform.isWindows) {
-        mysqlPath = 'C:\\xamp\\mysql\\bin\\mysql.exe';
+        mysqlPath = 'C:\\xampp\\mysql\\bin\\mysql.exe';
       } else if (Platform.isMacOS) {
         mysqlPath = '/Applications/XAMP/xampfiles/bin/mysql';
       } else {
@@ -2984,7 +2984,7 @@ class Repositories {
       String backupDir;
 
       if (Platform.isWindows) {
-        backupDir = 'C:\\xamp\\mysql\\data\\backups';
+        backupDir = 'C:\\xampp\\mysql\\data\\backups';
       } else if (Platform.isMacOS) {
         backupDir = '/Applications/XAMP/xampfiles/data/backups';
       } else {
@@ -3008,6 +3008,7 @@ class Repositories {
       throw Exception('Failed to open backup folder: $e');
     }
   }
+
   Future<List<FileSystemEntity>> getBackupFiles() async {
     final baseDir = await _getBackupBaseDirectory();
     final backupDir = Directory('${baseDir.path}/ZaitoonBackups');
