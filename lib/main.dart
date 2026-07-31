@@ -54,6 +54,7 @@ import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/BalanceSheet/bloc/bal
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/ExchangeRate/bloc/fx_rate_report_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/GLStatement/bloc/gl_statement_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/GLStatement/gl_statement.dart';
+import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/IncomeStatement/bloc/income_statement_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Treasury/bloc/cash_balances_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Treasury/cash_branch.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/TrialBalance/bloc/trial_balance_bloc.dart';
@@ -266,7 +267,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => ProjectsByIdBloc(Repositories(ApiServices()))..add(ResetProjectByIdEvent())),
         BlocProvider(create: (context) => ProjectTxnBloc(Repositories(ApiServices()))),
         BlocProvider(create: (context) => StakeholdersReportBloc(Repositories(ApiServices()))),
-
+        BlocProvider(create: (context) => IncomeStatementBloc(Repositories(ApiServices()))),
         ///Dashboard
         BlocProvider(create: (context) => DashboardStatsBloc(Repositories(ApiServices()))..add(FetchDashboardStatsEvent())),
         BlocProvider(create: (context) => DailyGrossBloc(Repositories(ApiServices()))),

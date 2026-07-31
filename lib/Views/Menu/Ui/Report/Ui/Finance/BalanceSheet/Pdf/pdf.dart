@@ -310,7 +310,7 @@ class BalanceSheetPrintSettings extends PrintServices {
       final l = double.tryParse(e.lastYear ?? "0") ?? 0;
       cy += c;
       ly += l;
-      return _row(e.accName ?? "", c, l);
+      return _row(e.accName ?? "", c, l,language);
     }).toList();
 
     return [
@@ -330,20 +330,22 @@ class BalanceSheetPrintSettings extends PrintServices {
   // ROWS
   // =========================
 
-  pw.Widget _row(String name, double cy, double ly) {
+  pw.Widget _row(String name, double cy, double ly, String language) {
     return pw.Container(
       margin: const pw.EdgeInsets.symmetric(vertical: 1),
       child: pw.Row(
         children: [
           pw.Expanded(
             flex: 4,
-            child: zText(text: name, fontSize: 8),
+            child: zText(text: name, fontSize: 8,
+              textAlign: language == "en"? pw.TextAlign.start : pw.TextAlign.end,
+            ),
           ),
           pw.Expanded(
             flex: 3,
             child: zText(
                 text: cy.toAmount(),
-                textAlign: pw.TextAlign.right,
+                textAlign: pw.TextAlign.end,
                 fontSize: 8
             ),
           ),
@@ -351,7 +353,7 @@ class BalanceSheetPrintSettings extends PrintServices {
             flex: 3,
             child: zText(
                 text: ly.toAmount(),
-                textAlign: pw.TextAlign.right,
+                textAlign: pw.TextAlign.end,
                 fontSize: 8
             ),
           ),

@@ -30,6 +30,7 @@ enum QuickOption {
   thisYear,
   allTime,
 }
+
 class GregorianDateRangePicker extends StatefulWidget {
   final ValueChanged<ZGregorianRangePicker> onRangeSelected;
   final ZGregorianRangePicker? initialRange;
@@ -47,6 +48,7 @@ class GregorianDateRangePicker extends StatefulWidget {
   @override
   GregorianDateRangePickerState createState() => GregorianDateRangePickerState();
 }
+
 class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
   late ZGregorianRangePicker _selectedRange;
   late DateTime _currentMonth;
@@ -75,7 +77,7 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
       _selectedRange = ZGregorianRangePicker(currentMonthStart, currentMonthEnd);
       _startDate = currentMonthStart;
       _endDate = currentMonthEnd;
-      _selectedQuickOption = QuickOption.thisMonth; // Set this month as selected option
+      _selectedQuickOption = QuickOption.thisMonth;
     } else {
       _selectedRange = widget.initialRange!;
       _startDate = _selectedRange.start;
@@ -113,15 +115,15 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
     }
 
     // Check Last Week
-    final lastWeekEnd = todayDate;  // Include today
+    final lastWeekEnd = todayDate;
     final lastWeekStart = todayDate.subtract(const Duration(days: 7));
     if (startDateOnly == lastWeekStart && endDateOnly == lastWeekEnd) {
       _selectedQuickOption = QuickOption.lastWeek;
       return;
     }
 
-    // Check Last 90 Days - FIXED to include today
-    final last90DaysEnd = todayDate;  // Include today
+    // Check Last 90 Days
+    final last90DaysEnd = todayDate;
     final last90DaysStart = todayDate.subtract(const Duration(days: 90));
     if (startDateOnly == last90DaysStart && endDateOnly == last90DaysEnd) {
       _selectedQuickOption = QuickOption.last90Days;
@@ -187,7 +189,7 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
 
   void _onDateTapped(DateTime date) {
     setState(() {
-      _selectedQuickOption = QuickOption.none; // Reset quick option when manually selecting
+      _selectedQuickOption = QuickOption.none;
 
       if (_startDate == null || (_startDate != null && _endDate != null)) {
         _startDate = date;
@@ -238,8 +240,8 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
   }
 
   void _selectLastWeek() {
-    final end = _today;  // Include today
-    final start = _today.subtract(const Duration(days: 7)); // Last 7 days including today
+    final end = _today;
+    final start = _today.subtract(const Duration(days: 7));
     setState(() {
       _selectedQuickOption = QuickOption.lastWeek;
       _startDate = start;
@@ -424,8 +426,15 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
+
+    // FIXED: Calculate first day of month correctly
+    // DateTime.weekday: 1 = Monday, 7 = Sunday
+    // We want: 0 = Sunday, 1 = Monday, 2 = Tuesday, etc.
+    int firstDayOfMonth = _currentMonth.weekday % 7; // This gives 0 for Sunday, 1 for Monday, etc.
+
+    // Get the number of days in the month
     final monthLength = DateTime(_currentMonth.year, _currentMonth.month + 1, 0).day;
-    final firstWeekdayOfMonth = _currentMonth.weekday % 7;
+
     final tr = AppLocalizations.of(context)!;
 
     return Dialog(
@@ -560,7 +569,7 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
               const SizedBox(width: 10),
             ],
 
-            // Calendar Section
+            // Calendar Section - FIXED
             Expanded(
               child: Column(
                 children: [
@@ -635,7 +644,7 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
                         ),
                         const SizedBox(height: 6),
 
-                        // Calendar Grid
+                        // Calendar Grid - FIXED
                         Expanded(
                           child: GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
@@ -644,13 +653,27 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
                               crossAxisCount: 7,
                               childAspectRatio: 1.1,
                             ),
-                            itemCount: firstWeekdayOfMonth + monthLength - 1,
-                            itemBuilder: (context,index){
-                              if(index < firstWeekdayOfMonth) return const SizedBox.shrink();
-                              final day = index - firstWeekdayOfMonth + 1;
-                              final date = DateTime(_currentMonth.year,_currentMonth.month,day);
-                              final isStartDate = _startDate != null && date.isAtSameMomentAs(_startDate!);
-                              final isEndDate = _endDate != null && date.isAtSameMomentAs(_endDate!);
+                            // FIXED: Use (firstDayOfMonth + monthLength) to ensure all days are shown
+                            itemCount: firstDayOfMonth + monthLength,
+                            itemBuilder: (context, index) {
+                              // If index is before the first day of the month, show empty
+                              if (index < firstDayOfMonth) {
+                                return const SizedBox.shrink();
+                              }
+
+                              final day = index - firstDayOfMonth + 1;
+                              final date = DateTime(_currentMonth.year, _currentMonth.month, day);
+
+                              final isStartDate = _startDate != null &&
+                                  date.year == _startDate!.year &&
+                                  date.month == _startDate!.month &&
+                                  date.day == _startDate!.day;
+
+                              final isEndDate = _endDate != null &&
+                                  date.year == _endDate!.year &&
+                                  date.month == _endDate!.month &&
+                                  date.day == _endDate!.day;
+
                               final isInRange = _startDate != null &&
                                   _endDate != null &&
                                   date.isAfter(_startDate!) &&
@@ -660,10 +683,10 @@ class GregorianDateRangePickerState extends State<GregorianDateRangePicker> {
                               BoxShape shape = BoxShape.rectangle;
                               Border? border;
 
-                              if(isStartDate || isEndDate){
+                              if (isStartDate || isEndDate) {
                                 bg = color.primary;
                                 shape = BoxShape.circle;
-                              } else if(isInRange){
+                              } else if (isInRange) {
                                 bg = color.primary.withAlpha(20);
                               }
 

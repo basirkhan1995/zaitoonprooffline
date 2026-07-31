@@ -2056,7 +2056,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get intangibleAssets => 'دارایی‌های نامشهود';
 
   @override
-  String get currentLiabilities => 'بدهی‌های جاری';
+  String get currentLiabilities => 'بدهی‌ های جاری';
 
   @override
   String get ownerEquity => 'حقوق صاحبان سهام';
@@ -2065,13 +2065,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get totalAssets => 'جمع دارایی‌ها';
 
   @override
-  String get totalLiabilitiesEquity => 'جمع بدهی‌ها و حقوق صاحبان سهام';
+  String get totalLiabilitiesEquity => 'مجموع بدهی‌ ها و سرمایه';
 
   @override
   String get assets => 'دارایی‌ها';
 
   @override
-  String get liabilitiesEquity => 'بدهی‌ها و حقوق صاحبان سهام';
+  String get liabilitiesEquity => 'بدهی‌ ها و سرمایه';
 
   @override
   String get netProfit => 'سود خالص';

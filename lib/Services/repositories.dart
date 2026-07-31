@@ -57,6 +57,7 @@ import '../Views/Menu/Ui/Report/Ui/Finance/ArApReport/model/ar_ap_model.dart';
 import '../Views/Menu/Ui/Report/Ui/Finance/BalanceSheet/model/bs_model.dart';
 import '../Views/Menu/Ui/Report/Ui/Finance/ExchangeRate/model/rate_report_model.dart';
 import '../Views/Menu/Ui/Report/Ui/Finance/ExpenseReport/exp_report_model.dart';
+import '../Views/Menu/Ui/Report/Ui/Finance/IncomeStatement/model/income_stmt_model.dart';
 import '../Views/Menu/Ui/Report/Ui/HR/AttendanceReport/model/attendance_report_model.dart';
 import '../Views/Menu/Ui/Report/Ui/Stock/OrdersReport/model/order_report_model.dart';
 import '../Views/Menu/Ui/Report/Ui/Stock/StockAvailability/model/product_report_model.dart';
@@ -3613,5 +3614,37 @@ class Repositories {
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<List<IncomeStatementModel>> getIncomeStatement({String? startDate, String? endDate}) async {
+    final response = await api.post(
+      endpoint: "/reports/incomeStatement.php",
+      data: {
+        "startDate": startDate,
+        "endDate": endDate
+      },
+    );
+
+    if (response.data is Map<String, dynamic> && response.data['msg'] != null) {
+      // If no records found, return empty list
+      if (response.data['msg'] == 'failed') {
+        return [];
+      }
+      throw Exception(response.data['msg']);
+    }
+
+    // Parse as list
+    if (response.data is List) {
+      return List<IncomeStatementModel>.from(
+        response.data.map((x) => IncomeStatementModel.fromMap(x)),
+      );
+    }
+
+    // If single object, wrap in list
+    if (response.data is Map<String, dynamic> && response.data.isNotEmpty) {
+      return [IncomeStatementModel.fromMap(response.data)];
+    }
+
+    return [];
   }
 }

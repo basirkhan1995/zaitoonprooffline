@@ -232,10 +232,16 @@ class _Desktop extends StatelessWidget {
                         child: const TotalDailyTxnView(),
                       ),
                     ],
-                      //Exchange Rate Graph
-                      if (login.hasPermission(3) ?? false) ...[
-                        SizedBox(height: 400, child: FxRateDashboardChart()),
+                    //Profit & Loss Graph
+                    if (login.hasPermission(8) ?? false) ...[
+                      if (visibility.profitAndLoss) ...[
+                        DailyGrossView(),
                       ],
+                    ],
+                    //Exchange Rate Graph
+                    if (login.hasPermission(3) ?? false) ...[
+                      SizedBox(height: 400, child: FxRateDashboardChart()),
+                    ],
 
                       if (login.hasPermission(4) ?? false) ...[
                         TotalDailyColumnView(),
@@ -264,14 +270,7 @@ class _Desktop extends StatelessWidget {
                         ExchangeRateDashboardView(),
                       ],
                     ],
-
-                    //Profit & Loss Graph
-                    if (login.hasPermission(8) ?? false) ...[
-                      if (visibility.profitAndLoss) ...[
-                        DailyGrossView(),
-                      ],
-                    ],
-
+                    
                     //Reminder
                     if (login.hasPermission(9) ?? false) ...[
                       DashboardAlertReminder(),

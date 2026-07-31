@@ -7,6 +7,7 @@ import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Accounts/accounts.dar
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/BalanceSheet/balance_sheet.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/ExpenseReport/expense_report.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/GLStatement/gl_statement.dart';
+import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/IncomeStatement/income_statement.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Treasury/cash_branch.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/HR/AttendanceReport/attendance_report.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/Cardx/Ui/cardx.dart';
@@ -45,6 +46,7 @@ enum ActionKey {
   activities,
   transactionByRef,
   transactionReport,
+  incomeStatement,
   allBalances,
   expensesKey,
   cashBalanceBranchWise,
@@ -134,6 +136,8 @@ class _DesktopState extends State<_Desktop> {
       {"title": tr.transactionDetails, "icon": Icons.qr_code_2_rounded, "action": ActionKey.transactionByRef},
       if(login.hasPermission(97) ?? false)
       {"title": tr.allTransactions, "icon": Icons.line_axis_sharp, "action": ActionKey.transactionReport},
+      if(login.hasPermission(97) ?? false)
+        {"title": tr.incomeStatement, "icon": Icons.line_axis_sharp, "action": ActionKey.incomeStatement},
     ];
 
     final List<Map<String, dynamic>> activitiesButtons = [
@@ -264,8 +268,10 @@ class _DesktopState extends State<_Desktop> {
       case ActionKey.accountsReport: Utils.goto(context, AccountsReportView());
       case ActionKey.trialBalance: Utils.goto(context, TrialBalanceView());
       case ActionKey.glStatementSingleDate: Utils.goto(context, GlStatementView(isSingleDate: true));
+      case ActionKey.incomeStatement: Utils.goto(context, IncomeStatementView());
 
-      //Transactions
+
+    //Transactions
       case ActionKey.balanceSheet: Utils.goto(context, BalanceSheetView());
       case ActionKey.activities:  Utils.goto(context, TransactionReportView());
       case ActionKey.transactionByRef:  Utils.goto(context, TransactionByReferenceView());

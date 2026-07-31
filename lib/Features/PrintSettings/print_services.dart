@@ -1626,22 +1626,22 @@ abstract class PrintServices {
       'storage': {
         'en': 'Storage',
         'fa': 'انبار',
-        'ar': 'المستودع',
+        'ar': 'گدام',
       },
       'description': {
         'en': 'Description',
         'fa': 'توضیحات',
-        'ar': 'الوصف',
+        'ar': 'شرح',
       },
       'assets': {
         'en': 'ASSETS',
         'fa': 'دارایی ها',
-        'ar': 'الأصول',
+        'ar': 'دارایی ها',
       },
       'liabilitiesEquity': {
         'en': 'LIABILITIES AND EQUITY',
-        'fa': 'بدهی ها و حقوق صاحبان سهام',
-        'ar': 'الالتزامات وحقوق الملكية',
+        'fa': 'بدهی ها و سرمایه',
+        'ar': 'بدهی ها و سرمایه',
       },
       'copy': {
         'en': 'Copy',
@@ -1651,12 +1651,12 @@ abstract class PrintServices {
       'currentAssets': {
         'en': 'Current Assets',
         'fa': 'دارایی های جاری',
-        'ar': 'الأصول المتداولة',
+        'ar': 'دارایی های جاری',
       },
       'fixedAssets': {
         'en': 'Fixed Assets',
         'fa': 'دارایی های ثابت',
-        'ar': 'الأصول الثابتة',
+        'ar': 'دارایی های ثابت',
       },
       'intangibleAssets': {
         'en': 'Intangible Assets',
@@ -1685,7 +1685,7 @@ abstract class PrintServices {
       },
       'totalLiabilitiesEquity': {
         'en': 'TOTAL LIABILITIES & EQUITY',
-        'fa': 'کل بدهی ها و حقوق صاحبان سهام',
+        'fa': 'کل بدهی ها و سرمایه',
         'ar': 'إجمالي الالتزامات وحقوق الملكية',
       },
       'currentYear': {

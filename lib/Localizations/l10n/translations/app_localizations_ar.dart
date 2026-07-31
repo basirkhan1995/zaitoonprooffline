@@ -2074,7 +2074,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get assets => 'شتمنۍ';
 
   @override
-  String get liabilitiesEquity => 'پورونه او د مالک حقونه';
+  String get liabilitiesEquity => 'پورونه او سرمایه';
 
   @override
   String get netProfit => 'خالصه ګټه';
