@@ -2903,6 +2903,21 @@ class Repositories {
       throw Exception('Failed to rename backup: $e');
     }
   }
+  static String get mysqlPath {
+    // Add more flexibility here
+    final paths = [
+      'C:\\laragon\\bin\\mysql\\mysql-8.0.30-winx64\\bin\\mysql.exe',
+      'C:\\laragon\\bin\\mysql\\mysql-8.0.31-winx64\\bin\\mysql.exe',
+      'C:\\xampp\\mysql\\bin\\mysql.exe',
+    ];
+
+    for (var path in paths) {
+      if (File(path).existsSync()) {
+        return path;
+      }
+    }
+    return 'C:\\xampp\\mysql\\bin\\mysql.exe'; // fallback
+  }
   Future<void> deleteBackup(String filePath) async {
     final file = File(filePath);
     if (await file.exists()) {
@@ -2912,16 +2927,43 @@ class Repositories {
   Future<void> restoreBackup(String filePath, {Function(String)? onProgress}) async {
     try {
       final host = 'localhost';
-      final port = '3306';
+      final port = '3306'; // Laragon uses 3306 by default too
       final username = 'root';
       final database = 'autoparts';
 
+      // Laragon's default MySQL password is blank (same as XAMPP)
+      // If you set a password in Laragon, add: -p, 'your_password'
+
       String mysqlPath;
       if (Platform.isWindows) {
-        mysqlPath = 'C:\\xampp\\mysql\\bin\\mysql.exe';
+        // Check for Laragon first, then fallback to XAMPP
+        final laragonPath = 'C:\\laragon\\bin\\mysql';
+        final xamppPath = 'C:\\xampp\\mysql\\bin\\mysql.exe';
+
+        if (await Directory(laragonPath).exists()) {
+          // Find the MySQL version folder dynamically
+          final dir = Directory(laragonPath);
+          final entries = await dir.list().toList();
+          final mysqlDirs = entries.whereType<Directory>()
+              .where((d) => d.path.contains('mysql-'))
+              .toList();
+
+          if (mysqlDirs.isNotEmpty) {
+            // Use the first MySQL version found
+            mysqlPath = '${mysqlDirs.first.path}\\bin\\mysql.exe';
+          } else {
+            throw Exception('No MySQL installation found in Laragon');
+          }
+        } else if (await File(xamppPath).exists()) {
+          mysqlPath = xamppPath;
+        } else {
+          throw Exception('Neither Laragon nor XAMPP MySQL found');
+        }
       } else if (Platform.isMacOS) {
+        // Laragon doesn't exist on macOS, so keep XAMPP fallback
         mysqlPath = '/Applications/XAMP/xampfiles/bin/mysql';
       } else {
+        // Linux
         mysqlPath = '/opt/lampp/bin/mysql';
       }
 
@@ -2937,7 +2979,11 @@ class Repositories {
 
       onProgress?.call('Starting MySQL restore...');
 
-      // Use Process.start for all platforms (more reliable with stdin)
+      // NOTE: Laragon's MySQL might have a different default password
+      // If Laragon asks for password, add these args:
+      // '-p', 'your_password',
+      // But by default, Laragon has no password just like XAMPP
+
       final process = await Process.start(
         mysqlPath,
         [
@@ -2950,11 +2996,9 @@ class Repositories {
         runInShell: true,
       );
 
-      // Get file size for progress
       final fileSize = await backupFile.length();
       var bytesRead = 0;
 
-      // Stream the file with progress
       await backupFile.openRead().map((chunk) {
         bytesRead += chunk.length;
         final progress = (bytesRead / fileSize * 100).toStringAsFixed(1);
@@ -2962,10 +3006,8 @@ class Repositories {
         return chunk;
       }).pipe(process.stdin);
 
-      // Close stdin when done
       await process.stdin.close();
 
-      // Wait for process to complete
       final exitCode = await process.exitCode;
 
       if (exitCode != 0) {
@@ -2985,7 +3027,15 @@ class Repositories {
       String backupDir;
 
       if (Platform.isWindows) {
-        backupDir = 'C:\\xampp\\mysql\\data\\backups';
+        // Check for Laragon first
+        final laragonBackup = 'C:\\laragon\\data\\mysql\\backups';
+        final xamppBackup = 'C:\\xampp\\mysql\\data\\backups';
+
+        if (await Directory('C:\\laragon').exists()) {
+          backupDir = laragonBackup;
+        } else {
+          backupDir = xamppBackup;
+        }
       } else if (Platform.isMacOS) {
         backupDir = '/Applications/XAMP/xampfiles/data/backups';
       } else {
@@ -2997,7 +3047,6 @@ class Repositories {
         await dir.create(recursive: true);
       }
 
-      // Open folder using system file explorer
       if (Platform.isWindows) {
         await Process.run('explorer', [backupDir]);
       } else if (Platform.isMacOS) {
