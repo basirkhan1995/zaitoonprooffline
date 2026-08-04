@@ -696,11 +696,9 @@ class _DesktopGoodsShiftViewState extends State<_DesktopGoodsShiftView> {
                     ),
                     SizedBox(
                       width: 120,
-                      child: Text(tr.amount, style: titleStyle),
-                    ),
-                    SizedBox(
-                      width: 110,
-                      child: Text(tr.status, style: titleStyle),
+                      child: Text(
+                          textAlign: TextAlign.end,
+                          tr.amount, style: titleStyle),
                     ),
                   ],
                 ),
@@ -823,17 +821,13 @@ class _DesktopGoodsShiftViewState extends State<_DesktopGoodsShiftView> {
                                   SizedBox(
                                     width: 120,
                                     child: Text(
+                                      textAlign: TextAlign.end,
                                       shift.amount != null
                                           ? "${shift.totalAmount.toAmount()} $baseCurrency"
                                           : "-",
                                     ),
                                   ),
-                                  SizedBox(
-                                    width: 110,
-                                    child: TransactionStatusBadge(
-                                      status: shift.trnStateText ?? "",
-                                    ),
-                                  ),
+
                                 ],
                               ),
                             ),

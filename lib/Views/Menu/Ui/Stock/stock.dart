@@ -61,11 +61,6 @@ class _StockViewState extends State<StockView> {
       const SingleActivator(LogicalKeyboardKey.f1): () => gotoPurchase(context),
       const SingleActivator(LogicalKeyboardKey.f2): () => gotoSale(context),
       const SingleActivator(LogicalKeyboardKey.f3): () => getInvoiceById(context),
-      const SingleActivator(LogicalKeyboardKey.f4): () => getInvoiceById(context),
-      const SingleActivator(LogicalKeyboardKey.f5): () => getInvoiceById(context),
-      const SingleActivator(LogicalKeyboardKey.f6): () => getInvoiceById(context),
-      const SingleActivator(LogicalKeyboardKey.f7): () => getInvoiceById(context),
-      const SingleActivator(LogicalKeyboardKey.f8): () => getInvoiceById(context),
     };
 
     return Scaffold(
@@ -277,13 +272,13 @@ class _StockViewState extends State<StockView> {
                     screen: const OrdersView(),
                     icon: Icons.shopping_cart,
                   ),
-                if (login.hasPermission(53) ?? false)
-                  ZTabItem(
-                    value: StockTabsName.estimates,
-                    label: locale.estimateTitle,
-                    screen: const EstimateView(),
-                    icon: Icons.request_quote,
-                  ),
+                // if (login.hasPermission(53) ?? false)
+                //   ZTabItem(
+                //     value: StockTabsName.estimates,
+                //     label: locale.estimateTitle,
+                //     screen: const EstimateView(),
+                //     icon: Icons.request_quote,
+                //   ),
                 if (login.hasPermission(54) ?? false)
                   ZTabItem(
                     value: StockTabsName.shift,
@@ -437,15 +432,15 @@ class _StockViewState extends State<StockView> {
                 onPressed: () => Utils.goto(context, NewSaleView()),
               ),
 
-            if (login.hasPermission(58) ?? false)
-              ZOutlineButton(
-                backgroundColor: color.primary.withValues(alpha: opacity),
-                toolTip: "F3 - ${locale.newEstimate}",
-                label: Text(locale.newEstimate),
-                icon: Icons.file_open_outlined,
-                width: double.infinity,
-                onPressed: () => Utils.goto(context, AddEstimateView()),
-              ),
+            // if (login.hasPermission(58) ?? false)
+            //   ZOutlineButton(
+            //     backgroundColor: color.primary.withValues(alpha: opacity),
+            //     toolTip: "F3 - ${locale.newEstimate}",
+            //     label: Text(locale.newEstimate),
+            //     icon: Icons.file_open_outlined,
+            //     width: double.infinity,
+            //     onPressed: () => Utils.goto(context, AddEstimateView()),
+            //   ),
             // if (login.hasPermission(61) ?? false)
             //   ZOutlineButton(
             //     backgroundColor: color.primary.withValues(alpha: opacity),
