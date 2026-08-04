@@ -526,11 +526,21 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                             margin: const EdgeInsets.all(8),
                             child: Column(
                               children: [
+
                                 Padding(
                                   padding: const EdgeInsets.all(3.0),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
+                                      InkWell(
+                                        onTap: (){
+                                          _closeOverlay();
+                                        },
+                                        child: Icon(
+                                            Icons.clear
+                                        ),
+                                      ),
+                                      SizedBox(width: 5),
                                       Wrap(
                                         children: [
                                           Icon(Icons.shopify_rounded),
@@ -709,8 +719,6 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                                     },
                                   ),
                                 ),
-                                if (!_isLoading && _currentSuggestions.isNotEmpty)
-                                  _buildKeyboardHints(),
                               ],
                             ),
                           ),
@@ -753,29 +761,6 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  Widget _buildKeyboardHints() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: .5),
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: .1),
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildKeyHint(context, '↑↓', AppLocalizations.of(context)!.navigateTitle),
-          const SizedBox(width: 16),
-          _buildKeyHint(context, '⏎', AppLocalizations.of(context)!.selectTitle),
-          const SizedBox(width: 16),
-          _buildKeyHint(context, 'ESC', AppLocalizations.of(context)!.closeTitle),
-        ],
-      ),
-    );
-  }
 
   Widget _buildProductDetailsPanel() {
     return Container(
@@ -1003,29 +988,6 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
           ...children,
         ],
       ),
-    );
-  }
-
-  Widget _buildKeyHint(BuildContext context, String key, String action) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            key,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(action, style: Theme.of(context).textTheme.bodySmall),
-      ],
     );
   }
 

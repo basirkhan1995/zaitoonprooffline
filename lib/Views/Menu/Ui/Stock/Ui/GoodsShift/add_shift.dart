@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/thousand_separator.dart';
 import 'package:zaitoonpro/Features/Other/utils.dart';
@@ -15,6 +16,7 @@ import '../../../../../../../Localizations/l10n/translations/app_localizations.d
 import '../../../../../../Features/Generic/rounded_searchable_textfield.dart';
 import '../../../../../../Features/Generic/stock_product_field.dart';
 import '../../../../../../Features/Generic/underline_searchable_textfield.dart';
+import '../../../../../../Features/Widgets/section_title.dart';
 import '../../../../../Auth/bloc/auth_bloc.dart';
 import '../../../Settings/Ui/Company/CompanyProfile/bloc/company_profile_bloc.dart';
 import '../../../Stakeholders/Ui/Accounts/bloc/accounts_bloc.dart';
@@ -70,6 +72,10 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
       _userName = authState.loginData.usrName;
     }
 
+    // Add listeners to update summary
+    _accountController.addListener(_updateSummary);
+    _amountController.addListener(_updateSummary);
+
     // Auto-focus the first product field after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -80,6 +86,10 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
     });
   }
 
+  void _updateSummary() {
+    setState(() {});
+  }
+
   void _focusFirstProductField() {
     if (_rowFocusNodes.isNotEmpty && _rowFocusNodes[0].isNotEmpty) {
       _rowFocusNodes[0][0].requestFocus();
@@ -88,6 +98,8 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
 
   @override
   void dispose() {
+    _accountController.removeListener(_updateSummary);
+    _amountController.removeListener(_updateSummary);
     for (final controller in _productControllers) {
       controller.dispose();
     }
@@ -201,6 +213,10 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
     return total;
   }
 
+  double get _totalAmount {
+    return double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0;
+  }
+
   void _addNewRowAndFocus() {
     final lastRecord = _records.isNotEmpty ? _records.last : null;
 
@@ -266,7 +282,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
         backgroundColor: color.surface,
         appBar: AppBar(
           backgroundColor: color.surface,
-          title: Text('${tr.newKeyword} ${tr.shift}'),
+          title: Text(tr.shift),
           titleSpacing: 0,
           actionsPadding: const EdgeInsets.all(8),
           actions: [
@@ -299,14 +315,6 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
               },
             ),
             const SizedBox(width: 8),
-            // ZOutlineButton(
-            //   width: 110,
-            //   height: 38,
-            //   icon: Icons.print,
-            //   label: Text(tr.print),
-            //   onPressed: null,
-            // ),
-            // const SizedBox(width: 8),
             ZButton(
               width: 110,
               height: 38,
@@ -317,169 +325,182 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
         ),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  // Account and Amount
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: GenericTextField<AccountsModel, AccountsBloc, AccountsState>(
-                          controller: _accountController,
-                          focusNode: _accountFocusNode,
-                          title: tr.accounts,
-                          hintText: tr.accNameOrNumber,
-                          bloc: context.read<AccountsBloc>(),
-                          fetchAllFunction: (bloc) => bloc.add(
-                            LoadAccountsFilterEvent(include: "11,12", ccy: baseCurrency, exclude: ""),
-                          ),
-                          searchFunction: (bloc, query) => bloc.add(
-                            LoadAccountsFilterEvent(
-                                include: "11,12",
-                                ccy: baseCurrency,
-                                input: query,
-                                exclude: ""
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null && value!.isEmpty) {
-                              return tr.required(tr.accounts);
-                            }
-                            return null;
-                          },
-                          itemBuilder: (context, account) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              children: [
+                // LEFT SIDE - Fixed width 350
+                ZCover(
+                  margin: EdgeInsets.all(8),
+                  radius: 10,
+                  child: Container(
+                    width: 400,
+                    color: color.surface,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Summary Section with Shadow and Border
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                Text(
+                                  tr.summary,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Icon(Icons.summarize, size: 22, color: color.primary),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Divider(thickness: 1.5, color: color.outline.withValues(alpha: .5)),
+                            const SizedBox(height: 8),
+                            // Total Items
+                            _buildSummaryRow(
+                              label: tr.totalItems,
+                              value: _records.length.toDouble(),
+                              isAmount: false,
+                            ),
+                            // Total Quantity
+                            _buildSummaryRow(
+                              label: tr.totalQty,
+                              value: _totalQuantity,
+                              isAmount: false,
+                            ),
+                            // Account
+                            if (_accountController.text.isNotEmpty)
+                              _buildSummaryTextRow(
+                                label: tr.accounts,
+                                value: _accountController.text,
+                              ),
+                            // Amount
+                            if (_amountController.text.isNotEmpty)
+                              _buildSummaryRow(
+                                label: tr.amount,
+                                value: _totalAmount,
+                                isAmount: true,
+                                isTotal: true,
+                              ),
+                            // Grand Total
+                            if (_amountController.text.isNotEmpty) ...[
+                              Divider(color: color.outline.withValues(alpha: .2)),
+                              _buildSummaryRow(
+                                label: '${tr.totalExpense} ${tr.amount}',
+                                value: _totalAmount,
+                                isAmount: true,
+                                isTotal: true,
+                                color: Colors.green,
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        SectionTitle(title: tr.expenses),
+                        const SizedBox(height: 10),
+                        // Expense Account Section
+                        _buildAccountSection(tr),
+                        const SizedBox(height: 20),
+                  
+                        // Amount Section
+                        _buildAmountSection(tr),
+                        const Spacer(),
+                  
+                        // Submit Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ZButton(
+                            width: double.infinity,
+                            height: 45,
+                            label: Text(tr.create),
+                            onPressed: _isSaving ? null : _createGoodsShift,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // RIGHT SIDE - Takes remaining space
+                Expanded(
+                  child: Container(
+                    color: color.surface,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Items header
+                        _buildItemsHeader(tr),
+                        const SizedBox(height: 8),
+                        // Items list
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                ...List.generate(_records.length, (index) {
+                                  final isLastRow = index == _records.length - 1;
+                                  return _buildItemRow(index, isLastRow, tr);
+                                }),
+                                // Add item button
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      "${account.accNumber} | ${account.accName}",
-                                      style: Theme.of(context).textTheme.bodyLarge,
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: ZOutlineButton(
+                                        width: 120,
+                                        icon: Icons.add,
+                                        label: Text(tr.addItem),
+                                        onPressed: _isSaving ? null : _addNewRowAndFocus,
+                                      ),
                                     ),
                                   ],
                                 ),
+                                // Show error banner if there's an error
+                                if (_hasError && _errorMessage != null)
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 16),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                      border: Border.all(color: Colors.red.shade200),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.error_outline, color: Colors.red.shade600),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            _errorMessage!,
+                                            style: TextStyle(color: Colors.red.shade700),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.close, size: 16, color: Colors.red.shade600),
+                                          onPressed: () {
+                                            setState(() {
+                                              _hasError = false;
+                                              _errorMessage = null;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
-                          itemToString: (acc) => "${acc.accNumber} | ${acc.accName}",
-                          stateToLoading: (state) => state is AccountLoadingState,
-                          loadingBuilder: (context) => const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 3),
-                          ),
-                          stateToItems: (state) {
-                            if (state is AccountLoadedState) {
-                              return state.accounts;
-                            }
-                            return [];
-                          },
-                          onSelected: (value) {
-                            setState(() {
-                              _accountController.text = value.accNumber.toString();
-                            });
-                            _amountFocusNode.requestFocus();
-                          },
-                          noResultsText: tr.noDataFound,
-                          showClearButton: true,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ZTextFieldEntitled(
-                          title: tr.amount,
-                          controller: _amountController,
-                          focusNode: _amountFocusNode,
-                          hint: '0.00',
-                          inputFormat: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                            SmartThousandsDecimalFormatter(),
-                          ],
-                          onSubmit: (_) {
-                            // After amount, focus first product field
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              _focusFirstProductField();
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Items header
-                  _buildItemsHeader(tr),
-
-                  const SizedBox(height: 8),
-
-                  // Items list
-                  ...List.generate(_records.length, (index) {
-                    final isLastRow = index == _records.length - 1;
-                    return _buildItemRow(index, isLastRow, tr);
-                  }),
-
-                  // Add item button
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: ZOutlineButton(
-                          width: 120,
-                          icon: Icons.add,
-                          label: Text(tr.addItem),
-                          onPressed: _isSaving ? null : _addNewRowAndFocus,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Show error banner if there's an error
-                  if (_hasError && _errorMessage != null)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        border: Border.all(color: Colors.red.shade200),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.error_outline, color: Colors.red.shade600),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _errorMessage!,
-                              style: TextStyle(color: Colors.red.shade700),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.close, size: 16, color: Colors.red.shade600),
-                            onPressed: () {
-                              setState(() {
-                                _hasError = false;
-                                _errorMessage = null;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
-
-                  // Summary section
-                  _buildSummarySection(tr)
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
-
             if (_isSaving)
               Positioned.fill(
                 child: Container(
@@ -496,6 +517,118 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAccountSection(AppLocalizations tr) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          tr.expenseAccount,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        GenericTextField<AccountsModel, AccountsBloc, AccountsState>(
+          controller: _accountController,
+          focusNode: _accountFocusNode,
+          title: '',
+          hintText: tr.accNameOrNumber,
+          bloc: context.read<AccountsBloc>(),
+          fetchAllFunction: (bloc) => bloc.add(
+            LoadAccountsFilterEvent(include: "11,12", ccy: baseCurrency, exclude: ""),
+          ),
+          searchFunction: (bloc, query) => bloc.add(
+            LoadAccountsFilterEvent(
+                include: "11,12",
+                ccy: baseCurrency,
+                input: query,
+                exclude: ""
+            ),
+          ),
+          validator: (value) {
+            if (value == null && value!.isEmpty) {
+              return tr.required(tr.accounts);
+            }
+            return null;
+          },
+          itemBuilder: (context, account) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "${account.accNumber} | ${account.accName}",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          itemToString: (acc) => "${acc.accNumber} | ${acc.accName}",
+          stateToLoading: (state) => state is AccountLoadingState,
+          loadingBuilder: (context) => const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 3),
+          ),
+          stateToItems: (state) {
+            if (state is AccountLoadedState) {
+              return state.accounts;
+            }
+            return [];
+          },
+          onSelected: (value) {
+            setState(() {
+              _accountController.text = value.accNumber.toString();
+            });
+            _amountFocusNode.requestFocus();
+          },
+          noResultsText: tr.noDataFound,
+          showClearButton: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAmountSection(AppLocalizations tr) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          tr.amount,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ZTextFieldEntitled(
+          title: '',
+          controller: _amountController,
+          focusNode: _amountFocusNode,
+          hint: '0.00',
+          inputFormat: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+            SmartThousandsDecimalFormatter(),
+          ],
+          onSubmit: (_) {
+            // After amount, focus first product field
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _focusFirstProductField();
+            });
+          },
+        ),
+      ],
     );
   }
 
@@ -746,63 +879,14 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
     );
   }
 
-  Widget _buildSummarySection(AppLocalizations tr) {
-    final color = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      width: 400,
-      decoration: BoxDecoration(
-        color: color.surface,
-        border: Border.all(color: color.outline.withValues(alpha: .3)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(tr.summary, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Icon(Icons.summarize, size: 22, color: color.primary),
-            ],
-          ),
-          SizedBox(height: 5),
-          Divider(thickness: 1.5, color: color.outline.withValues(alpha: .5)),
-          SizedBox(height: 5),
-          // Total Items
-          _buildSummaryRow(
-            label: tr.totalItems,
-            value: _records.length.toDouble(),
-            isAmount: false,
-          ),
-
-          // Total Quantity
-          _buildSummaryRow(
-            label: tr.totalQty,
-            value: _totalQuantity,
-            isAmount: false,
-          ),
-
-
-
-          // Account and Amount from form
-          if (_accountController.text.isNotEmpty && _amountController.text.isNotEmpty)...[
-            Divider(color: color.outline.withValues(alpha: .2)),
-            _buildSummaryRow(
-              label: '${tr.accounts} / ${tr.amount}',
-              value: double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0,
-              isAmount: true,
-            ),
-          ]
-
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow({required String label, required double value, bool isAmount = true}) {
+  Widget _buildSummaryRow({
+    required String label,
+    required double value,
+    bool isAmount = true,
+    bool isTotal = false,
+    Color? color,
+  }) {
+    final textColor = color ?? Theme.of(context).colorScheme.primary;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -810,14 +894,46 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 14),
+            style: TextStyle(
+              fontSize: isTotal ? 14 : 13,
+              fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal,
+            ),
           ),
           Text(
             isAmount ? "${value.toAmount()} $baseCurrency" : value.toAmount(decimal: 0),
             style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.primary,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+              fontSize: isTotal ? 16 : 14,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryTextRow({
+    required String label,
+    required String value,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 13),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 13,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

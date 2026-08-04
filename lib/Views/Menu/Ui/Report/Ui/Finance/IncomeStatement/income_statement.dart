@@ -253,14 +253,14 @@ class _MobileIncomeStatementState extends State<_MobileIncomeStatement> {
                         const Divider(height: 24),
                         _buildSummaryRow(
                           context,
-                          'Total Income',
+                          tr.totalIncome,
                           state.summary.totalIncome ?? 0,
                           state.summary.baseCurrency ?? 'USD',
                           Colors.green,
                         ),
                         _buildSummaryRow(
                           context,
-                          'Total Expenses',
+                          tr.totalExpense,
                           state.summary.totalExpenses ?? 0,
                           state.summary.baseCurrency ?? 'USD',
                           Colors.red,
@@ -268,7 +268,7 @@ class _MobileIncomeStatementState extends State<_MobileIncomeStatement> {
                         const Divider(height: 24),
                         _buildSummaryRow(
                           context,
-                          'Net Profit/Loss',
+                          tr.netProfit,
                           state.summary.netProfit ?? 0,
                           state.summary.baseCurrency ?? 'USD',
                           (state.summary.netProfit ?? 0) >= 0
@@ -308,7 +308,7 @@ class _MobileIncomeStatementState extends State<_MobileIncomeStatement> {
                   // Income Section
                   _buildSection(
                     context,
-                    'INCOME',
+                    tr.income.toUpperCase(),
                     state.incomeStatement
                         .where((item) => item.type == 'INCOME')
                         .toList(),
@@ -627,7 +627,6 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Column(
@@ -652,24 +651,12 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                   children: [
                     Utils.zBackButton(context),
                     const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tr.incomeStatement,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Financial Performance Report',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      tr.incomeStatement,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -698,13 +685,14 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                         maxYear: 2100,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     ZOutlineButton(
                       height: 48,
+                      isActive: true,
                       onPressed: _loadIncomeStatement,
                       icon: Icons.assessment,
-                      label: const Text(
-                        'Generate',
+                      label: Text(
+                        tr.applyFilter,
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -719,14 +707,14 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
             child: BlocBuilder<IncomeStatementBloc, IncomeStatementState>(
               builder: (context, state) {
                 if (state is IncomeStatementLoadingState) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircularProgressIndicator(),
                         SizedBox(height: 16),
                         Text(
-                          'Generating income statement...',
+                          tr.loading,
                           style: TextStyle(fontSize: 16),
                         ),
                       ],
@@ -808,7 +796,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No Data Available',
+                        tr.noDataFound,
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontSize: 22,
                           color: Theme.of(context).colorScheme.outline,
@@ -880,7 +868,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    'Account',
+                    AppLocalizations.of(context)!.accountName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -891,7 +879,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'Category',
+                    AppLocalizations.of(context)!.category,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -902,8 +890,8 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'Amount ($baseCurrency)',
-                    textAlign: TextAlign.right,
+                    '${AppLocalizations.of(context)!.amount} ($baseCurrency)',
+                    textAlign: TextAlign.end,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -914,8 +902,8 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'Original',
-                    textAlign: TextAlign.right,
+                    AppLocalizations.of(context)!.amount,
+                    textAlign: TextAlign.end,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -940,7 +928,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                         Icon(Icons.trending_up, size: 20, color: Colors.green),
                         const SizedBox(width: 10),
                         Text(
-                          'INCOME',
+                          AppLocalizations.of(context)!.income,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontSize: 17,
                             color: Colors.green,
@@ -953,8 +941,8 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                   Expanded(
                     flex: 5,
                     child: Text(
-                      'Total: ${summary.totalIncome?.toAmount() ?? '0'} $baseCurrency',
-                      textAlign: TextAlign.right,
+                      '${summary.totalIncome?.toAmount() ?? '0'} $baseCurrency',
+                      textAlign: TextAlign.end,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontSize: 16,
                         color: Colors.green,
@@ -985,7 +973,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                         Icon(Icons.trending_down, size: 20, color: Colors.red),
                         const SizedBox(width: 10),
                         Text(
-                          'EXPENSES',
+                          AppLocalizations.of(context)!.expenses,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontSize: 17,
                             color: Colors.red,
@@ -998,8 +986,8 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                   Expanded(
                     flex: 5,
                     child: Text(
-                      'Total: ${summary.totalExpenses?.toAmount() ?? '0'} $baseCurrency',
-                      textAlign: TextAlign.right,
+                      '${summary.totalExpenses?.toAmount() ?? '0'} $baseCurrency',
+                      textAlign: TextAlign.end,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontSize: 16,
                         color: Colors.red,
@@ -1060,7 +1048,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'NET ${(summary.netProfit ?? 0) >= 0 ? 'PROFIT' : 'LOSS'}',
+                        'NET ${(summary.netProfit ?? 0) >= 0 ? AppLocalizations.of(context)!.profit : AppLocalizations.of(context)!.loss}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontSize: 19,
                           fontWeight: FontWeight.bold,
@@ -1147,7 +1135,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                 ),
                 if (item.accountNumber != null && item.accountNumber != 0)
                   Text(
-                    'Account #${item.accountNumber}',
+                    '#${item.accountNumber}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 13,
                       color: Theme.of(context).colorScheme.outline,
@@ -1169,8 +1157,8 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
           Expanded(
             flex: 2,
             child: Text(
-              (item.amountBase ?? 0).toAmount(),
-              textAlign: TextAlign.right,
+              baseCurrency == item.currency? "--" : (item.amountBase ?? 0).toAmount(),
+              textAlign: TextAlign.end,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -1184,7 +1172,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
               children: [
                 Text(
                   (item.amountOriginal ?? 0).toAmount(),
-                  textAlign: TextAlign.right,
+                  textAlign: TextAlign.end,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 14,
                   ),
@@ -1192,7 +1180,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                 if (item.currency != null && item.currency != baseCurrency)
                   Text(
                     item.currency!,
-                    textAlign: TextAlign.right,
+                    textAlign: TextAlign.end,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 13,
                       color: Theme.of(context).colorScheme.outline,
@@ -1227,6 +1215,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
         children: [
           Row(
             children: [
@@ -1244,7 +1233,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Summary',
+                AppLocalizations.of(context)!.summary,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -1255,34 +1244,34 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
           const SizedBox(height: 16),
           _buildSummaryItem(
             context,
-            'Period',
+            AppLocalizations.of(context)!.financialPeriod,
             '${summary.startDate ?? ''} - ${summary.endDate ?? ''}',
             icon: Icons.calendar_today,
           ),
-          const Divider(height: 24),
+
           _buildSummaryItem(
             context,
-            'Base Currency',
+            AppLocalizations.of(context)!.baseCurrency,
             summary.baseCurrency ?? 'USD',
-            icon: Icons.currency_exchange,
+            icon: Icons.money,
           ),
-          const Divider(height: 24),
+
           _buildSummaryItem(
             context,
-            'Total Income',
+            AppLocalizations.of(context)!.totalIncome,
             '${summary.totalIncome?.toAmount() ?? '0'} ${summary.baseCurrency ?? 'USD'}',
             color: Colors.green,
             icon: Icons.trending_up,
           ),
-          const SizedBox(height: 6),
+
           _buildSummaryItem(
             context,
-            'Total Expenses',
+            AppLocalizations.of(context)!.totalExpense,
             '${summary.totalExpenses?.toAmount() ?? '0'} ${summary.baseCurrency ?? 'USD'}',
             color: Colors.red,
             icon: Icons.trending_down,
           ),
-          const Divider(height: 24),
+
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -1302,7 +1291,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Net ${(summary.netProfit ?? 0) >= 0 ? 'Profit' : 'Loss'}',
+                      'Net ${(summary.netProfit ?? 0) >= 0 ? AppLocalizations.of(context)!.profit : AppLocalizations.of(context)!.loss}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -1340,7 +1329,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Total',
+                      AppLocalizations.of(context)!.totalTitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 15,
                       ),
