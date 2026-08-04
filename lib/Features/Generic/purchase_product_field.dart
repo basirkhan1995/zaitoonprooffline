@@ -447,6 +447,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
                                           ),
                                           ZOutlineButton(
                                             label: Text(tr.closeTitle),
+                                             icon: Icons.close,
                                             isActive: true,
                                             backgroundHover: Theme.of(context).colorScheme.error,
                                             onPressed: (){
@@ -669,37 +670,25 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
                                     },
                                   ),
                                 ),
-                                if (!_isLoading && _currentSuggestions.isNotEmpty)
-                                  _buildKeyboardHints(),
+
                               ],
                             ),
                           ),
                         ),
                         // Right panel - details
-                        if (_currentHighlightedItem != null && !_isLoading && _currentSuggestions.isNotEmpty)
+                        if (_currentHighlightedItem != null && !_isLoading && _currentSuggestions.isNotEmpty)...[
+                          VerticalDivider(indent: 10,endIndent: 10),
                           Container(
                             width: 350,
                             height: double.infinity,
-                            margin: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: .05),
-                                  blurRadius: 8,
-                                  offset: const Offset(-2, 0),
-                                ),
-                              ],
-                            ),
+                            margin: const EdgeInsets.all(0),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: _buildProductDetailsPanel(),
                             ),
                           ),
+                        ]
+
                       ],
                     ),
                   ),
@@ -712,30 +701,6 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
     );
 
     Overlay.of(context).insert(_overlayEntry!);
-  }
-
-  Widget _buildKeyboardHints() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: .5),
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: .1),
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildKeyHint(context, '↑↓', AppLocalizations.of(context)!.navigateTitle),
-          const SizedBox(width: 16),
-          _buildKeyHint(context, '⏎', AppLocalizations.of(context)!.selectTitle),
-          const SizedBox(width: 16),
-          _buildKeyHint(context, 'ESC', AppLocalizations.of(context)!.closeTitle),
-        ],
-      ),
-    );
   }
 
   Widget _buildProductDetailsPanel() {
@@ -899,29 +864,6 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
           ...children,
         ],
       ),
-    );
-  }
-
-  Widget _buildKeyHint(BuildContext context, String key, String action) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            key,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(action, style: Theme.of(context).textTheme.bodySmall),
-      ],
     );
   }
 

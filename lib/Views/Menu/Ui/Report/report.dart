@@ -119,8 +119,8 @@ class _DesktopState extends State<_Desktop> {
       {"title": tr.purchaseInvoice, "icon": Icons.add_shopping_cart_sharp, "action": ActionKey.purchase},
       if(login.hasPermission(87) ?? false)
       {"title": tr.salesInvoice, "icon": Icons.add_shopping_cart_sharp, "action": ActionKey.sale},
-      if(login.hasPermission(88) ?? false)
-      {"title": tr.estimateTitle, "icon": Icons.file_copy_outlined, "action": ActionKey.estimate},
+      // if(login.hasPermission(88) ?? false)
+      // {"title": tr.estimateTitle, "icon": Icons.file_copy_outlined, "action": ActionKey.estimate},
     ];
 
     final List<Map<String, dynamic>> transactionsButtons = [
