@@ -3446,4 +3446,13 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get averagePurchasePrice => 'اوسط خرید';
+
+  @override
+  String get noBatchesAvailable => 'هیچ مورد یافت نشد';
+
+  @override
+  String get stockWillAppearHere => 'موجودی اینجا دریابید';
+
+  @override
+  String get otherDetails => 'جزئیات دیگر';
 }

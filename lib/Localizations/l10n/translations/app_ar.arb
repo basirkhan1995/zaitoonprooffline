@@ -1142,5 +1142,8 @@
   "noBackupFound": "هیچ پشتیبانی یافت نشد",
   "renameBackup": "تغییر نام فایل",
   "noStock": "ناموجود",
-  "averagePurchasePrice": "اوسط خرید"
+  "averagePurchasePrice": "اوسط خرید",
+  "noBatchesAvailable": "هیچ مورد یافت نشد",
+  "stockWillAppearHere": "موجودی اینجا دریابید",
+  "otherDetails": "جزئیات دیگر"
 }

@@ -3458,4 +3458,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get averagePurchasePrice => 'Average Purchase';
+
+  @override
+  String get noBatchesAvailable => 'No Batches Available';
+
+  @override
+  String get stockWillAppearHere => 'Stock will appear here';
+
+  @override
+  String get otherDetails => 'Other details';
 }

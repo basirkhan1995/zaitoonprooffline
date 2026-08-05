@@ -6837,6 +6837,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Average Purchase'**
   String get averagePurchasePrice;
+
+  /// No description provided for @noBatchesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No Batches Available'**
+  String get noBatchesAvailable;
+
+  /// No description provided for @stockWillAppearHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock will appear here'**
+  String get stockWillAppearHere;
+
+  /// No description provided for @otherDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Other details'**
+  String get otherDetails;
 }
 
 class _AppLocalizationsDelegate

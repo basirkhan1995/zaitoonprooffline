@@ -1142,5 +1142,8 @@
   "noBackupFound": "No backup found",
   "renameBackup": "Rename Backup",
   "noStock": "No Stock",
-  "averagePurchasePrice": "Average Purchase"
+  "averagePurchasePrice": "Average Purchase",
+  "noBatchesAvailable": "No Batches Available",
+  "stockWillAppearHere": "Stock will appear here",
+  "otherDetails": "Other details"
 }
