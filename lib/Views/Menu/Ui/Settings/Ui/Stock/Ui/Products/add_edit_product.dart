@@ -295,54 +295,14 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
     });
 
     return Container(
-      height: 250,
+      height: 300,
       margin: const EdgeInsets.only(top: 0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(5),
         border: Border.all(color: color.outline.withValues(alpha: .1)),
       ),
       child: Column(
         children: [
-          // Header with Primary Color
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.primary.withValues(alpha: .9),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(5),
-                topRight: Radius.circular(5),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.inventory, size: 20, color: color.onPrimary),
-                const SizedBox(width: 8),
-                Text(
-                  tr.batchTitle,
-                  style: textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: color.onPrimary,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.onPrimary.withValues(alpha: .2),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Text(
-                    "${batches.length} ${tr.batchTitle}",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: color.onPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
 
           // Table Header
           Container(
@@ -356,23 +316,12 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
             child: Row(
               children: [
                 Expanded(
-                  flex: 4,
+                  flex: 3,
                   child: Text(
                     tr.storage,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      color: color.primary,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    textAlign: TextAlign.end,
-                    tr.batchTitle,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontSize: 15,
                       color: color.primary,
                     ),
                   ),
@@ -383,18 +332,30 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontSize: 15,
                       color: color.primary,
                     ),
                   ),
                 ),
                 Expanded(
                   child: Text(
+                    textAlign: TextAlign.end,
+                    tr.batchTitle,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: color.primary,
+                    ),
+                  ),
+                ),
+
+                Expanded(
+                  child: Text(
                     tr.totalItems,
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontSize: 15,
                       color: color.primary,
                     ),
                   ),
@@ -404,58 +365,71 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
           ),
 
           // List
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: batches.length,
-            separatorBuilder: (_, _) => Divider(
-              height: 1,
-              color: color.outline.withValues(alpha: .1),
-            ),
-            itemBuilder: (context, index) {
-              final batch = batches[index];
-              final quantity = int.tryParse(batch.availableQuantity ?? "0") ?? 0;
-              final batchNumber = batch.batch ?? 0;
+          Expanded(
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: batches.length,
+              separatorBuilder: (_, _) => Divider(
+                height: 1,
+                color: color.outline.withValues(alpha: .1),
+              ),
+              itemBuilder: (context, index) {
+                final batch = batches[index];
+                final quantity = int.tryParse(batch.availableQuantity ?? "0") ?? 0;
+                final batchNumber = batch.batch ?? 0;
 
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: Text(
-                        batch.storage?.toString() ?? "N/A",
-                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        textAlign: TextAlign.end,
-                        "$batchNumber",
-                        style: textTheme.bodyMedium,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        quantity.toString(),
-                        textAlign: TextAlign.end,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: quantity > 0 ? Colors.green : Colors.red,
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: index.isOdd? color.outline.withValues(alpha: .06) : Colors.transparent
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          batch.storage?.toString() ?? "N/A",
+                          style: textTheme.bodyMedium?.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        (quantity * batchNumber).toString(),
-                        textAlign: TextAlign.end,
-                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+
+                      Expanded(
+                        child: Text(
+                          quantity.toString(),
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: quantity > 0 ? Colors.green : Colors.red,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                      Expanded(
+                        child: Text(
+                          textAlign: TextAlign.end,
+                          "$batchNumber",
+                          style: textTheme.bodyMedium?.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          (quantity * batchNumber).toString(),
+                          textAlign: TextAlign.end,
+                          style: textTheme.bodyMedium?.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
 
           // Footer
@@ -478,7 +452,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        tr.totalQty.toUpperCase(),
+                        tr.availableTitle.toUpperCase(),
                         style: textTheme.titleMedium?.copyWith(color: color.outline),
                       ),
                       const SizedBox(width: 8),
@@ -494,25 +468,23 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        tr.totalItems.toUpperCase(),
-                        style: textTheme.titleMedium?.copyWith(color: color.outline),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      tr.totalItems.toUpperCase(),
+                      style: textTheme.titleMedium?.copyWith(color: color.outline),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      totalItems.toString(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: color.primary,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        totalItems.toString(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: color.primary,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

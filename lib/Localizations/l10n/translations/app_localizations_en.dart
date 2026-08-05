@@ -3467,4 +3467,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get otherDetails => 'Other details';
+
+  @override
+  String get itemsCount => 'Items Count';
 }

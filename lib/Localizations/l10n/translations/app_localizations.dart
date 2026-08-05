@@ -6855,6 +6855,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other details'**
   String get otherDetails;
+
+  /// No description provided for @itemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Items Count'**
+  String get itemsCount;
 }
 
 class _AppLocalizationsDelegate

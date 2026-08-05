@@ -1145,5 +1145,6 @@
   "averagePurchasePrice": "اوسط خرید",
   "noBatchesAvailable": "هیچ مورد یافت نشد",
   "stockWillAppearHere": "موجودی اینجا دریابید",
-  "otherDetails": "جزئیات دیگر"
+  "otherDetails": "جزئیات دیگر",
+  "itemsCount": "تعداد قلم"
 }

@@ -1145,5 +1145,6 @@
   "averagePurchasePrice": "Average Purchase",
   "noBatchesAvailable": "No Batches Available",
   "stockWillAppearHere": "Stock will appear here",
-  "otherDetails": "Other details"
+  "otherDetails": "Other details",
+  "itemsCount": "Items Count"
 }

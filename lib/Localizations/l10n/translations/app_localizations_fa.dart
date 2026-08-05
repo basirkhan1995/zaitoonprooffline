@@ -3455,4 +3455,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get otherDetails => 'جزئیات دیگر';
+
+  @override
+  String get itemsCount => 'تعداد قلم';
 }

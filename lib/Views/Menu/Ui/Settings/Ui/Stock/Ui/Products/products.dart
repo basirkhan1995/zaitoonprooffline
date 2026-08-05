@@ -334,7 +334,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
               color.primary.withValues(alpha: .85),
             ],
           ),
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(2),
           boxShadow: [
             BoxShadow(
               color: color.primary.withValues(alpha: .2),
@@ -380,7 +380,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
             SizedBox(
               width: 100,
               child: Text(
-                tr.qty,
+                tr.availableTitle,
                 style: titleStyle?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: color.surface,
@@ -735,7 +735,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
             decoration: BoxDecoration(
               color: index.isEven
-                  ? color.surfaceContainerHighest.withValues(alpha: .3)
+                  ? color.surfaceContainerHighest.withValues(alpha: .22)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(5),
             ),
@@ -786,7 +786,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                     product.totalQty?.toAmount(decimal: 0) ?? '0',
                     style: textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: color.primary,
+                      color: product.totalItems.toString() == "0" ? color.error :  color.primary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -799,7 +799,7 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                     product.totalItems?.toAmount(decimal: 0) ?? '0',
                     style: textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: Colors.green.shade700,
+                      color: product.totalItems.toString() == "0" ? color.error :  Colors.green.shade700,
                     ),
                     textAlign: TextAlign.center,
                   ),
