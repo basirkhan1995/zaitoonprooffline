@@ -279,49 +279,10 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
         }
       },
       child: Scaffold(
-        backgroundColor: color.surface,
         appBar: AppBar(
-          backgroundColor: color.surface,
           title: Text(tr.shift),
           titleSpacing: 0,
           actionsPadding: const EdgeInsets.all(8),
-          actions: [
-            ZOutlineButton(
-              icon: Icons.refresh,
-              width: 110,
-              height: 38,
-              label: Text(tr.newKeyword),
-              onPressed: _isSaving ? null : () {
-                setState(() {
-                  _records.clear();
-                  _productControllers.clear();
-                  _fromStorageControllers.clear();
-                  _toStorageControllers.clear();
-                  _qtyControllers.clear();
-                  _selectedProducts.clear();
-                  _selectedFromStorages.clear();
-                  _selectedToStorages.clear();
-                  _rowFocusNodes.clear();
-                  _addEmptyItem();
-                  _accountController.clear();
-                  _amountController.clear();
-                  _hasError = false;
-                  _errorMessage = null;
-                });
-                // Refocus after clearing
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _focusFirstProductField();
-                });
-              },
-            ),
-            const SizedBox(width: 8),
-            ZButton(
-              width: 110,
-              height: 38,
-              label: Text(tr.create),
-              onPressed: _isSaving ? null : _createGoodsShift,
-            ),
-          ],
         ),
         body: Stack(
           children: [
@@ -330,7 +291,8 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                 // LEFT SIDE - Fixed width 350
                 ZCover(
                   margin: EdgeInsets.all(8),
-                  radius: 10,
+                  radius: 5,
+                  borderColor: Theme.of(context).colorScheme.primary.withAlpha(100),
                   child: Container(
                     width: 400,
                     color: color.surface,
@@ -427,8 +389,11 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
 
                 // RIGHT SIDE - Takes remaining space
                 Expanded(
-                  child: Container(
+                  child: ZCover(
                     color: color.surface,
+                    margin: EdgeInsets.all(8),
+                    radius: 5,
+                    borderColor: Theme.of(context).colorScheme.primary.withAlpha(100),
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -912,10 +877,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
     );
   }
 
-  Widget _buildSummaryTextRow({
-    required String label,
-    required String value,
-  }) {
+  Widget _buildSummaryTextRow({required String label, required String value}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(

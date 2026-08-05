@@ -77,7 +77,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
   // Store the loaded product from API
   ProductsModel? _loadedProduct;
   bool _isLoadingProduct = false;
-
+  bool _productStatus = true;
   // Add these flags
   String? _errorMessage;
   bool _isSubmitting = false;
@@ -130,26 +130,36 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
 
     final bloc = context.read<ProductsBloc>();
 
-    // Trim all string values to prevent duplicates with spaces
+    String? getNumericValue(String value) {
+      final trimmed = value.trim();
+      return trimmed.isEmpty ? null : trimmed;
+    }
+
+    String? getPercentageValue(String value) {
+      final trimmed = value.trim();
+      if (trimmed.isEmpty) return null;
+      return trimmed.replaceAll('%', '').trim();
+    }
+
     final data = ProductsModel(
       proId: widget.proId ?? _loadedProduct?.proId,
-      proCode: productCode.text.trim(), // Trim spaces
-      proName: productName.text.trim(), // Trim spaces
-      proMadeIn: madeIn.text.trim(), // Trim spaces
+      proCode: productCode.text.trim(),
+      proName: productName.text.trim(),
+      proMadeIn: madeIn.text.trim(),
       proCategory: _selectedCategory?.pcId ?? catId,
-      proDetails: details.text.trim(), // Trim spaces
-      proBrand: productBrand.text.trim(), // Trim spaces
-      proModel: productModel.text.trim(), // Trim spaces
-      proColor: productColor.text.trim(), // Trim spaces
+      proDetails: details.text.trim(),
+      proBrand: productBrand.text.trim(),
+      proModel: productModel.text.trim(),
+      proColor: productColor.text.trim(),
       proGrade: productGrade,
-      proLsNqty: int.tryParse(minimumStock.text.trim()), // Trim spaces
-      proUnit: productUnit.text.trim(), // Trim spaces
-      proWidth: w.text.trim(), // Trim spaces
-      proLength: l.text.trim(), // Trim spaces
-      proBreadth: b.text.trim(), // Trim spaces
-      proWeight: weight.text.trim(), // Trim spaces
-      proSpp: salePricePercentage.text.trim(), // Trim spaces
-      proStatus: 1,
+      proLsNqty: int.tryParse(minimumStock.text.trim()),
+      proUnit: productUnit.text.trim(),
+      proWidth: getNumericValue(w.text),
+      proLength: getNumericValue(l.text),
+      proBreadth: getNumericValue(b.text),
+      proWeight: getNumericValue(weight.text),
+      proSpp: getPercentageValue(salePricePercentage.text),
+      proStatus: _productStatus == true? 1 : 0,
     );
 
     if (widget.proId != null || _loadedProduct != null) {
@@ -178,7 +188,7 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
       b.text = product.proBreadth?.toAmount() ?? "";
       weight.text = product.proWeight?.toAmount() ?? "";
       salePricePercentage.text = product.proSpp?.trim() ?? "";
-
+      _productStatus = product.proStatus == 1 ? true : false;
       _loadedProduct = product;
       _isLoadingProduct = false;
     }
@@ -567,6 +577,13 @@ class _BaseProductAddEditState extends State<_BaseProductAddEdit> {
           icon: Icons.qr_code_2_sharp,
           label: Text(AppLocalizations.of(context)!.printLabel),
         ),
+        Switch.adaptive(
+            value: _productStatus,
+            onChanged: (e){
+              setState(() {
+                _productStatus = e;
+              });
+            })
       ],
     );
   }

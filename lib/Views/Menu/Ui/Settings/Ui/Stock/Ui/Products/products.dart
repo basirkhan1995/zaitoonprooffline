@@ -356,16 +356,6 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
               ),
             ),
             const SizedBox(width: 8),
-            SizedBox(
-              width: 120,
-              child: Text(
-                tr.productCode,
-                style: titleStyle?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: color.surface,
-                ),
-              ),
-            ),
             Expanded(
               flex: 2,
               child: Text(
@@ -762,22 +752,6 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                   ),
                 ),
                 const SizedBox(width: 8),
-
-                // Product Code
-                SizedBox(
-                  width: 120,
-                  child: Text(
-                    product.proCode ?? '',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: color.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-
-                  ),
-                ),
-
                 // Product Name
                 Expanded(
                   flex: 2,
@@ -794,21 +768,14 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                 // Category
                 SizedBox(
                   width: 120,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: color.secondary.withValues(alpha: .1),
-                      borderRadius: BorderRadius.circular(4),
+                  child: Text(
+                    product.pcName ?? '',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: color.secondary,
                     ),
-                    child: Text(
-                      product.pcName ?? '',
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: color.secondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
                 ),
 
@@ -841,17 +808,10 @@ class _BaseProductsViewState extends State<_BaseProductsView> {
                 // Unit
                 SizedBox(
                   width: 80,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: color.outline.withValues(alpha: .1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      product.proUnit ?? '',
-                      style: textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
+                  child: Text(
+                    product.proUnit ?? '',
+                    style: textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
                   ),
                 ),
 
