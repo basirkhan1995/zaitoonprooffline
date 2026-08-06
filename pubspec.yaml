@@ -21,26 +21,26 @@ dependencies:
   dio: ^5.9.0
   printing: ^5.14.2
   flag: ^7.0.2
-  font_awesome_flutter: ^10.12.0
+  font_awesome_flutter: ^11.0.0
   shamsi_date: ^1.1.1
   path_provider: ^2.1.5
   path: ^1.9.1
   file_selector: ^1.0.4
-  file_picker: ^10.3.3
+  file_picker: ^12.0.0-beta.7
   shared_preferences: ^2.5.3
   connectivity_plus: ^7.0.0
-  package_info_plus: ^9.0.0
+  package_info_plus: ^10.2.1
   url_launcher: ^6.3.2
   intl: ^0.20.2
   image: ^4.5.4
   http: ^1.6.0
   pdf: ^3.11.3
   cached_network_image: ^3.4.1
-  syncfusion_flutter_charts: ^32.1.22
-  share_plus: ^12.0.1
-  permission_handler: ^12.0.1
+  syncfusion_flutter_charts: ^33.2.15
+  share_plus: ^13.3.0
+  permission_handler: ^13.0.0
   universal_html: ^2.3.0
-  syncfusion_flutter_xlsio: ^32.2.9
+  syncfusion_flutter_xlsio: ^33.2.13
   window_manager: ^0.5.1
   shimmer: ^3.0.0
   barcode_widget: ^2.0.4
