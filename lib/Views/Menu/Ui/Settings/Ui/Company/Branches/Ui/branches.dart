@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Widgets/no_data_widget.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
@@ -55,7 +54,7 @@ class _BaseBranchesViewState extends State<_BaseBranchesView> {
         child: Column(
           children: [
             ZSearchField(
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
               controller: searchController,
               hint: locale.search,
               onChanged: (e) {
@@ -105,7 +104,7 @@ class _BaseBranchesViewState extends State<_BaseBranchesView> {
             Expanded(
               flex: 2,
               child: ZSearchField(
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
                 controller: searchController,
                 hint: locale.search,
                 onChanged: (e) {
@@ -150,7 +149,7 @@ class _BaseBranchesViewState extends State<_BaseBranchesView> {
           children: [
             Expanded(
               child: ZSearchField(
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
                 controller: searchController,
                 hint: locale.search,
                 onChanged: (e) {

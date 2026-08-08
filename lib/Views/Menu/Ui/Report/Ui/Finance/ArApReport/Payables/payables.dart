@@ -83,7 +83,7 @@ class _MobileState extends State<_Mobile> {
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: IconButton(
-                  icon: const Icon(FontAwesomeIcons.solidFilePdf),
+                  icon: const FaIcon(FontAwesomeIcons.solidFilePdf),
                   onPressed: onPDF,
                   tooltip: "PDF",
                 ),
@@ -94,7 +94,7 @@ class _MobileState extends State<_Mobile> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
                 child: ZSearchField(
-                  icon: FontAwesomeIcons.magnifyingGlass,
+                  icon: Icons.search,
                   controller: searchController,
                   title: '',
                   hint: tr.accountName,
@@ -515,7 +515,7 @@ class _DesktopState extends State<_Desktop> {
                     SizedBox(
                       width: 350,
                       child: ZSearchField(
-                        icon: FontAwesomeIcons.magnifyingGlass,
+                        icon: Icons.search,
                         controller: searchController,
                         title: '',
                         hint: tr.accountName,
@@ -524,14 +524,14 @@ class _DesktopState extends State<_Desktop> {
                     ),
                     ZOutlineButton(
                       width: 110,
-                      icon: FontAwesomeIcons.solidFilePdf,
+                      icon: Icons.picture_as_pdf,
                       label: Text("PDF"),
                       onPressed: onPDF,
                     ),
 
                     ZOutlineButton(
                       width: 110,
-                      icon: FontAwesomeIcons.solidFileExcel,
+                      icon: Icons.file_copy_rounded,
                       label: const Text("EXCEL"),
                       isActive: true,
                       backgroundHover: Colors.green,

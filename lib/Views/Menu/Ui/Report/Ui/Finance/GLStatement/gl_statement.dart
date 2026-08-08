@@ -385,7 +385,7 @@ class _MobileState extends State<_Mobile> {
                                 onPressed: (state is GlStatementLoadingState || accNumber == null)
                                     ? null
                                     : () => _generateAndShowPDF(context),
-                                icon: FontAwesomeIcons.solidFilePdf,
+                                icon: Icons.picture_as_pdf,
                                 label: state is GlStatementLoadingState
                                     ? const SizedBox(
                                   width: 20,
@@ -511,7 +511,7 @@ class _MobileState extends State<_Mobile> {
                                 padding: const EdgeInsets.symmetric(vertical: 32.0),
                                 child: Column(
                                   children: [
-                                    Icon(
+                                    FaIcon(
                                       FontAwesomeIcons.solidFilePdf,
                                       size: 64,
                                       color: Theme.of(context).colorScheme.outline.withAlpha(100),
@@ -604,7 +604,7 @@ class _DesktopState extends State<_Desktop> {
         actionsPadding: EdgeInsets.symmetric(horizontal: 8),
         actions: [
           ZOutlineButton(
-            icon: FontAwesomeIcons.fileExcel, // or Icons.table_chart_outlined
+            icon: Icons.file_copy_rounded,
             backgroundHover: Colors.green,
             onPressed: () {
               if (accountStatementModel != null &&
@@ -632,7 +632,7 @@ class _DesktopState extends State<_Desktop> {
           ),
           SizedBox(width: 8),
           ZOutlineButton(
-            icon: FontAwesomeIcons.solidFilePdf,
+            icon: Icons.picture_as_pdf,
             label: Text("PDF"),
             onPressed: (){
               if(formKey.currentState!.validate()){

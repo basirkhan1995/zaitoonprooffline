@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Other/toast.dart';
@@ -781,7 +780,7 @@ class _DesktopState extends State<_Desktop> {
                 ZOutlineButton(
                   width: 100,
                   onPressed: _exportToExcel,
-                  icon: FontAwesomeIcons.fileExcel,
+                  icon: Icons.file_copy_rounded,
                   label: Text('Excel'),
                 ),
                 SizedBox(width: 8),

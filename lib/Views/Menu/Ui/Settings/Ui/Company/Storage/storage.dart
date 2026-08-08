@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Company/Storage/add_edit_storage.dart';
@@ -64,7 +63,7 @@ class _BaseStorageViewState extends State<_BaseStorageView> {
         child: Column(
           children: [
             ZSearchField(
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
               controller: searchController,
               hint: locale.search,
               onChanged: (e) {
@@ -114,7 +113,7 @@ class _BaseStorageViewState extends State<_BaseStorageView> {
             Expanded(
               flex: 2,
               child: ZSearchField(
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
                 controller: searchController,
                 hint: locale.search,
                 onChanged: (e) {
@@ -159,7 +158,7 @@ class _BaseStorageViewState extends State<_BaseStorageView> {
           children: [
             Expanded(
               child: ZSearchField(
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
                 controller: searchController,
                 hint: locale.search,
                 onChanged: (e) {

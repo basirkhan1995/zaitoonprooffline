@@ -208,7 +208,7 @@ class _DesktopState extends State<_Desktop> {
                               horizontal: 4,
                             ),
                             color: theme.colorScheme.surface,
-                            child: Icon(
+                            child: FaIcon(
                               FontAwesomeIcons.whatsapp,
                               color: theme.colorScheme.primary,
                             ),

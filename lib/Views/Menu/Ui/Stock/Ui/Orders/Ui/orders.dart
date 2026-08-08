@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
@@ -117,7 +116,7 @@ class _MobileOrdersViewState extends State<_MobileOrdersView> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ZSearchField(
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
                 controller: searchController,
                 hint: tr.orderSearchHint,
                 onChanged: (e) {
@@ -449,7 +448,7 @@ class _TabletOrdersViewState extends State<_TabletOrdersView> {
                   Expanded(
                     flex: 3,
                     child: ZSearchField(
-                      icon: FontAwesomeIcons.magnifyingGlass,
+                      icon: Icons.search,
                       controller: searchController,
                       hint: tr.orderSearchHint,
                       onChanged: (e) {
@@ -936,7 +935,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                     flex: 3,
                     child: ZTextFieldEntitled(
                       showClearButton: true,
-                      icon: FontAwesomeIcons.magnifyingGlass,
+                      icon: Icons.search,
                       controller: searchController,
                       hint: AppLocalizations.of(context)!.search,
                       onChanged: (e) {

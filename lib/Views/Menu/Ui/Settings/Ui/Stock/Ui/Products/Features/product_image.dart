@@ -3,7 +3,7 @@ import 'package:zaitoonpro/Features/Other/toast.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
 import '../../../../../../../../../Features/Other/crop.dart';
-import '../../../../../../../../../Features/Widgets/image_services.dart';
+import '../../../../../../../../../Features/Other/utils.dart';
 import 'package:flutter/services.dart';
 
 class ProductImageCarousel extends StatefulWidget {
@@ -79,11 +79,11 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
     }
 
     final remainingSlots = widget.maxImages - widget.images.length;
-    final newImages = await ImagePickerService.pickMultipleImages(
+    final newImages = await Utils.pickMultipleImages(
       maxCount: remainingSlots,
     );
 
-    if (newImages.isNotEmpty && mounted) {
+    if (newImages!.isNotEmpty && mounted) {
       final List<Uint8List> updatedImages = List.from(widget.images);
       updatedImages.addAll(newImages);
       widget.onImagesChanged(updatedImages);

@@ -1,4 +1,4 @@
-import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,19 +28,63 @@ class Utils{
     }
   }
 
+  // static Future<Uint8List?> pickImage() async {
+  //   final result = await FilePicker.platform.pickFiles(type: FileType.image);
+  //   if (result != null && result.files.single.bytes != null) {
+  //     return result.files.single.bytes;
+  //   } else if (result != null && result.files.single.path != null) {
+  //     return await File(
+  //       result.files.single.path!,
+  //     ).readAsBytes();
+  //   }
+  //   return null;
+  // }
+
+  // ✅ CORRECT - Single file selection
   static Future<Uint8List?> pickImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.bytes != null) {
-      return result.files.single.bytes;
-    } else if (result != null && result.files.single.path != null) {
-      return await File(
-        result.files.single.path!,
-      ).readAsBytes();
+    try {
+      // Use pickFile() for single file (no 's')
+      final result = await FilePicker.pickFile(
+        type: FileType.image,
+      );
+
+      if (result == null) {
+        return null;
+      }
+
+      // Single file result is a PlatformFile? not a list
+      final file = result;
+      return await file.readAsBytes();
+
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      return null;
     }
-    return null;
   }
 
+// ✅ CORRECT - Multiple files selection
+  static Future<List<Uint8List>?> pickMultipleImages({int maxCount = 5}) async {
+    try {
+      // Use pickFiles() for multiple files (with 's')
+      final result = await FilePicker.pickFiles(
+        type: FileType.image,
+      );
 
+      if (result == null || result.files.isEmpty) {
+        return null;
+      }
+
+      final List<Uint8List> images = [];
+      for (final file in result.files) {
+        images.add(await file.readAsBytes());
+      }
+      return images;
+
+    } catch (e) {
+      debugPrint('Error picking images: $e');
+      return null;
+    }
+  }
 
   static void showOverlayMessage(
       BuildContext context, {

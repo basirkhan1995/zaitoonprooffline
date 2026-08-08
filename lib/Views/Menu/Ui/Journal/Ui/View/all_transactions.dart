@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
@@ -1002,7 +1001,7 @@ class _TabletState extends State<_Tablet> {
                       Expanded(
                         flex: 5,
                         child: ZSearchField(
-                          icon: FontAwesomeIcons.magnifyingGlass,
+                          icon: Icons.search,
                           controller: searchController,
                           hint: AppLocalizations.of(context)!.search,
                           onChanged: (e) {
@@ -1480,7 +1479,7 @@ class _DesktopState extends State<_Desktop> {
                       Expanded(
                         flex: 5,
                         child: ZSearchField(
-                          icon: FontAwesomeIcons.magnifyingGlass,
+                          icon: Icons.search,
                           controller: searchController,
                           hint: AppLocalizations.of(context)!.search,
                           onChanged: (e) {

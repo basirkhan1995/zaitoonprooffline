@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/alert_dialog.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Other/shortcut.dart';
@@ -133,7 +132,7 @@ class _MobileState extends State<_Mobile> {
                 onChanged: (e) {
                   setState(() {});
                 },
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
               ),
             ),
 
@@ -391,7 +390,7 @@ class _DesktopState extends State<_Desktop> {
                       onChanged: (e) {
                         setState(() {});
                       },
-                      icon: FontAwesomeIcons.magnifyingGlass,
+                      icon: Icons.search
                     ),
                   ),
                   Row(

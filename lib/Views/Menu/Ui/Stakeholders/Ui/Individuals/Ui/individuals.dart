@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/image_helper.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Other/shortcut.dart';
@@ -77,7 +76,7 @@ class _MobileState extends State<_Mobile> {
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: ZSearchField(
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
               controller: searchController,
               hint: AppLocalizations.of(context)!.search,
               onChanged: (e) {
@@ -294,7 +293,7 @@ class _DesktopState extends State<_Desktop> {
                     Expanded(
                       flex: 3,
                       child: ZSearchField(
-                        icon: FontAwesomeIcons.magnifyingGlass,
+                        icon: Icons.search,
                         controller: searchController,
                         hint: AppLocalizations.of(context)!.search,
                         onChanged: (e) {

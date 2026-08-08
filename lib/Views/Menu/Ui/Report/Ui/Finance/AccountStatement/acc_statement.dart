@@ -347,7 +347,7 @@ class _MobileState extends State<_Mobile> {
                                 onPressed: (state is AccStatementLoadingState || accNumber == null)
                                     ? null
                                     : () => _generateAndShowPDF(context),
-                                icon: FontAwesomeIcons.solidFilePdf,
+                                icon: Icons.picture_as_pdf,
                                 label: state is AccStatementLoadingState
                                     ? const SizedBox(
                                   width: 20,
@@ -436,7 +436,7 @@ class _MobileState extends State<_Mobile> {
                                         );
                                       },
                                       isActive: true,
-                                      icon: FontAwesomeIcons.whatsapp,
+                                      icon: Icons.message,
                                       label: const Text("Share"),
                                     ),
                                   ),
@@ -489,7 +489,7 @@ class _MobileState extends State<_Mobile> {
                                 padding: const EdgeInsets.symmetric(vertical: 32.0),
                                 child: Column(
                                   children: [
-                                    Icon(
+                                    FaIcon(
                                       FontAwesomeIcons.solidFilePdf,
                                       size: 64,
                                       color: Theme.of(context).colorScheme.outline.withAlpha(100),
@@ -839,7 +839,7 @@ class _DesktopState extends State<_Desktop> {
                           Row(
                             children: [
                               ZOutlineButton(
-                                icon: FontAwesomeIcons.fileExcel,
+                                icon: Icons.document_scanner_outlined,
                                 backgroundHover: Colors.green,
                                 onPressed: () {
                                   if (accountStatementModel != null &&
@@ -865,7 +865,7 @@ class _DesktopState extends State<_Desktop> {
                               ),
                               SizedBox(width: 8),
                               ZOutlineButton(
-                                  icon: FontAwesomeIcons.solidFilePdf,
+                                  icon: Icons.picture_as_pdf,
                                   label: Text("PDF"),
                                   onPressed: _onPrint
                               ),
@@ -873,7 +873,7 @@ class _DesktopState extends State<_Desktop> {
                               Builder(
                                   builder: (context) {
                                     return ZOutlineButton(
-                                      icon: FontAwesomeIcons.whatsapp,
+                                      icon: Icons.message,
                                       onPressed: () {
                                         final helper = WhatsAppShareHelper(context);
                                         helper.shareViaWhatsApp(

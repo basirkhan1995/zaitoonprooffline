@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
@@ -74,7 +73,7 @@ class _MobileEstimateViewState extends State<_MobileEstimateView> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ZSearchField(
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
               controller: searchController,
               hint: AppLocalizations.of(context)!.search,
               onChanged: (e) {
@@ -365,7 +364,7 @@ class _TabletEstimateViewState extends State<_TabletEstimateView> {
                 Expanded(
                   flex: 3,
                   child: ZSearchField(
-                    icon: FontAwesomeIcons.magnifyingGlass,
+                    icon: Icons.search,
                     controller: searchController,
                     hint: AppLocalizations.of(context)!.search,
                     onChanged: (e) {
@@ -616,7 +615,7 @@ class _DesktopEstimateViewState extends State<_DesktopEstimateView> {
                 Expanded(
                   flex: 3,
                   child: ZSearchField(
-                    icon: FontAwesomeIcons.magnifyingGlass,
+                    icon: Icons.search,
                     controller: searchController,
                     hint: AppLocalizations.of(context)!.search,
                     onChanged: (e) {

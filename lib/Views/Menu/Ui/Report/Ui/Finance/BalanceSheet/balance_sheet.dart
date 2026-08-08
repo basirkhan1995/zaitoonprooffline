@@ -116,7 +116,7 @@ class _DesktopBalanceSheetState extends State<_DesktopBalanceSheet> {
                   if (state is BalanceSheetLoaded) {
                     return ZOutlineButton(
                       width: 110,
-                      icon: FontAwesomeIcons.solidFilePdf,
+                      icon: Icons.picture_as_pdf,
                       label: Text("PDF"),
                       onPressed: () {
                         showDialog(
@@ -566,7 +566,7 @@ class _MobileBalanceSheetState extends State<_MobileBalanceSheet> {
                 builder: (context, state) {
                   if (state is BalanceSheetLoaded) {
                     return IconButton(
-                      icon: const Icon(FontAwesomeIcons.filePdf),
+                      icon: const FaIcon(FontAwesomeIcons.filePdf),
                       onPressed: () {
                         showDialog(
                           context: context,
@@ -1002,7 +1002,7 @@ class _TabletBalanceSheetState extends State<_TabletBalanceSheet> {
                 builder: (context, state) {
                   if (state is BalanceSheetLoaded) {
                     return IconButton(
-                      icon: const Icon(FontAwesomeIcons.filePdf),
+                      icon: const FaIcon(FontAwesomeIcons.filePdf),
                       onPressed: () {
                         showDialog(
                           context: context,

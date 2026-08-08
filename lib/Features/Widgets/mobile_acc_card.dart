@@ -99,7 +99,7 @@ class MobileAccountCard extends StatelessWidget {
                         size: 50,
                       ),
                     )
-                        : Icon(
+                        : FaIcon(
                       FontAwesomeIcons.buildingColumns,
                       size: 24,
                       color: accent,

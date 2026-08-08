@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
@@ -80,7 +79,7 @@ class _MobileGoodsShiftViewState extends State<_MobileGoodsShiftView> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ZSearchField(
-                  icon: FontAwesomeIcons.magnifyingGlass,
+                  icon: Icons.search,
                   controller: searchController,
                   hint: AppLocalizations.of(context)!.search,
                   onChanged: (e) {
@@ -376,7 +375,7 @@ class _TabletGoodsShiftViewState extends State<_TabletGoodsShiftView> {
                     Expanded(
                       flex: 3,
                       child: ZSearchField(
-                        icon: FontAwesomeIcons.magnifyingGlass,
+                        icon: Icons.search,
                         controller: searchController,
                         hint: AppLocalizations.of(context)!.search,
                         onChanged: (e) {
@@ -655,7 +654,7 @@ class _DesktopGoodsShiftViewState extends State<_DesktopGoodsShiftView> {
                     Expanded(
                       flex: 3,
                       child: ZSearchField(
-                        icon: FontAwesomeIcons.magnifyingGlass,
+                        icon: Icons.search,
                         controller: searchController,
                         hint: AppLocalizations.of(context)!.search,
                         onChanged: (e) {

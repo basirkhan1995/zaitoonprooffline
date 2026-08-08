@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
@@ -471,7 +470,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
               ),
               const SizedBox(width: 8),
               ZOutlineButton(
-                icon: FontAwesomeIcons.print,
+                icon: Icons.print,
                 onPressed:()=> _onPrint(invoiceNumber: ordNumber.toString()),
 
                 label: Text(tr.print),
@@ -1256,7 +1255,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                           Row(
                             spacing: 8,
                             children: [
-                              Icon(FontAwesomeIcons.buildingColumns, size: 19),
+                              Icon(Icons.account_balance_rounded, size: 19),
                               Text(
                                 tr.accountInformation.toUpperCase(),
                                 style: const TextStyle(

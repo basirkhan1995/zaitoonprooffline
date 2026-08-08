@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/alert_dialog.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
@@ -529,7 +528,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                 const SizedBox(width: 8),
                 ZOutlineButton(
                   toolTip: "${tr.print} - F9",
-                  icon: FontAwesomeIcons.print,
+                  icon: Icons.print,
                   onPressed: () => _onSalePrint(invoiceNumber: ordNumber.toString()),
                   label: Text(tr.print.toUpperCase()),
                 ),
@@ -2215,7 +2214,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                             Row(
                               spacing: 8,
                               children: [
-                                Icon(FontAwesomeIcons.buildingColumns,size: 20),
+                                Icon(Icons.account_balance_rounded,size: 20),
                                 Text(tr.accountInformation.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                               ],
                             ),

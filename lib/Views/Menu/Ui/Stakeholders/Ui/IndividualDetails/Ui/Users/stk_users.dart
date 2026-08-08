@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/HR/Ui/Users/Ui/add_user.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/HR/Ui/Users/bloc/users_bloc.dart';
@@ -149,7 +148,7 @@ class _MobileState extends State<_Mobile> {
               onChanged: (e) {
                 setState(() {});
               },
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
             ),
           ),
 
@@ -292,7 +291,7 @@ class _DesktopState extends State<_Desktop> {
               children: [
                 Expanded(
                   child: ZSearchField(
-                    icon: FontAwesomeIcons.magnifyingGlass,
+                    icon: Icons.search,
                     controller: searchController,
                     hint: locale.search,
                     onChanged: (e) {

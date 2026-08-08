@@ -496,7 +496,7 @@ class _EditMessageDialogState extends State<_EditMessageDialog>
                           children: [
                             Row(
                               children: [
-                                Icon(
+                                FaIcon(
                                   FontAwesomeIcons.whatsapp,
                                   color: const Color(0xFF25D366),
                                   size: 24,
@@ -664,7 +664,7 @@ class _EditMessageDialogState extends State<_EditMessageDialog>
                                   final editedMessage = widget.messageController.text;
                                   widget.onShare(editedMessage);
                                 },
-                                icon: FontAwesomeIcons.whatsapp,
+                                icon: Icons.message,
                                 label: Text(
                                   locale.share.toUpperCase(),
                                   style: const TextStyle(

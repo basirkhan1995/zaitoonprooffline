@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
@@ -238,7 +237,7 @@ class _DesktopState extends State<_Desktop> {
                   Expanded(
                     flex: 3,
                     child: ZSearchField(
-                      icon: FontAwesomeIcons.magnifyingGlass,
+                      icon: Icons.search,
                       controller: searchController,
                       hint: tr.search,
                       onChanged: (e) {

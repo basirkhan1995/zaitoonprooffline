@@ -377,7 +377,7 @@ class _MobileIncomeStatementState extends State<_MobileIncomeStatement> {
                     padding: const EdgeInsets.symmetric(vertical: 40),
                     child: Column(
                       children: [
-                        Icon(
+                        FaIcon(
                           FontAwesomeIcons.chartLine,
                           size: 80,
                           color: Theme.of(context).colorScheme.outline.withAlpha(80),
@@ -789,7 +789,7 @@ class _DesktopIncomeStatementState extends State<_DesktopIncomeStatement> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      FaIcon(
                         FontAwesomeIcons.chartLine,
                         size: 80,
                         color: Theme.of(context).colorScheme.outline.withAlpha(60),

@@ -227,7 +227,7 @@ class _OrderTxnDialogState extends State<_OrderTxnDialog> {
                         children: [
                           Row(
                             children: [
-                              Icon(FontAwesomeIcons.buildingColumns, size: 16, color: color.primary),
+                              FaIcon(FontAwesomeIcons.buildingColumns, size: 16, color: color.primary),
                               const SizedBox(width: 8),
                               Text(
                                 tr.accountingEntries,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Date/shamsi_converter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
@@ -76,7 +75,7 @@ class _MobileAdjustmentViewState extends State<_MobileAdjustmentView> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ZSearchField(
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
               controller: searchController,
               hint: tr.search,
               onChanged: (e) {
@@ -363,7 +362,7 @@ class _TabletAdjustmentViewState extends State<_TabletAdjustmentView> {
                 Expanded(
                   flex: 3,
                   child: ZSearchField(
-                    icon: FontAwesomeIcons.magnifyingGlass,
+                    icon: Icons.search,
                     controller: searchController,
                     hint: tr.search,
                     onChanged: (e) {
@@ -631,7 +630,7 @@ class _DesktopAdjustmentViewState extends State<_DesktopAdjustmentView> {
                 Expanded(
                   flex: 3,
                   child: ZSearchField(
-                    icon: FontAwesomeIcons.magnifyingGlass,
+                    icon: Icons.search,
                     controller: searchController,
                     hint: tr.search,
                     onChanged: (e) {

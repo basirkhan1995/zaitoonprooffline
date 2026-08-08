@@ -26,10 +26,9 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
       ) async {
     try {
       // Open file picker
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['sql'],
-        allowMultiple: false,
       );
 
       if (result != null && result.files.isNotEmpty) {

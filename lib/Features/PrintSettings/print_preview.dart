@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -478,7 +477,7 @@ class _PrintPreviewDialogState<T> extends State<PrintPreviewDialog<T>> {
                 child: ZOutlineButton(
                   width: double.infinity,
                   height: 40,
-                  icon: FontAwesomeIcons.solidFilePdf,
+                  icon: Icons.picture_as_pdf_sharp,
                   label: Text(locale.saveTitle),
                   onPressed: _handleSave,
                 ),

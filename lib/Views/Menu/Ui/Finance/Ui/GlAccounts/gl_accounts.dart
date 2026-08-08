@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Other/shortcut.dart';
 import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
@@ -147,7 +146,7 @@ class _MobileState extends State<_Mobile> {
                   onChanged: (e) {
                     setState(() {});
                   },
-                  icon: FontAwesomeIcons.magnifyingGlass,
+                  icon: Icons.search,
                 ),
               ),
             ),
@@ -374,7 +373,7 @@ class _DesktopState extends State<_Desktop> {
                         setState(() {
                         });
                       },
-                      icon: FontAwesomeIcons.magnifyingGlass,
+                        icon: Icons.search
                     ),
                   ),
                   ZOutlineButton(

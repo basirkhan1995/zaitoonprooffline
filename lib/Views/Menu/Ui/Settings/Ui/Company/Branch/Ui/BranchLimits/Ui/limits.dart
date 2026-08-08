@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
@@ -70,7 +69,7 @@ class _BaseBranchLimitsState extends State<_BaseBranchLimits> {
         child: Column(
           children: [
             ZSearchField(
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
               controller: searchController,
               hint: locale.search,
               onChanged: (e) {
@@ -124,7 +123,7 @@ class _BaseBranchLimitsState extends State<_BaseBranchLimits> {
             Expanded(
               flex: 2,
               child: ZSearchField(
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
                 controller: searchController,
                 hint: locale.search,
                 onChanged: (e) {
@@ -173,7 +172,7 @@ class _BaseBranchLimitsState extends State<_BaseBranchLimits> {
           children: [
             Expanded(
               child: ZSearchField(
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
                 controller: searchController,
                 hint: locale.search,
                 onChanged: (e) {

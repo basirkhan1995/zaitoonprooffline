@@ -101,7 +101,7 @@ class _DesktopState extends State<_Desktop> {
                 builder: (context, state) {
                   return ZOutlineButton(
                     width: 110,
-                    icon: FontAwesomeIcons.solidFilePdf,
+                    icon: Icons.picture_as_pdf,
                     label: Text("PDF"),
                     onPressed: () {
                       if (state is TrialBalanceLoadedState) {
@@ -647,7 +647,7 @@ class _TabletState extends State<_Tablet> {
           BlocBuilder<TrialBalanceBloc, TrialBalanceState>(
             builder: (context, state) {
               return IconButton(
-                icon: const Icon(FontAwesomeIcons.filePdf),
+                icon: const FaIcon(FontAwesomeIcons.filePdf),
                 onPressed: state is TrialBalanceLoadedState
                     ? () => _showPrintPreview(state.balance)
                     : null,
@@ -1133,7 +1133,7 @@ class _MobileState extends State<_Mobile> {
           BlocBuilder<TrialBalanceBloc, TrialBalanceState>(
             builder: (context, state) {
               return IconButton(
-                icon: const Icon(FontAwesomeIcons.filePdf),
+                icon: const FaIcon(FontAwesomeIcons.filePdf),
                 onPressed: state is TrialBalanceLoadedState
                     ? () => _showPrintPreview(state.balance)
                     : null,

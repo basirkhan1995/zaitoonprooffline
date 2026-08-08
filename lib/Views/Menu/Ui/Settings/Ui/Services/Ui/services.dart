@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Widgets/no_data_widget.dart';
 import 'package:zaitoonpro/Features/Widgets/status_badge.dart';
@@ -98,7 +97,7 @@ class _BaseServicesViewState extends State<_BaseServicesView> {
               onChanged: (e) {
                 setState(() {});
               },
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
             ),
             const SizedBox(height: 8),
             Row(
@@ -194,7 +193,7 @@ class _BaseServicesViewState extends State<_BaseServicesView> {
               onChanged: (e) {
                 setState(() {});
               },
-              icon: FontAwesomeIcons.magnifyingGlass,
+              icon: Icons.search,
             ),
           ],
         ),
@@ -245,7 +244,7 @@ class _BaseServicesViewState extends State<_BaseServicesView> {
                 onChanged: (e) {
                   setState(() {});
                 },
-                icon: FontAwesomeIcons.magnifyingGlass,
+                icon: Icons.search,
               ),
             ),
             ZOutlineButton(

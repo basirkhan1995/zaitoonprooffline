@@ -567,7 +567,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                                     showCursor: true,
                                     decoration: InputDecoration(
                                       hintText: AppLocalizations.of(context)!.searchProducts,
-                                      prefixIcon: Icon(FontAwesomeIcons.magnifyingGlass,
+                                      prefixIcon: FaIcon(FontAwesomeIcons.magnifyingGlass,
                                         color: Theme.of(context).colorScheme.primary,
                                         size: 18,
                                       ),
