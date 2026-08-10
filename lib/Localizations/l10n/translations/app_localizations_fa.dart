@@ -3458,4 +3458,60 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get itemsCount => 'تعداد قلم';
+
+  @override
+  String get disconnectedTitle => 'قطع ارتباط';
+
+  @override
+  String get noServerFoundMessage =>
+      'هیچ سروری پیدا نشد. لطفاً بررسی کنید که سرور در حال اجرا باشد و دوباره تلاش کنید.';
+
+  @override
+  String get localhost => 'سرور محلی';
+
+  @override
+  String get noServerFound => 'سرور یافت نشد';
+
+  @override
+  String get connectionFailedMessage =>
+      'ارتباط با سرور برقرار نشد، لطفاً اتصال سرور را بررسی کنید.';
+
+  @override
+  String get searching => 'در حال جستجو...';
+
+  @override
+  String get autoFind => 'اتصال خودکار';
+
+  @override
+  String get remoteServerIp => 'آی پی سرور مقصد';
+
+  @override
+  String get serverIp => 'آی پی سرور';
+
+  @override
+  String get disconnect => 'قطع ارتباط';
+
+  @override
+  String get notConnectedTo => 'ارتباط برقرار نیست';
+
+  @override
+  String get connectedToLocal => 'اتصال به سرور محلی';
+
+  @override
+  String get connectToDevice => 'اتصال به دستگاه';
+
+  @override
+  String get connectTo => 'اتصال به';
+
+  @override
+  String get notConnected => 'اتصال برقرار نیست';
+
+  @override
+  String get connectedTo => 'اتصال به سرور محلی';
+
+  @override
+  String get applyDiscount => 'ثبت به عنوان تخفیف';
+
+  @override
+  String get connectingTitle => 'در حال اتصال...';
 }

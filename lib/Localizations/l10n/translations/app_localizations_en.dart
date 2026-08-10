@@ -3470,4 +3470,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get itemsCount => 'Items Count';
+
+  @override
+  String get disconnectedTitle => 'Disconnected';
+
+  @override
+  String get noServerFoundMessage =>
+      'Could not find any server. Please check if the server is running and try again.';
+
+  @override
+  String get localhost => 'Local host';
+
+  @override
+  String get noServerFound => 'No Server Found';
+
+  @override
+  String get connectionFailedMessage =>
+      'Could not connect to server, check server connection?';
+
+  @override
+  String get searching => 'Searching...';
+
+  @override
+  String get autoFind => 'Auto Find';
+
+  @override
+  String get remoteServerIp => 'Remote Server IP';
+
+  @override
+  String get serverIp => 'Server IP';
+
+  @override
+  String get disconnect => 'Disconnect';
+
+  @override
+  String get notConnectedTo => 'No Connected';
+
+  @override
+  String get connectedToLocal => 'Connected to localhost.';
+
+  @override
+  String get connectToDevice => 'Connect to Device';
+
+  @override
+  String get connectTo => 'Connect to';
+
+  @override
+  String get notConnected => 'Not Connected';
+
+  @override
+  String get connectedTo => 'Connected to Local host';
+
+  @override
+  String get applyDiscount => 'Apply Discount';
+
+  @override
+  String get connectingTitle => 'Connecting...';
 }

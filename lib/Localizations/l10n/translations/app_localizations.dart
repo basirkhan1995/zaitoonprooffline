@@ -6861,6 +6861,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Items Count'**
   String get itemsCount;
+
+  /// No description provided for @disconnectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get disconnectedTitle;
+
+  /// No description provided for @noServerFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find any server. Please check if the server is running and try again.'**
+  String get noServerFoundMessage;
+
+  /// No description provided for @localhost.
+  ///
+  /// In en, this message translates to:
+  /// **'Local host'**
+  String get localhost;
+
+  /// No description provided for @noServerFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Server Found'**
+  String get noServerFound;
+
+  /// No description provided for @connectionFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect to server, check server connection?'**
+  String get connectionFailedMessage;
+
+  /// No description provided for @searching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching...'**
+  String get searching;
+
+  /// No description provided for @autoFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Find'**
+  String get autoFind;
+
+  /// No description provided for @remoteServerIp.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Server IP'**
+  String get remoteServerIp;
+
+  /// No description provided for @serverIp.
+  ///
+  /// In en, this message translates to:
+  /// **'Server IP'**
+  String get serverIp;
+
+  /// No description provided for @disconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get disconnect;
+
+  /// No description provided for @notConnectedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'No Connected'**
+  String get notConnectedTo;
+
+  /// No description provided for @connectedToLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to localhost.'**
+  String get connectedToLocal;
+
+  /// No description provided for @connectToDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Device'**
+  String get connectToDevice;
+
+  /// No description provided for @connectTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to'**
+  String get connectTo;
+
+  /// No description provided for @notConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Connected'**
+  String get notConnected;
+
+  /// No description provided for @connectedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to Local host'**
+  String get connectedTo;
+
+  /// No description provided for @applyDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Discount'**
+  String get applyDiscount;
+
+  /// No description provided for @connectingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting...'**
+  String get connectingTitle;
 }
 
 class _AppLocalizationsDelegate

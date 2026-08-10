@@ -3462,4 +3462,60 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get itemsCount => 'قلم تعداد';
+
+  @override
+  String get disconnectedTitle => 'قطع ارتباط';
+
+  @override
+  String get noServerFoundMessage =>
+      'هیڅ سرور ونه موندل شو. مهرباني وکړئ وګورئ چې سرور فعال دی او بیا هڅه وکړئ.';
+
+  @override
+  String get localhost => 'سرور محلی';
+
+  @override
+  String get noServerFound => 'سرور یافت نشد';
+
+  @override
+  String get connectionFailedMessage =>
+      'سرور سره اړیکه ونه نیول شوه، مهرباني وکړئ د سرور اړیکه وګورئ.';
+
+  @override
+  String get searching => 'در حال جستجو...';
+
+  @override
+  String get autoFind => 'اتصال خودکار';
+
+  @override
+  String get remoteServerIp => 'آی پی سرور مقصد';
+
+  @override
+  String get serverIp => 'آی پی سرور';
+
+  @override
+  String get disconnect => 'قطع ارتباط';
+
+  @override
+  String get notConnectedTo => 'ارتباط برقرار نیست';
+
+  @override
+  String get connectedToLocal => 'اتصال به سرور محلی';
+
+  @override
+  String get connectToDevice => 'اتصال به دستگاه';
+
+  @override
+  String get connectTo => 'اتصال به';
+
+  @override
+  String get notConnected => 'اتصال برقرار نیست';
+
+  @override
+  String get connectedTo => 'اتصال به سرور محلی';
+
+  @override
+  String get applyDiscount => 'ثبت به عنوان تخفیف';
+
+  @override
+  String get connectingTitle => 'در حال اتصال...';
 }

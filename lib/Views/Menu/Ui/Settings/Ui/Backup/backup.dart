@@ -95,8 +95,8 @@ class _BackupContent extends StatelessWidget {
                   Text(
                     tr.downloadBackupMsg,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: .8),
-                      fontSize: 14
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: .8),
+                        fontSize: 14
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -145,16 +145,7 @@ class _BackupContent extends StatelessWidget {
                               _showBrowseRestoreDialog(context);
                             },
                             icon: Icons.folder_outlined,
-                            label: state is BackupLoading
-                                ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                                : Text(
+                            label: Text(
                               tr.browse,
                               style: const TextStyle(fontSize: 16),
                             ),
@@ -296,7 +287,7 @@ class _BackupContent extends StatelessWidget {
                                     children: [
                                       Icon(Icons.restore, color: Colors.orange),
                                       const SizedBox(width: 8),
-                                        Text(tr.restoreDatabase),
+                                      Text(tr.restoreDatabase),
                                     ],
                                   ),
                                 ),
@@ -306,7 +297,7 @@ class _BackupContent extends StatelessWidget {
                                     children: [
                                       Icon(Icons.edit, color: Theme.of(context).colorScheme.primary),
                                       const SizedBox(width: 8),
-                                        Text(tr.renameTitle),
+                                      Text(tr.renameTitle),
                                     ],
                                   ),
                                 ),
@@ -316,7 +307,7 @@ class _BackupContent extends StatelessWidget {
                                     children: [
                                       Icon(Icons.folder_open, color: Theme.of(context).colorScheme.primary),
                                       const SizedBox(width: 8),
-                                        Text(tr.showInFolder),
+                                      Text(tr.showInFolder),
                                     ],
                                   ),
                                 ),
@@ -326,7 +317,7 @@ class _BackupContent extends StatelessWidget {
                                     children: [
                                       Icon(Icons.info, color: Theme.of(context).colorScheme.primary),
                                       const SizedBox(width: 8),
-                                        Text(tr.fileInfo),
+                                      Text(tr.fileInfo),
                                     ],
                                   ),
                                 ),
@@ -336,7 +327,7 @@ class _BackupContent extends StatelessWidget {
                                     children: [
                                       Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                                       const SizedBox(width: 8),
-                                        Text(tr.delete),
+                                      Text(tr.delete),
                                     ],
                                   ),
                                 ),
@@ -400,7 +391,7 @@ class _BackupContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-               tr.sqlMessage,
+              tr.sqlMessage,
               style: TextStyle(fontSize: 15),
             ),
             SizedBox(height: 16),
@@ -569,9 +560,11 @@ class _BackupContent extends StatelessWidget {
 
   void _showRenameDialog(BuildContext context, String filePath) {
     final file = File(filePath);
-    final currentName = file.path.split('/').last;
+    // ✅ Use Platform.pathSeparator for cross-platform compatibility
+    final currentName = file.path.split(Platform.pathSeparator).last;
     final textController = TextEditingController(text: currentName);
     final tr = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -588,7 +581,7 @@ class _BackupContent extends StatelessWidget {
               onSubmit: (value) {
                 if (value.isNotEmpty && value != currentName) {
                   final parentDir = file.parent.path;
-                  final newPath = '$parentDir/$value';
+                  final newPath = '$parentDir${Platform.pathSeparator}$value'; // ✅ Use Platform.pathSeparator
                   context.read<BackupBloc>().add(RenameBackupEvent(filePath, newPath));
                   Navigator.pop(context);
                 }
@@ -607,7 +600,7 @@ class _BackupContent extends StatelessWidget {
               final newName = textController.text.trim();
               if (newName.isNotEmpty && newName != currentName) {
                 final parentDir = file.parent.path;
-                final newPath = '$parentDir/$newName';
+                final newPath = '$parentDir${Platform.pathSeparator}$newName'; // ✅ Use Platform.pathSeparator
                 context.read<BackupBloc>().add(RenameBackupEvent(filePath, newPath));
                 Navigator.pop(context);
               }
@@ -618,7 +611,6 @@ class _BackupContent extends StatelessWidget {
       ),
     );
   }
-
 
   Future<void> _openFolder(BuildContext context, String filePath) async {
     final file = File(filePath);
@@ -655,7 +647,6 @@ class _BackupContent extends StatelessWidget {
       }
     }
   }
-
   void _showFolderLocation(BuildContext context, String filePath) {
     final file = File(filePath);
     final directory = file.parent.path;
@@ -717,7 +708,6 @@ class _BackupContent extends StatelessWidget {
       ),
     );
   }
-
   void _showFileInfo(BuildContext context, String filePath) {
     final file = File(filePath);
     final stat = file.statSync();

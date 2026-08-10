@@ -62,8 +62,8 @@ class ApiServices {
           if (response.statusCode == 200) {
             final data = response.data;
             if (data is Map && data['success'] == true) {
-              _isLocalhost = true;
-              _skipConnectivityCheck = true;
+              // DON'T change _isLocalhost or _skipConnectivityCheck
+              // Just return true if local server is found
               return true;
             }
           }
@@ -73,13 +73,11 @@ class ApiServices {
       }
       return false;
     } catch (e) {
-      _isLocalhost = false;
-      _skipConnectivityCheck = false;
       return false;
     }
   }
 
-  // Set server IP and update base URL
+// Set server IP and update base URL
   Future<void> setServerIP(String ip, {String port = '80'}) async {
     _savedIP = ip;
     _savedPort = port;
@@ -100,7 +98,7 @@ class ApiServices {
     final prefs = await SharedPreferences.getInstance();
 
     if (_isLocalhost) {
-      // Clear saved IP when using localhost
+      // When disconnecting/connecting to localhost, clear the saved IP
       await prefs.remove('server_ip');
       await prefs.remove('server_port');
       debugPrint('Cleared saved server IP (using localhost)');
@@ -115,11 +113,34 @@ class ApiServices {
   // ==================== THESE METHODS WERE MISSING ====================
 
   // Get saved server IP for display
+  // Replace your getSavedServerIP method with this:
   Future<String?> getSavedServerIP() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedIP = prefs.getString('server_ip');
+
+    // If we have a saved IP, return it regardless of current state
+    if (savedIP != null && savedIP.isNotEmpty) {
+      return savedIP;
+    }
+
+    // If no saved IP and we're connected to localhost, return null
     if (_isLocalhost) return null;
 
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('server_ip');
+    // Return the in-memory saved IP if available
+    return _savedIP;
+  }
+
+// Also add this helper method to check if connected to localhost
+  bool get isLocalhostConnection => _isLocalhost;
+
+// Add this method to get the current connection info
+  Map<String, dynamic> getConnectionInfo() {
+    return {
+      'isLocalhost': _isLocalhost,
+      'savedIP': _savedIP,
+      'savedPort': _savedPort,
+      'baseUrl': _dio.options.baseUrl,
+    };
   }
 
   // Get saved server port
@@ -131,8 +152,6 @@ class ApiServices {
   }
 
   // ===================================================================
-
-// Replace the image getter and methods in ApiServices class:
 
 // Get image URL based on current connection
   String get imageUrl {

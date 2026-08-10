@@ -1,6 +1,7 @@
 // server_connect_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zaitoonpro/Features/Other/toast.dart';
 import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
 import 'package:zaitoonpro/Features/Widgets/textfield_entitled.dart';
@@ -52,25 +53,42 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
     try {
       final ip = await _getLocalIP();
       final isServer = await ApiServices().isServerDevice();
-      final currentIP = await ApiServices().getSavedServerIP();
-      final isLocalhost = ApiServices().isLocalhost;
+
+      // Read directly from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final savedIP = prefs.getString('server_ip');
+
+      // Check the actual base URL to determine connection state
+      final baseUrl = ApiServices().baseUrl;
+      final isLocalhost = !baseUrl.contains('192.168') &&
+          !baseUrl.contains('10.') &&
+          (baseUrl.contains('localhost') || baseUrl.contains('127.0.0.1'));
 
       if (mounted) {
         setState(() {
           _myIP = ip;
           _isServer = isServer;
-          _currentServerIP = currentIP;
           _connectedToLocalhost = isLocalhost;
+
+          // If we have a saved IP, we're connected to a remote server
+          if (!isLocalhost && savedIP != null && savedIP.isNotEmpty) {
+            _currentServerIP = savedIP;
+          } else if (isLocalhost) {
+            _currentServerIP = null;
+          }
         });
 
+        // Set text field
         if (isLocalhost) {
           ipController.text = '';
-        } else if (currentIP != null && currentIP.isNotEmpty) {
-          ipController.text = currentIP;
+        } else if (_currentServerIP != null && _currentServerIP!.isNotEmpty) {
+          ipController.text = _currentServerIP!;
         }
       }
+
+      debugPrint('Dialog initialized - isLocalhost: $isLocalhost, savedIP: $savedIP, currentServerIP: $_currentServerIP');
     } catch (e) {
-      // Ignore
+      debugPrint('Error initializing server dialog: $e');
     } finally {
       if (mounted) {
         setState(() => loading = false);
@@ -175,6 +193,8 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
               port: '80',
             );
 
+            debugPrint('Connected! IP: $ip, isLocal: $isLocalConnection, savedIP will be: ${isLocalConnection ? "localhost" : ip}');
+
             if (mounted) {
               setState(() {
                 _currentServerIP = isLocalConnection ? 'localhost' : ip;
@@ -208,7 +228,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
   Future<void> _connectToLocalhost() async {
     setState(() {
       loading = true;
-      _scanStatus = 'Connecting to localhost...';
+      _scanStatus = AppLocalizations.of(context)!.connecting;
     });
 
     try {
@@ -221,8 +241,8 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
       if (mounted) {
         ToastManager.show(
           context: context,
-          title: "Connection Failed",
-          message: "Could not connect to localhost. Is XAMPP running?",
+          title: AppLocalizations.of(context)!.connectionFailed,
+          message: AppLocalizations.of(context)!.connectionFailedMessage,
           type: ToastType.error,
         );
       }
@@ -240,7 +260,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
     setState(() {
       autoFinding = true;
       loading = true;
-      _scanStatus = 'Searching for servers...';
+      _scanStatus = AppLocalizations.of(context)!.searching;
     });
 
     try {
@@ -311,8 +331,8 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
         setState(() => _scanStatus = null);
         ToastManager.show(
           context: context,
-          title: "No Server Found",
-          message: "Could not find any server. Please check if the server is running and try again.",
+          title: AppLocalizations.of(context)!.noServerFound,
+          message: AppLocalizations.of(context)!.noServerFoundMessage,
           type: ToastType.error,
         );
       }
@@ -363,8 +383,8 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
       if (!connected && mounted) {
         ToastManager.show(
           context: context,
-          title: "Connection Failed",
-          message: "Could not connect to $ip. Make sure the server is running.",
+          title: AppLocalizations.of(context)!.connectionFailed,
+          message: "$ip | ${AppLocalizations.of(context)!.noServerFoundMessage}",
           type: ToastType.error,
         );
       }
@@ -372,7 +392,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
       if (mounted) {
         ToastManager.show(
           context: context,
-          title: "Connection Failed",
+          title: AppLocalizations.of(context)!.connectionFailed,
           message: "Failed to connect to $ip",
           type: ToastType.error,
         );
@@ -397,8 +417,8 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
 
         ToastManager.show(
           context: context,
-          title: "Disconnected",
-          message: "Reset to localhost connection.",
+          title: AppLocalizations.of(context)!.connected,
+          message: AppLocalizations.of(context)!.connectedToLocal,
           type: ToastType.info,
         );
       }
@@ -424,7 +444,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
     final locale = AppLocalizations.of(context)!;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.45,
         constraints: const BoxConstraints(maxWidth: 550, minWidth: 420),
@@ -453,8 +473,6 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
             _buildConnectionOptions(),
             const SizedBox(height: 16),
 
-            // Action Buttons
-            _buildActionButtons(),
           ],
         ),
       ),
@@ -492,39 +510,51 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
   }
 
   Widget _buildConnectionStatus() {
-    if (!_connectedToLocalhost && _currentServerIP != null) {
+    // Check if connected to a remote server
+    if (!_connectedToLocalhost && _currentServerIP != null && _currentServerIP!.isNotEmpty) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+          color: Colors.green.withValues(alpha: 0.1),  // Green for active connection
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
-            Icon(Icons.link, size: 18, color: Colors.orange.shade700),
+            Icon(Icons.link, size: 25, color: Colors.green.shade700),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                'Connected to: $_currentServerIP',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.orange.shade700,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.connected,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.green.shade700,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    '$_currentServerIP',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.green.shade600,
+                    ),
+                  ),
+                ],
               ),
             ),
             TextButton(
               onPressed: loading ? null : _disconnect,
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                minimumSize: Size.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text(
-                'Disconnect',
-                style: TextStyle(fontSize: 12, color: Colors.red),
+              child: Text(
+                AppLocalizations.of(context)!.disconnect,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],
@@ -532,24 +562,25 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
       );
     }
 
+    // Connected to localhost (server device)
     if (_connectedToLocalhost && _isServer) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.green.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(4),
           border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
-            Icon(Icons.check_circle, size: 18, color: Colors.green.shade700),
+            Icon(Icons.check_circle, size: 20, color: Colors.green.shade700),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Connected to localhost (this device)',
+                AppLocalizations.of(context)!.connectedTo,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 15,
                   color: Colors.green.shade700,
                   fontWeight: FontWeight.w600,
                 ),
@@ -560,6 +591,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
       );
     }
 
+    // Not connected
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -573,7 +605,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
           Icon(Icons.link_off, size: 18, color: Colors.grey.shade600),
           const SizedBox(width: 10),
           Text(
-            'Not connected',
+            AppLocalizations.of(context)!.notConnected,
             style: TextStyle(
               fontSize: 13,
               color: Colors.grey.shade600,
@@ -588,90 +620,86 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
   Widget _buildDeviceInfo() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.blue.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(5),
         border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
-          Icon(Icons.phone_android, size: 18, color: Colors.blue.shade700),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'This Device IP: $_myIP',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.blue.shade700,
-                ),
-              ),
-              if (_isServer)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  '✓ This device can act as a server',
-                  style: TextStyle(fontSize: 11, color: Colors.blue.shade600),
+                  '${AppLocalizations.of(context)!.deviceIp} | $_myIP',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blue.shade700,
+                  ),
                 ),
-            ],
+                const SizedBox(height: 5),
+                if (_isServer)
+                  Text(
+                    AppLocalizations.of(context)!.serverIp,
+                    style: TextStyle(fontSize: 13, color: Colors.blue.shade600),
+                  ),
+              ],
+            ),
           ),
+          Icon(Icons.computer_rounded, size: 25, color: Colors.blue.shade700),
+          const SizedBox(width: 10),
         ],
       ),
     );
   }
 
   Widget _buildManualInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          'Manual Connection',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
+        Expanded(
+          flex: 3,
+          child: ZTextFieldEntitled(
+            title: AppLocalizations.of(context)!.remoteServerIp,
+            hint: _currentServerIP ?? _myIP,
+            controller: ipController,
+            isEnabled: !loading,
+            onChanged: (_) => setState(() {}),
+            onSubmit: (e) {
+              if (!loading && ipController.text.trim().isNotEmpty) {
+                connect();
+              }
+            },
           ),
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: ZTextFieldEntitled(
-                title: "",
-                hint: "192.168.1.15",
-                controller: ipController,
-                isEnabled: !loading,
-                onChanged: (_) => setState(() {}),
+        const SizedBox(width: 5),
+        Expanded(
+          flex: 1,
+          child: ZOutlineButton(
+            icon: Icons.settings_remote,
+            isActive: true,
+            height: 49,
+            onPressed: (loading || ipController.text.trim().isEmpty) ? null : connect,
+            label: loading
+                ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+                : Text(
+              AppLocalizations.of(context)!.connect,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 5),
-            Expanded(
-              flex: 1,
-              child: ZOutlineButton(
-                icon: Icons.refresh,
-                height: 49,
-                onPressed: (loading || ipController.text.trim().isEmpty) ? null : connect,
-                label: loading
-                    ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-                    : Text(
-                  AppLocalizations.of(context)!.connect,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
@@ -682,7 +710,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Quick Connect',
+          AppLocalizations.of(context)!.quickConnect,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -698,7 +726,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
             if (_isServer)
               _buildActionChip(
                 icon: Icons.computer,
-                label: _connectedToLocalhost ? 'Localhost ✓' : 'Localhost',
+                label: _connectedToLocalhost ? '${AppLocalizations.of(context)!.localhost} ✓' : AppLocalizations.of(context)!.localhost,
                 onTap: _connectToLocalhost,
                 isLoading: loading,
                 isActive: _connectedToLocalhost,
@@ -707,7 +735,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
             // Auto Find button
             _buildActionChip(
               icon: Icons.wifi_find,
-              label: autoFinding ? 'Searching...' : 'Auto Find',
+              label: autoFinding ? AppLocalizations.of(context)!.searching : AppLocalizations.of(context)!.autoFind,
               onTap: _quickConnect,
               isLoading: loading || autoFinding,
               isActive: false,
@@ -717,7 +745,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
             if (_myIP != null)
               _buildActionChip(
                 icon: Icons.phone_android,
-                label: 'This Device',
+                label: AppLocalizations.of(context)!.connectToDevice,
                 onTap: () {
                   if (_myIP != null) {
                     ipController.text = _myIP!;
@@ -768,19 +796,19 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
   }) {
     return InkWell(
       onTap: isLoading ? null : onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(5),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isActive
               ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
               : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(5),
           border: Border.all(
             color: isActive
                 ? Theme.of(context).primaryColor
-                : Colors.grey.shade200,
-            width: isActive ? 2 : 1,
+                : Colors.grey.shade300,
+            width: isActive ? 1 : 1.5,
           ),
         ),
         child: Row(
@@ -810,21 +838,6 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton(
-          onPressed: loading ? null : () => Navigator.pop(context, false),
-          child: Text(
-            AppLocalizations.of(context)!.cancel,
-            style: TextStyle(fontSize: 14),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1085,10 +1098,18 @@ class _MobileServerConnectState extends State<_MobileServerConnect> {
 
   Future<void> _disconnect() async {
     setState(() => loading = true);
+
     try {
+      // Reset to localhost
       await ApiServices().setServerIP('localhost');
+
       if (mounted) {
-        setState(() { _currentServerIP = null; _connectedToLocalhost = true; ipController.text = ''; });
+        setState(() {
+          _currentServerIP = null;
+          _connectedToLocalhost = true;
+          ipController.text = '';
+        });
+
         ToastManager.show(
           context: context,
           title: "Disconnected",
@@ -1096,8 +1117,19 @@ class _MobileServerConnectState extends State<_MobileServerConnect> {
           type: ToastType.info,
         );
       }
+    } catch (e) {
+      if (mounted) {
+        ToastManager.show(
+          context: context,
+          title: "Error",
+          message: "Failed to reset connection.",
+          type: ToastType.error,
+        );
+      }
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
@@ -1380,31 +1412,38 @@ class _TabletServerConnectState extends State<_TabletServerConnect> {
     _initialize();
   }
 
-  // Copy all the same methods from desktop view
-  // (I'll keep it concise - same logic as desktop)
-
   Future<void> _initialize() async {
     setState(() => loading = true);
+
     try {
       final ip = await _getLocalIP();
       final isServer = await ApiServices().isServerDevice();
       final currentIP = await ApiServices().getSavedServerIP();
-      final isLocalhost = ApiServices().isLocalhost;
+
+      // Get the actual connected IP from ApiServices
+      final baseUrl = ApiServices().baseUrl;
+      final isLocalhost = baseUrl.contains('localhost') || baseUrl.contains('127.0.0.1');
+
       if (mounted) {
         setState(() {
           _myIP = ip;
           _isServer = isServer;
-          _currentServerIP = currentIP;
+          _currentServerIP = isLocalhost ? null : (currentIP ?? baseUrl.replaceAll(RegExp(r'^https?://'), '').replaceAll(RegExp(r':\d+$'), '').replaceAll(RegExp(r'/.*$'), ''));
           _connectedToLocalhost = isLocalhost;
         });
+
         if (isLocalhost) {
           ipController.text = '';
-        } else if (currentIP != null && currentIP.isNotEmpty) {
-          ipController.text = currentIP;
+        } else if (_currentServerIP != null && _currentServerIP!.isNotEmpty) {
+          ipController.text = _currentServerIP!;
         }
       }
+    } catch (e) {
+      // Ignore
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
