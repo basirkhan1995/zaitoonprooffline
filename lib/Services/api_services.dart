@@ -46,7 +46,6 @@ class ApiServices {
   String? get savedIP => _savedIP;
   String? get savedPort => _savedPort;
 
-  // Check if current device is the server
   Future<bool> isServerDevice() async {
     try {
       final dio = Dio(BaseOptions(
