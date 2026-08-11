@@ -194,19 +194,18 @@ class StockDocumentPrintService extends PrintServices {
     String? authorizedBy,
   }) async {
     final document = pw.Document();
-
     final isSale = documentType.toLowerCase().contains('sale');
     final title = "stockPaper";
-
-
-    final ByteData imageData = await rootBundle.load('assets/images/zaitoonLogo.png');
-    final Uint8List imageBytes = imageData.buffer.asUint8List();
-    final pw.MemoryImage logoImage = pw.MemoryImage(imageBytes);
 
     document.addPage(
       pw.MultiPage(
         maxPages: 1000,
-        margin: pw.EdgeInsets.all(25),
+        margin: pw.EdgeInsets.only(
+            bottom: 10,
+            right: 25,
+            left: 25,
+            top: 15
+        ),
         pageFormat: pageFormat,
         textDirection: documentLanguage(language: language),
         orientation: orientation,
@@ -243,13 +242,6 @@ class StockDocumentPrintService extends PrintServices {
             isSale: isSale,
           ),
         ],
-
-        footer: (context) => footer(
-          report: company,
-          context: context,
-          language: language,
-          logoImage: logoImage,
-        ),
       ),
     );
     return document;
@@ -263,16 +255,36 @@ class StockDocumentPrintService extends PrintServices {
     required String? reference,
     required ReportModel com,
   }) {
+    final bool hasCompanyLogo = com.comLogo != null &&
+        com.comLogo is Uint8List &&
+        com.comLogo!.isNotEmpty;
+
+    pw.ImageProvider? logoImage;
+    if(hasCompanyLogo){
+      logoImage = pw.MemoryImage(com.comLogo!);
+    }
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            zText(
-              text: title,
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
+            pw.Row(
+              children: [
+                if (logoImage != null)
+                pw.Container(
+                  width: 50,
+                  height: 50,
+                  child: pw.Image(logoImage, fit: pw.BoxFit.contain),
+                ),
+                if (logoImage != null)
+                pw.SizedBox(width: 10),
+                zText(
+                  text: title,
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ]
             ),
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -280,17 +292,22 @@ class StockDocumentPrintService extends PrintServices {
                 zText(
                   text: DateTime.now().shamsiDateFormatted,
                   fontSize: 11,
-                  color: pw.PdfColors.grey800,
+                  color: pw.PdfColors.grey900,
+                  fontWeight: pw.FontWeight.bold
                 ),
-                verticalDivider(height: 8, width: 1),
+
                 zText(
                   text: DateTime.now().toDateTime,
                   fontSize: 10,
                   fontWeight: pw.FontWeight.normal,
                 ),
-
+                verticalDivider(height: 10, width: 1),
+                zText(text: tr(text: "createdBy",tr: language)),
+                pw.SizedBox(width: 5),
+                zText(text: com.usrPrintedBy?.toUpperCase()??""),
               ],
             ),
+
           ],
         ),
       ],

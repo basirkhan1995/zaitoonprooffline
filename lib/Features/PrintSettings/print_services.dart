@@ -346,6 +346,10 @@ abstract class PrintServices {
     );
   }
 
+    pw.Widget pageNumber({required pw.Context context,required String language}){
+    return buildPage(context.pageNumber, context.pagesCount, language);
+    }
+
   pw.Widget footer({
     required ReportModel report,
     required pw.Context context,
@@ -465,7 +469,7 @@ abstract class PrintServices {
     return pw.Container(
       height: height,
       width: width,
-      color: PdfColors.grey300,
+      color: PdfColors.grey500,
       margin: const pw.EdgeInsets.symmetric(vertical: 2, horizontal: 8),
     );
   }
