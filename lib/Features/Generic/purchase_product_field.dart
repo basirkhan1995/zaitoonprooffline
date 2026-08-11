@@ -9,6 +9,7 @@ import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dar
 import '../../Views/Menu/Ui/Settings/Ui/Stock/Ui/Products/add_edit_product.dart';
 import '../../Views/Menu/Ui/Settings/Ui/Stock/Ui/Products/model/product_model.dart';
 import '../../Views/Menu/Ui/Settings/Ui/Stock/Ui/Products/bloc/products_bloc.dart';
+import '../../Views/Menu/Ui/Settings/features/Visibility/bloc/settings_visible_bloc.dart';
 
 typedef OnProductSelected = void Function(ProductsModel? product);
 typedef ProductListItemBuilder = Widget Function(BuildContext context, ProductsModel product);
@@ -337,6 +338,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
   }
 
   void _showOverlay() {
+    final visibility = context.read<SettingsVisibleBloc>().state;
     if (_overlayEntry != null) {
       _refreshOverlay();
       return;
@@ -426,7 +428,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
                                         children: [
                                           Icon(Icons.shopify_rounded),
                                           Text(tr.products,style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.bold
+                                              fontWeight: FontWeight.bold
                                           )),
                                         ],
                                       ),
@@ -447,7 +449,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
                                           ),
                                           ZOutlineButton(
                                             label: Text(tr.closeTitle),
-                                             icon: Icons.close,
+                                            icon: Icons.close,
                                             isActive: true,
                                             backgroundHover: Theme.of(context).colorScheme.error,
                                             onPressed: (){
@@ -562,12 +564,13 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
                                             textAlign: TextAlign.end,
                                             style: titleStyle),
                                       ),
-                                      SizedBox(
-                                        width: 100,
-                                        child: Text(tr.totalItems,
-                                            textAlign: TextAlign.end,
-                                            style: titleStyle),
-                                      ),
+                                      if(visibility.isWholeSale)
+                                        SizedBox(
+                                          width: 100,
+                                          child: Text(tr.totalItems,
+                                              textAlign: TextAlign.end,
+                                              style: titleStyle),
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -606,14 +609,14 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
                                         SizedBox(height: 10),
 
                                         ZOutlineButton(
-                                            label: Text(tr.addNewProduct),
-                                            onPressed: (){
-                                              _removeOverlay();
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) => AddEditProductView(),
-                                              );
-                                            },
+                                          label: Text(tr.addNewProduct),
+                                          onPressed: (){
+                                            _removeOverlay();
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AddEditProductView(),
+                                            );
+                                          },
                                         )
                                       ],
                                     ),
@@ -715,6 +718,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
   }
 
   Widget _buildDefaultListItem(ProductsModel product) {
+    final visibility = context.read<SettingsVisibleBloc>().state;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
@@ -755,25 +759,25 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
             ),
           ),
 
-
           SizedBox(
             width: 100,
             child: Text(
               product.totalQty ?? 'N/A',
               textAlign: TextAlign.end,
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(
-            width: 100,
-            child: Text(
-              product.totalItems ?? 'N/A',
-              textAlign: TextAlign.end,
-              style: const TextStyle(fontSize: 13),
-              overflow: TextOverflow.ellipsis,
+          if(visibility.isWholeSale)
+            SizedBox(
+              width: 100,
+              child: Text(
+                product.totalItems ?? 'N/A',
+                textAlign: TextAlign.end,
+                style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
         ],
       ),
     );

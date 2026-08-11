@@ -1501,7 +1501,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get unloadingSizeWarning => 'هشدار وزن تخلیه';
 
   @override
-  String get summary => 'خلاصه';
+  String get summary => 'جزئیات';
 
   @override
   String get unloadingSizeWarningMessage =>
@@ -3514,4 +3514,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get connectingTitle => 'در حال اتصال...';
+
+  @override
+  String get noItemsTitle => 'تعداد قلم';
 }

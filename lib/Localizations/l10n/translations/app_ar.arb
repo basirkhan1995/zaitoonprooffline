@@ -507,7 +507,7 @@
   "invalidDateFormat": "د نېټې بڼه ناسمه ده",
   "deliveryRequiredFields": "لاندې برخې د تحویل لپاره اړینې دي:",
   "unloadingSizeWarning": "د تخلیې اندازه هشدار",
-  "summary": "خلاصه",
+  "summary": "جزئیات",
   "unloadingSizeWarningMessage": "د بارولو له اندازې سره په څرګند ډول توپیر لري",
   "unloadingSizeProceedMessage": "تاسې ډاډه یاست چې غواړئ د سپارلو پروسه پرمخ یوسئ؟",
   "proceed": "تایید",
@@ -1164,5 +1164,6 @@
   "notConnected": "اتصال برقرار نیست",
   "connectedTo": "اتصال به سرور محلی",
   "applyDiscount": "ثبت به عنوان تخفیف",
-  "connectingTitle": "در حال اتصال..."
+  "connectingTitle": "در حال اتصال...",
+  "noItemsTitle": "تعداد قلم"
 }

@@ -266,7 +266,7 @@ class _DesktopState extends State<_Desktop> {
               children: [
                 Expanded(
                   child: ZSearchField(
-                    icon: Icons.search,
+                    icon: Icons.search_rounded,
                     controller: searchController,
                     hint: locale.accNameOrNumber,
                     onChanged: (e) {
@@ -303,6 +303,7 @@ class _DesktopState extends State<_Desktop> {
               listener: (context, state) {
                 if (state is AccountSuccessState) {
                   Navigator.of(context).pop();
+                  context.read<AccountsBloc>().add(LoadAccountsEvent(ownerId: widget.ind.perId));
                 }
               },
               builder: (context, state) {

@@ -1164,5 +1164,6 @@
   "notConnected": "Not Connected",
   "connectedTo": "Connected to Local host",
   "applyDiscount": "Apply Discount",
-  "connectingTitle": "Connecting..."
+  "connectingTitle": "Connecting...",
+  "noItemsTitle": "Total Items"
 }

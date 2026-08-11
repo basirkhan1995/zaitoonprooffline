@@ -54,15 +54,12 @@ class ApiServices {
         validateStatus: (status) => status != null && status < 500,
       ));
 
-      // Try both 127.0.0.1 and localhost
       for (final host in ['127.0.0.1', 'localhost']) {
         try {
           final response = await dio.get('http://$host/rapi/get_ip.php');
           if (response.statusCode == 200) {
             final data = response.data;
             if (data is Map && data['success'] == true) {
-              // DON'T change _isLocalhost or _skipConnectivityCheck
-              // Just return true if local server is found
               return true;
             }
           }

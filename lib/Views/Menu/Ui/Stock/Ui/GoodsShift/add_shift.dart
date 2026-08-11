@@ -3,24 +3,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
-import 'package:zaitoonpro/Features/Other/thousand_separator.dart';
 import 'package:zaitoonpro/Features/Other/utils.dart';
 import 'package:zaitoonpro/Features/Widgets/button.dart';
 import 'package:zaitoonpro/Features/Widgets/outline_button.dart';
-import 'package:zaitoonpro/Features/Widgets/textfield_entitled.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Company/Storage/bloc/storage_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Company/Storage/model/storage_model.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Stock/Ui/Products/bloc/products_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Stock/Ui/Products/model/product_stock_model.dart';
 import '../../../../../../../Localizations/l10n/translations/app_localizations.dart';
-import '../../../../../../Features/Generic/rounded_searchable_textfield.dart';
 import '../../../../../../Features/Generic/stock_product_field.dart';
 import '../../../../../../Features/Generic/underline_searchable_textfield.dart';
-import '../../../../../../Features/Widgets/section_title.dart';
 import '../../../../../Auth/bloc/auth_bloc.dart';
 import '../../../Settings/Ui/Company/CompanyProfile/bloc/company_profile_bloc.dart';
-import '../../../Stakeholders/Ui/Accounts/bloc/accounts_bloc.dart';
-import '../../../Stakeholders/Ui/Accounts/model/acc_model.dart';
 import 'bloc/goods_shift_bloc.dart';
 import 'model/shift_model.dart';
 
@@ -323,7 +317,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                             const SizedBox(height: 8),
                             // Total Items
                             _buildSummaryRow(
-                              label: tr.totalItems,
+                              label: tr.noItemsTitle,
                               value: _records.length.toDouble(),
                               isAmount: false,
                             ),
@@ -360,16 +354,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                             ],
                           ],
                         ),
-                        const SizedBox(height: 20),
 
-                        SectionTitle(title: tr.expenses),
-                        const SizedBox(height: 10),
-                        // Expense Account Section
-                        _buildAccountSection(tr),
-                        const SizedBox(height: 20),
-                  
-                        // Amount Section
-                        _buildAmountSection(tr),
                         const Spacer(),
                   
                         // Submit Button
@@ -485,117 +470,6 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
     );
   }
 
-  Widget _buildAccountSection(AppLocalizations tr) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          tr.expenseAccount,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        const SizedBox(height: 8),
-        GenericTextField<AccountsModel, AccountsBloc, AccountsState>(
-          controller: _accountController,
-          focusNode: _accountFocusNode,
-          title: '',
-          hintText: tr.accNameOrNumber,
-          bloc: context.read<AccountsBloc>(),
-          fetchAllFunction: (bloc) => bloc.add(
-            LoadAccountsFilterEvent(include: "11,12", ccy: baseCurrency, exclude: ""),
-          ),
-          searchFunction: (bloc, query) => bloc.add(
-            LoadAccountsFilterEvent(
-                include: "11,12",
-                ccy: baseCurrency,
-                input: query,
-                exclude: ""
-            ),
-          ),
-          validator: (value) {
-            if (value == null && value!.isEmpty) {
-              return tr.required(tr.accounts);
-            }
-            return null;
-          },
-          itemBuilder: (context, account) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "${account.accNumber} | ${account.accName}",
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          itemToString: (acc) => "${acc.accNumber} | ${acc.accName}",
-          stateToLoading: (state) => state is AccountLoadingState,
-          loadingBuilder: (context) => const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 3),
-          ),
-          stateToItems: (state) {
-            if (state is AccountLoadedState) {
-              return state.accounts;
-            }
-            return [];
-          },
-          onSelected: (value) {
-            setState(() {
-              _accountController.text = value.accNumber.toString();
-            });
-            _amountFocusNode.requestFocus();
-          },
-          noResultsText: tr.noDataFound,
-          showClearButton: true,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAmountSection(AppLocalizations tr) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          tr.amount,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ZTextFieldEntitled(
-          title: '',
-          controller: _amountController,
-          focusNode: _amountFocusNode,
-          hint: '0.00',
-          inputFormat: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-            SmartThousandsDecimalFormatter(),
-          ],
-          onSubmit: (_) {
-            // After amount, focus first product field
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _focusFirstProductField();
-            });
-          },
-        ),
-      ],
-    );
-  }
 
   Widget _buildItemsHeader(AppLocalizations tr) {
     final color = Theme.of(context).colorScheme;
@@ -785,13 +659,13 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
             flex: 2,
             child: TextField(
               controller: _qtyControllers[index],
-              focusNode: nodes[1], // Quantity field focus
+              focusNode: nodes[1],
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
               ],
-              decoration: const InputDecoration(
-                hintText: 'Qty',
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.qty,
                 border: InputBorder.none,
                 isDense: true,
               ),
@@ -800,9 +674,6 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
                 _updateRecord(index, quantity: qty);
               },
               onSubmitted: (_) {
-                // After quantity submitted:
-                // - If it's the last row, add a new row and focus its product
-                // - Otherwise, focus the next row's product
                 if (isLastRow) {
                   // Check if last record has product selected
                   final lastRecord = _records.last;
@@ -860,7 +731,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
           Text(
             label,
             style: TextStyle(
-              fontSize: isTotal ? 14 : 13,
+              fontSize: isTotal ? 22 : 18,
               fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -868,7 +739,7 @@ class _AddGoodsShiftViewState extends State<AddGoodsShiftView> {
             isAmount ? "${value.toAmount()} $baseCurrency" : value.toAmount(decimal: 0),
             style: TextStyle(
               fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-              fontSize: isTotal ? 16 : 14,
+              fontSize: isTotal ? 22 : 18,
               color: textColor,
             ),
           ),

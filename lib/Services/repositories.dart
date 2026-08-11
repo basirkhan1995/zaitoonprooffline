@@ -78,7 +78,15 @@ class Repositories {
   final ApiServices api;
 
   const Repositories(this.api);
-
+  Future<Map<String, dynamic>> deleteAccount({required int accNumber}) async {
+    final response = await api.delete(
+      endpoint: "/stakeholder/account.php",
+      data: {
+        "accNumber": accNumber
+      },
+    );
+    return response.data;
+  }
   ///Authentication ............................................................
   Future<Map<String, dynamic>> login({
     required String username,

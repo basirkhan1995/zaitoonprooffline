@@ -507,7 +507,7 @@
   "invalidDateFormat": "فرمت تاریخ نامعتبر است",
   "deliveryRequiredFields": "فیلدهای زیر برای تحویل الزامی هستند:",
   "unloadingSizeWarning": "هشدار وزن تخلیه",
-  "summary": "خلاصه",
+  "summary": "جزئیات",
   "unloadingSizeWarningMessage": "به‌ طور قابل‌ توجهی با اندازه بارگیری تفاوت دارد",
   "unloadingSizeProceedMessage": " آیا مطمئن هستید که می‌خواهید با تحویل ادامه دهید؟",
   "proceed": "تایید",
@@ -1164,5 +1164,6 @@
   "notConnected": "اتصال برقرار نیست",
   "connectedTo": "اتصال به سرور محلی",
   "applyDiscount": "ثبت به عنوان تخفیف",
-  "connectingTitle": "در حال اتصال..."
+  "connectingTitle": "در حال اتصال...",
+  "noItemsTitle": "تعداد قلم"
 }

@@ -2,12 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Widgets/section_title.dart';
 import 'package:zaitoonpro/Views/Auth/bloc/auth_bloc.dart';
 import '../../Localizations/l10n/translations/app_localizations.dart';
+import '../../Views/Menu/Ui/Settings/features/Visibility/bloc/settings_visible_bloc.dart';
 
 typedef LoadingBuilder = Widget Function(BuildContext context);
 typedef ItemToString<T> = String Function(T item);
@@ -479,7 +479,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
     final tr = AppLocalizations.of(context)!;
     TextStyle? titleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 16, color: Theme.of(context).colorScheme.outline);
     _shouldKeepOverlayOpen = true;
-
+    final visibility = context.read<SettingsVisibleBloc>().state;
     _overlayEntry = OverlayEntry(
       builder: (context) => Material(
         color: Colors.transparent,
@@ -567,9 +567,9 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                                     showCursor: true,
                                     decoration: InputDecoration(
                                       hintText: AppLocalizations.of(context)!.searchProducts,
-                                      prefixIcon: FaIcon(FontAwesomeIcons.magnifyingGlass,
+                                      prefixIcon: Icon(Icons.search,
                                         color: Theme.of(context).colorScheme.primary,
-                                        size: 18,
+                                        size: 25,
                                       ),
                                       suffixIcon: _overlaySearchController.text.isNotEmpty
                                           ? IconButton(
@@ -627,7 +627,8 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                                       Expanded(child: Text(tr.productName, style: titleStyle?.copyWith(fontSize: 16))),
                                       SizedBox(width: 80, child: Text(tr.unit, textAlign: TextAlign.center, style: titleStyle)),
                                       SizedBox(width: 120, child: Text(tr.available, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
-                                      SizedBox(width: 100, child: Text(tr.batchTitle, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
+                                      if(visibility.isWholeSale)
+                                        SizedBox(width: 100, child: Text(tr.batchTitle, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
                                       SizedBox(width: 100, child: Text("${tr.unitPrice} | $baseCurrency", textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
                                     ],
                                   ),
@@ -725,7 +726,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                         ),
                         if (_currentHighlightedItem != null && !_isLoading && _currentSuggestions.isNotEmpty)
                           Container(
-                            width: 350,
+                            width: 380,
                             height: double.infinity,
                             margin: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -774,6 +775,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
   }
 
   Widget _buildDefaultListItem(T product) {
+    final visibility = context.read<SettingsVisibleBloc>().state;
     final isRTL = Directionality.of(context) == TextDirection.rtl;
     Color? fontColor = widget.getAvailable(product).toDoubleAmount() <= 0 ? Colors.red : null;
     return Row(
@@ -807,18 +809,19 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
             ),
           ),
         ),
-        SizedBox(
-          width: 100,
-          child: Text(
-            widget.getBatch(product).toString(),
-            textAlign: isRTL ? TextAlign.center : TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: Theme.of(context).colorScheme.primary,
+        if(visibility.isWholeSale)
+          SizedBox(
+            width: 100,
+            child: Text(
+              widget.getBatch(product).toString(),
+              textAlign: isRTL ? TextAlign.center : TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
           ),
-        ),
         SizedBox(
           width: 100,
           child: Text(

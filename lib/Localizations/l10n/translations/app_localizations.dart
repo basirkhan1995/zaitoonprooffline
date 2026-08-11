@@ -6969,6 +6969,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connecting...'**
   String get connectingTitle;
+
+  /// No description provided for @noItemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Items'**
+  String get noItemsTitle;
 }
 
 class _AppLocalizationsDelegate

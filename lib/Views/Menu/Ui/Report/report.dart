@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Widgets/section_title.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Accounts/accounts.dart';
@@ -95,47 +94,47 @@ class _DesktopState extends State<_Desktop> {
 
     final List<Map<String, dynamic>> financeButtons = [
       if(login.hasPermission(79) ?? false)
-      {"title": tr.accountStatement, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.accStatement},
+        {"title": tr.accountStatement, "icon": Icons.pending_actions_rounded, "action": ActionKey.accStatement},
       if(login.hasPermission(81) ?? false)
-      {"title": tr.glStatement, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.glStatement},
+        {"title": tr.glStatement, "icon": Icons.pending_actions_rounded, "action": ActionKey.glStatement},
       if (!(login.hasPermission(81) ?? false) && (login.hasPermission(80) ?? false))
-      {"title": tr.glStatementSingleDate, "icon": FontAwesomeIcons.buildingColumns, "action": ActionKey.glStatementSingleDate},
+        {"title": tr.glStatementSingleDate, "icon": Icons.access_alarm_rounded, "action": ActionKey.glStatementSingleDate},
       if(login.hasPermission(82) ?? false)
-      {"title": tr.creditors, "icon": FontAwesomeIcons.arrowTrendUp, "action": ActionKey.payable},
+        {"title": tr.creditors, "icon": Icons.arrow_upward, "action": ActionKey.payable},
       if(login.hasPermission(83) ?? false)
-      {"title": tr.debtors, "icon": FontAwesomeIcons.arrowTrendDown, "action": ActionKey.receivable},
+        {"title": tr.debtors, "icon": Icons.arrow_downward, "action": ActionKey.receivable},
       if(login.hasPermission(98) ?? false)
         {"title": tr.accounts, "icon": Icons.account_circle_sharp, "action": ActionKey.allBalances},
-       if(login.hasPermission(92) ?? false)
-       {"title": tr.expenses, "icon":  FontAwesomeIcons.arrowDown, "action": ActionKey.expensesKey},
+      if(login.hasPermission(92) ?? false)
+        {"title": tr.expenses, "icon":  Icons.arrow_upward, "action": ActionKey.expensesKey},
     ];
 
     final List<Map<String, dynamic>> stockButtons = [
       if(login.hasPermission(84) ?? false)
-      {"title": tr.stockAvailability, "icon": Icons.storage, "action": ActionKey.products},
+        {"title": tr.stockAvailability, "icon": Icons.storage, "action": ActionKey.products},
       if(login.hasPermission(85) ?? false)
-      {"title": tr.productMovement, "icon": Icons.shopping_bag_outlined, "action": ActionKey.stockRecord},
+        {"title": tr.productMovement, "icon": Icons.shopping_bag_outlined, "action": ActionKey.stockRecord},
       if(login.hasPermission(86) ?? false)
-      {"title": tr.purchaseInvoice, "icon": Icons.add_shopping_cart_sharp, "action": ActionKey.purchase},
+        {"title": tr.purchaseInvoice, "icon": Icons.add_shopping_cart_sharp, "action": ActionKey.purchase},
       if(login.hasPermission(87) ?? false)
-      {"title": tr.salesInvoice, "icon": Icons.add_shopping_cart_sharp, "action": ActionKey.sale},
+        {"title": tr.salesInvoice, "icon": Icons.add_shopping_cart_sharp, "action": ActionKey.sale},
       // if(login.hasPermission(88) ?? false)
       // {"title": tr.estimateTitle, "icon": Icons.file_copy_outlined, "action": ActionKey.estimate},
     ];
 
     final List<Map<String, dynamic>> transactionsButtons = [
       if(login.hasPermission(93) ?? false)
-      {"title": tr.treasury, "icon": FontAwesomeIcons.sackDollar, "action": ActionKey.cashBalanceBranchWise},
+        {"title": tr.treasury, "icon": Icons.money, "action": ActionKey.cashBalanceBranchWise},
       if(login.hasPermission(94) ?? false)
-      {"title": tr.exchangeRate, "icon": Icons.price_change_outlined, "action": ActionKey.exchangeRate},
+        {"title": tr.exchangeRate, "icon": Icons.price_change_outlined, "action": ActionKey.exchangeRate},
       if(login.hasPermission(113) ?? false)
-      {"title": tr.balanceSheet, "icon": Icons.balance_rounded, "action": ActionKey.balanceSheet},
+        {"title": tr.balanceSheet, "icon": Icons.balance_rounded, "action": ActionKey.balanceSheet},
       if(login.hasPermission(95) ?? false)
-      {"title": tr.trialBalance, "icon": Icons.balance_rounded, "action": ActionKey.trialBalance},
+        {"title": tr.trialBalance, "icon": Icons.balance_rounded, "action": ActionKey.trialBalance},
       if(login.hasPermission(96) ?? false)
-      {"title": tr.transactionDetails, "icon": Icons.qr_code_2_rounded, "action": ActionKey.transactionByRef},
+        {"title": tr.transactionDetails, "icon": Icons.qr_code_2_rounded, "action": ActionKey.transactionByRef},
       if(login.hasPermission(97) ?? false)
-      {"title": tr.allTransactions, "icon": Icons.line_axis_sharp, "action": ActionKey.transactionReport},
+        {"title": tr.allTransactions, "icon": Icons.line_axis_sharp, "action": ActionKey.transactionReport},
       if(login.hasPermission(97) ?? false)
         {"title": tr.incomeStatement, "icon": Icons.line_axis_sharp, "action": ActionKey.incomeStatement},
     ];
@@ -143,9 +142,9 @@ class _DesktopState extends State<_Desktop> {
     final List<Map<String, dynamic>> activitiesButtons = [
       {"title": tr.individuals, "icon": Icons.people, "action": ActionKey.individualsReport},
       if(login.hasPermission(99) ?? false)
-      {"title": tr.users, "icon": FontAwesomeIcons.users, "action": ActionKey.users},
+        {"title": tr.users, "icon": Icons.person, "action": ActionKey.users},
       if(login.hasPermission(101) ?? false)
-      {"title": tr.userLog, "icon": Icons.scale_rounded, "action": ActionKey.userLog},
+        {"title": tr.userLog, "icon": Icons.scale_rounded, "action": ActionKey.userLog},
       if(login.hasPermission(110) ?? false)
         {"title": tr.attendance, "icon": Icons.timer, "action": ActionKey.attendance},
     ];
@@ -177,8 +176,7 @@ class _DesktopState extends State<_Desktop> {
 
               const SizedBox(height: 15),
 
-              //_buildSectionTitle(title: "${tr.users} & ${tr.activities}",icon: Icons.supervised_user_circle_sharp),
-              SectionTitle(title: "${tr.users} & ${tr.activities}"),
+              SectionTitle(title: "${tr.users} | ${tr.activities}"),
               SizedBox(height: 8),
               _buildButtonGroup(activitiesButtons, color),
 
@@ -221,11 +219,11 @@ class _DesktopState extends State<_Desktop> {
               height: 120,
               padding: EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                  color: isHovered
-                      ? color.primary
-                      : color.surface,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: .2)),
+                color: isHovered
+                    ? color.primary
+                    : color.surface,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: .2)),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -257,7 +255,7 @@ class _DesktopState extends State<_Desktop> {
   void reportAction(ActionKey action) {
     switch (action) {
 
-      //Finance
+    //Finance
       case ActionKey.accStatement: Utils.goto(context, AccountStatementView());
       case ActionKey.glStatement: Utils.goto(context, GlStatementView());
       case ActionKey.payable: Utils.goto(context, PayablesView());
@@ -278,14 +276,14 @@ class _DesktopState extends State<_Desktop> {
       case ActionKey.transactionReport: Utils.goto(context, TransactionReportView());
       case ActionKey.allBalances: Utils.goto(context, AllBalancesView());
 
-      // Stock
+    // Stock
       case ActionKey.products:  Utils.goto(context, ProductReportView());
       case ActionKey.stockRecord:  Utils.goto(context, StockRecordReportView());
       case ActionKey.purchase: Utils.goto(context, OrderReportView(orderName: "Purchase"));
       case ActionKey.sale: Utils.goto(context, OrderReportView(orderName: "Sale"));
       case ActionKey.estimate: Utils.goto(context, OrderReportView(orderName: "Estimate"));
 
-      // Activity
+    // Activity
       case ActionKey.individualsReport: Utils.goto(context, StakeholdersReportView());
       case ActionKey.users: Utils.goto(context, UsersReportView());
       case ActionKey.userLog: Utils.goto(context, UserLogReportView());

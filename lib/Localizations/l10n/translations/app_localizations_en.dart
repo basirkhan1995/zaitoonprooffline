@@ -3526,4 +3526,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectingTitle => 'Connecting...';
+
+  @override
+  String get noItemsTitle => 'Total Items';
 }
