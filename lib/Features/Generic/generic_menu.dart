@@ -89,7 +89,7 @@ class GenericMenuItem extends StatelessWidget {
                     ? Theme.of(context)
                     .colorScheme
                     .primary
-                    .withValues(alpha: .07)
+                    .withValues(alpha: .1)
                     : unselectedColor,
                 borderRadius: BorderRadius.circular(borderRadius),
               ),
@@ -109,7 +109,7 @@ class GenericMenuItem extends StatelessWidget {
                       scale: isSelected ? 1.08 : 1,
                       child: Icon(
                         icon,
-                        size: 22,
+                        size: 25,
                         color: isSelected
                             ? selectedTextColor
                             : unselectedTextColor,
@@ -126,7 +126,7 @@ class GenericMenuItem extends StatelessWidget {
                         duration: const Duration(milliseconds: 180),
                         curve: Curves.easeOutCubic,
                         style: TextStyle(
-                          fontSize: fontSize ?? 14,
+                          fontSize: fontSize ?? 16,
                           fontWeight: isSelected
                               ? FontWeight.w700
                               : FontWeight.w500,
@@ -529,8 +529,7 @@ class _GenericMenuWithScreenState<T> extends State<GenericMenuWithScreen<T>> {
                             fontSize: widget.fontSize,
                             isExpanded: isMenuExpanded,
                             padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 2.0, vertical: 3),
+                            margin: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 3),
                             borderRadius: widget.borderRadius,
                             selectedColor: widget.selectedColor,
                             unselectedColor: widget.unselectedColor,

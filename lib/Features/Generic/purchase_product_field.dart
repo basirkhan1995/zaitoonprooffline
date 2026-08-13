@@ -727,7 +727,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
             flex: 3,
             child: Text(
               product.proName ?? '',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -737,7 +737,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
             child: Text(
               product.proBrand ?? 'N/A',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 15),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -746,7 +746,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
             child: Text(
               product.proGrade ?? 'N/A',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 15),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -755,7 +755,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
             child: Text(
               product.proUnit ?? 'N/A',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 15),
             ),
           ),
 
@@ -764,7 +764,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
             child: Text(
               product.totalQty ?? 'N/A',
               textAlign: TextAlign.end,
-              style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -774,7 +774,7 @@ class _ProductsSearchFieldState extends State<ProductsSearchField> {
               child: Text(
                 product.totalItems ?? 'N/A',
                 textAlign: TextAlign.end,
-                style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
             ),

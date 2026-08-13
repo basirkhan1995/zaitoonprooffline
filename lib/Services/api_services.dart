@@ -204,19 +204,65 @@ class ApiServices {
 
     try {
       final connectivityResult = await Connectivity().checkConnectivity();
+
+      // Check if we have ANY network connection (WiFi or mobile)
       if (connectivityResult.contains(ConnectivityResult.none)) {
-        // Check if we're trying to connect to localhost
-        if (_dio.options.baseUrl.contains('127.0.0.1') ||
-            _dio.options.baseUrl.contains('localhost')) {
-          return;
+        throw Exception('No network connection available');
+      }
+
+      // For remote connections, we need internet access
+      // But if we're on WiFi and trying to connect to a local IP,
+      // we don't need internet access
+      if (_savedIP != null && _savedIP!.startsWith('192.168.') ||
+          _savedIP!.startsWith('10.') ||
+          _savedIP!.startsWith('172.16.')) {
+        // This is a local network IP, so internet is not required
+        // Just check if we can reach the server
+        try {
+          // Quick ping to server to check if it's reachable
+          final response = await _dio.get(
+            '/get_ip.php',
+            options: Options(
+              connectTimeout: const Duration(seconds: 2),
+              receiveTimeout: const Duration(seconds: 2),
+            ),
+          );
+          if (response.statusCode == 200) {
+            return; // Server is reachable
+          }
+        } catch (e) {
+          throw Exception('Cannot reach server at ${_dio.options.baseUrl}');
         }
-        throw Exception('No internet connection');
+      } else {
+        // For non-local IPs, check if we have internet
+        // Try to ping a well-known site or your server
+        try {
+          final internetCheck = await Dio().get(
+            'https://www.google.com',
+            options: Options(
+              connectTimeout: const Duration(seconds: 3),
+              receiveTimeout: const Duration(seconds: 3),
+            ),
+          );
+          if (internetCheck.statusCode != 200) {
+            throw Exception('No internet connection');
+          }
+        } catch (e) {
+          throw Exception('No internet connection');
+        }
       }
     } catch (e) {
-      // Don't throw for localhost connections
-      if (!_isLocalhost) {
-        rethrow;
+      // If we're trying to connect to a local network IP,
+      // don't throw just because internet is not available
+      if (_savedIP != null &&
+          (_savedIP!.startsWith('192.168.') ||
+              _savedIP!.startsWith('10.') ||
+              _savedIP!.startsWith('172.16.'))) {
+        // Just log the error but don't throw
+        debugPrint('Local network connection - internet not required');
+        return;
       }
+      rethrow;
     }
   }
 
