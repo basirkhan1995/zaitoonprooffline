@@ -53,6 +53,7 @@ class _DesktopState extends State<_Desktop> {
   final TextEditingController _narrationController = TextEditingController();
   final Map<int, FocusNode> _debitFocusNodes = {};
   final Map<int, FocusNode> _creditFocusNodes = {};
+  Timer? _debounce;
 
   String? userName;
   String? baseCurrency;
@@ -80,6 +81,7 @@ class _DesktopState extends State<_Desktop> {
   }
   @override
   void dispose() {
+    _debounce?.cancel();
     _isDisposed = true;
     _clearAllControllers();
     _narrationController.dispose();
@@ -231,11 +233,6 @@ class _DesktopState extends State<_Desktop> {
         if (state is ExchangeRateLoadedState && state.rate != null) {
           final rate = double.tryParse(state.rate ?? "1.0") ?? 1.0;
 
-          // We need to know which currencies this rate is for
-          // Since your state doesn't include from/to, we'll check pending requests
-          // This is a workaround - ideally ExchangeRateLoadedState should have fromCcy/toCcy
-
-          // Find which pending request this rate belongs to
           for (final key in _pendingRateRequests.keys.toList()) {
             if (_rateCurrencyPairs.containsKey(key)) {
               final currencies = _rateCurrencyPairs[key]!.split(':');
@@ -243,7 +240,7 @@ class _DesktopState extends State<_Desktop> {
                 final fromCcy = currencies[0];
                 final toCcy = currencies[1];
                 _handleExchangeRateResponse(fromCcy, toCcy, rate);
-                break; // Assume first match is correct
+                break;
               }
             }
           }
@@ -283,7 +280,6 @@ class _DesktopState extends State<_Desktop> {
                 if (_isDisposed) return const SizedBox.shrink();
 
                 if (state is FxLoadedState || state is FxSavingState || state is FxApiErrorState) {
-                  // These states all have the properties we need
                   final isSaving = state is FxSavingState;
                   final hasError = state is FxApiErrorState;
 
@@ -516,7 +512,12 @@ class _DesktopState extends State<_Desktop> {
                         title: AppLocalizations.of(context)!.narration,
                         controller: _narrationController,
                         onChanged: (value) {
-                          context.read<FxBloc>().add(UpdateNarrationEvent(value));
+                          if (_debounce?.isActive ?? false) _debounce?.cancel();
+
+                          // Start a new timer with 500ms delay
+                          _debounce = Timer(const Duration(milliseconds: 1000), () {
+                            context.read<FxBloc>().add(UpdateNarrationEvent(value));
+                          });
                         },
                       ),
                     ),

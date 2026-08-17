@@ -274,7 +274,7 @@ class ApiServices {
 
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Connection timed out. Please check if XAMPP is running.';
+        return 'Connection timed out. Please check if server is running.';
       case DioExceptionType.receiveTimeout:
         return 'Server took too long to respond. Please try again.';
       case DioExceptionType.sendTimeout:
@@ -282,7 +282,7 @@ class ApiServices {
       case DioExceptionType.cancel:
         return 'Request was cancelled.';
       case DioExceptionType.connectionError:
-        return 'Cannot connect to server. Is XAMPP running?';
+        return 'Cannot connect to server. Is server running?';
       case DioExceptionType.badResponse:
         switch (e.response?.statusCode) {
           case 400:

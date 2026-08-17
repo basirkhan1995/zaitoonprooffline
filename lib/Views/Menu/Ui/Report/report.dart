@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Widgets/section_title.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Accounts/accounts.dart';
@@ -215,29 +216,36 @@ class _DesktopState extends State<_Desktop> {
             onTap: () => reportAction(button['action'] as ActionKey),
             child: AnimatedContainer(
               duration: Duration(milliseconds: 150),
-              width: 110,
-              height: 120,
+              width: 120,
+              height: 130,
               padding: EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 color: isHovered
                     ? color.primary
                     : color.surface,
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: .2)),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: .2)),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(button['icon'], size: 30, color: isHovered
-                      ? color.surface
-                      : color.primary.withValues(alpha: .9),
+                  ZCover(
+                    radius: 8,
+                    color: isHovered? color.primary : Colors.transparent,
+                    padding: EdgeInsets.all(5),
+                    borderColor: color.outline.withValues(alpha: .2),
+                    shadowColor: Colors.transparent,
+                    child: Icon(button['icon'], size: 35, color: isHovered
+                        ? color.surface
+                        : color.primary.withValues(alpha: .9),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     button['title'],
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: isHovered
                           ? color.surface
