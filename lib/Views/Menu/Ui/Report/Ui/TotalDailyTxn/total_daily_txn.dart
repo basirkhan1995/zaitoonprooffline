@@ -54,27 +54,29 @@ class _DesktopState extends State<_Desktop> {
   String toDate = DateTime.now().toFormattedDate();
   String? ccyCode;
 
-  // Light pastel colors for cards
-  final List<Color> _cardColors = [
-    const Color(0xFFBBDEFB), // Light Blue 100
-    const Color(0xFFB2DFDB), // Teal 100
-    const Color(0xFFE1BEE7), // Purple 100
-    const Color(0xFFFFE0B2), // Orange 100
-    const Color(0xFFC5CAE9), // Indigo 100
-    const Color(0xFFF8BBD0), // Pink 100
-    const Color(0xFFB2EBF2), // Cyan 100
-    const Color(0xFFFFECB3), // Amber 100
-    const Color(0xFFD1C4E9), // Deep Purple 100
-    const Color(0xFFC8E6C9), // Green 100
+  // Subtle accent colors for card accents
+  final List<Color> _accentColors = [
+    const Color(0xFF4FACFE),
+    const Color(0xFF43E97B),
+    const Color(0xFFFA709A),
+    const Color(0xFFFEE140),
+    const Color(0xFFA18CD1),
+    const Color(0xFF00F2FE),
+    const Color(0xFFFBC2EB),
+    const Color(0xFFA1FFCE),
   ];
 
-  final Map<int, Color> _assignedColors = {};
+  final Map<int, Color> _assignedAccents = {};
 
   @override
   void initState() {
     final auth = context.read<AuthBloc>().state;
-    if(auth is AuthenticatedState){
-      ccyCode = auth.loginData.company?.comLocalCcy == "USD"? "\$" : auth.loginData.company?.comLocalCcy == "AFN"? "؋" : auth.loginData.company?.comLocalCcy;
+    if (auth is AuthenticatedState) {
+      ccyCode = auth.loginData.company?.comLocalCcy == "USD"
+          ? "\$"
+          : auth.loginData.company?.comLocalCcy == "AFN"
+          ? "؋"
+          : auth.loginData.company?.comLocalCcy;
     }
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -87,11 +89,11 @@ class _DesktopState extends State<_Desktop> {
     });
   }
 
-  Color _getCardColor(int index) {
-    if (!_assignedColors.containsKey(index)) {
-      _assignedColors[index] = _cardColors[index % _cardColors.length];
+  Color _getAccentColor(int index) {
+    if (!_assignedAccents.containsKey(index)) {
+      _assignedAccents[index] = _accentColors[index % _accentColors.length];
     }
-    return _assignedColors[index]!;
+    return _assignedAccents[index]!;
   }
 
   @override
@@ -115,18 +117,18 @@ class _DesktopState extends State<_Desktop> {
           if (data.isEmpty) {
             return const Center(child: SizedBox());
           }
+
           return LayoutBuilder(
             builder: (context, constraints) {
-              const spacing = 8.0;
+              const spacing = 16.0;
               const maxCardsPerRow = 4;
 
-              // Calculate how many cards per row based on available width
               int cardsPerRow;
-              if (constraints.maxWidth > 900) {
+              if (constraints.maxWidth > 1200) {
                 cardsPerRow = 4;
-              } else if (constraints.maxWidth > 650) {
+              } else if (constraints.maxWidth > 900) {
                 cardsPerRow = 3;
-              } else if (constraints.maxWidth > 400) {
+              } else if (constraints.maxWidth > 600) {
                 cardsPerRow = 2;
               } else {
                 cardsPerRow = 1;
@@ -139,12 +141,20 @@ class _DesktopState extends State<_Desktop> {
                 runSpacing: spacing,
                 children: List.generate(data.length, (index) {
                   final item = data[index];
-                  final percentText = "${item.percentage.toStringAsFixed(1)} %";
-                  final percentColor = item.isIncrease ? Colors.green : Colors.red;
-                  final icon = item.isIncrease ? Icons.trending_up : Icons.trending_down;
-                  final cardColor = _getCardColor(index);
+                  final percentText =
+                      "${item.percentage.toStringAsFixed(1)}%";
+                  final isPositive = item.isIncrease;
+                  final percentColor = isPositive ? Colors.green : Colors.red;
+                  final trendIcon = isPositive
+                      ? Icons.trending_up_rounded
+                      : Icons.trending_down_rounded;
+                  final accentColor = _getAccentColor(index);
 
-                  // Calculate width for this specific card based on its row
+                  final txnName = Utils.getTransactionNames(
+                    txn: item.today.txnName ?? '',
+                    context: context,
+                  );
+
                   final cardWidth = _calculateCardWidthForIndex(
                     index: index,
                     totalItems: data.length,
@@ -154,105 +164,174 @@ class _DesktopState extends State<_Desktop> {
                   );
 
                   return HoverCard(
-                    child: SizedBox(
+                    child: Container(
                       width: cardWidth,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: cardColor.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: cardColor.withValues(alpha: 1.9),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: cardColor.withValues(alpha: 0.1),
-                              blurRadius: 3,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: theme.colorScheme.outline.withValues(alpha: 0.06),
+                          width: 1,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // TXN NAME
-                            Text(
-                              Utils.getTransactionNames(txn: item.today.txnName ?? '', context: context),
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: theme.colorScheme.outline.withValues(alpha: .6),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-
-                            const SizedBox(height: 4),
-
-                            // AMOUNT
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "${(item.today.totalAmount ?? 0).toAmount()}$ccyCode",
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                  color: theme.colorScheme.primary,
+                      ),
+                      child: Stack(
+                        children: [
+                          // Top accent bar
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: accentColor,
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(12),
                                 ),
                               ),
                             ),
+                          ),
 
-                            const SizedBox(height: 4),
-
-                            // PERCENTAGE + ICON + COUNT
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          Padding(
+                            padding: const EdgeInsets.all(18),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Percentage with icon
-                                Flexible(
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        icon,
-                                        size: 15,
-                                        color: percentColor,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Flexible(
-                                        child: Text(
-                                          percentText,
-                                          style: TextStyle(
-                                            color: percentColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
+                                // Header with icon and label
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        txnName,
+                                        style: theme.textTheme.labelMedium?.copyWith(
+                                          color: theme.colorScheme.outline.withValues(alpha: 0.7),
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: 0.3,
+                                          fontSize: 13,
                                         ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: percentColor.withValues(alpha: 0.08),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            trendIcon,
+                                            size: 11,
+                                            color: percentColor,
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Text(
+                                            percentText,
+                                            style: TextStyle(
+                                              color: percentColor,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
 
-                                // Transaction count
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: cardColor.withValues(alpha: 0.3),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    '${item.today.totalCount ?? 0}',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                      color: theme.colorScheme.outline.withValues(alpha: .7),
+                                const SizedBox(height: 10),
+
+                                // Amount
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        (item.today.totalAmount ?? 0).toAmount(),
+                                        style: theme.textTheme.headlineSmall?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 28,
+                                          height: 1,
+                                          color: theme.colorScheme.onSurface,
+                                          letterSpacing: -0.5,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      ccyCode ?? '',
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: theme.colorScheme.outline.withValues(alpha: 0.4),
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                // Footer with count
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Transaction count
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.surfaceContainerHighest
+                                            .withValues(alpha: 0.3),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.receipt_long_outlined,
+                                            size: 12,
+                                            color: theme.colorScheme.outline
+                                                .withValues(alpha: 0.4),
+                                          ),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            '${item.today.totalCount ?? 0}',
+                                            style: theme.textTheme.bodySmall?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                              color: theme.colorScheme.onSurface
+                                                  .withValues(alpha: 0.6),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Mini dot indicator
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        color: accentColor.withValues(alpha: 0.5),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -262,12 +341,15 @@ class _DesktopState extends State<_Desktop> {
           );
         }
 
-        return const Center(child: CircularProgressIndicator());
+        return Center(
+          child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        );
       },
     );
   }
 
-  // Calculate card width based on its position (row-aware)
   double _calculateCardWidthForIndex({
     required int index,
     required int totalItems,
@@ -275,26 +357,16 @@ class _DesktopState extends State<_Desktop> {
     required int cardsPerRow,
     required double spacing,
   }) {
-    // Calculate which row this item is in (0-based)
     final rowIndex = index ~/ cardsPerRow;
-
-    // Calculate total number of rows
     final totalRows = (totalItems / cardsPerRow).ceil();
-
-    // Check if this is the last row
     final isLastRow = rowIndex == totalRows - 1;
-
-    // Calculate items in the last row
     final itemsInLastRow = totalItems % cardsPerRow;
 
-    // If it's the last row and has fewer items than cardsPerRow
     if (isLastRow && itemsInLastRow > 0 && itemsInLastRow < cardsPerRow) {
-      // Calculate width based on actual items in the last row
       final lastRowSpacing = spacing * (itemsInLastRow - 1);
       return (availableWidth - lastRowSpacing) / itemsInLastRow;
     }
 
-    // For all other rows, use standard calculation
     final fullRowSpacing = spacing * (cardsPerRow - 1);
     return (availableWidth - fullRowSpacing) / cardsPerRow;
   }

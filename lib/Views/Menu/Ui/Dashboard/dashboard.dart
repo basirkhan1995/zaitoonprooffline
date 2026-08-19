@@ -247,8 +247,6 @@ class _Desktop extends StatelessWidget {
                         TotalDailyColumnView(),
                       ],
 
-
-
                   ],
                 ),
               ),
