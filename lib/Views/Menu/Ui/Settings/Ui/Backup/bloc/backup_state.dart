@@ -14,6 +14,22 @@ final class BackupLoading extends BackupState {
   List<Object> get props => [];
 }
 
+final class BackupInProgress extends BackupState {
+  const BackupInProgress();
+
+  @override
+  List<Object> get props => [];
+}
+
+final class RestoreAfterBackupProgress extends BackupState {
+  final String message;
+
+  const RestoreAfterBackupProgress(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
 final class BackupDownloadSuccess extends BackupState {
   final String filePath;
 
@@ -75,7 +91,10 @@ final class MySQLConnectionStatus extends BackupState {
   final bool isConnected;
   final String message;
 
-  const MySQLConnectionStatus({required this.isConnected, required this.message});
+  const MySQLConnectionStatus({
+    required this.isConnected,
+    required this.message,
+  });
 
   @override
   List<Object> get props => [isConnected, message];

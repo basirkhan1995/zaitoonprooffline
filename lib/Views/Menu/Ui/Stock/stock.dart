@@ -414,21 +414,25 @@ class _StockViewState extends State<StockView> {
 
             if (login.hasPermission(56) ?? false)
               ZOutlineButton(
+                height: 50,
                 backgroundColor: color.primary.withValues(alpha: opacity),
                 toolTip: "F1 - ${locale.newPurchase}",
                 label: Text(locale.newPurchase),
                 icon: Icons.shopping_bag_outlined,
+                iconSize: 22,
                 width: double.infinity,
                 onPressed: () => Utils.goto(context, NewPurchaseOrderView()),
               ),
 
             if (login.hasPermission(57) ?? false)
               ZOutlineButton(
+                height: 50,
                 backgroundColor: color.primary.withValues(alpha: opacity),
                 toolTip: "F2 - ${locale.newSale}",
                 label: Text(locale.newSale),
                 icon: Icons.shopping_bag_outlined,
                 width: double.infinity,
+                iconSize: 22,
                 onPressed: () => Utils.goto(context, NewSaleView()),
               ),
 
@@ -453,10 +457,12 @@ class _StockViewState extends State<StockView> {
 
             if (login.hasPermission(59) ?? false)
               ZOutlineButton(
+                height: 50,
                 backgroundColor: color.primary.withValues(alpha: opacity),
                 toolTip: "F7 - ${locale.shift}",
                 label: Text(locale.shift),
                 icon: Icons.edit_location_outlined,
+                iconSize: 22,
                 width: double.infinity,
                 onPressed: () => Utils.goto(context, AddGoodsShiftView()),
               ),
@@ -486,15 +492,19 @@ class _StockViewState extends State<StockView> {
             ],
 
             ZOutlineButton(
+              height: 50,
               backgroundColor: color.primary.withValues(alpha: opacity),
               toolTip: "F9 - ${locale.stock}",
               label: Text(locale.stock),
+              iconSize: 22,
               icon: Icons.inventory_2_outlined,
               width: double.infinity,
               onPressed: () => Utils.goto(context, ProductReportView()),
             ),
 
             ZOutlineButton(
+              height: 50,
+              iconSize: 22,
               backgroundColor: color.primary.withValues(alpha: opacity),
               toolTip: "F10 - ${AppLocalizations.of(context)!.movement}",
               label: Text(AppLocalizations.of(context)!.movement),

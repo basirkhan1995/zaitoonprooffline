@@ -3067,13 +3067,27 @@ class Repositories {
     }
   }
 
-  Future<List<FileSystemEntity>> getBackupFiles() async {
-    final baseDir = await _getBackupBaseDirectory();
-    final backupDir = Directory('${baseDir.path}/ZaitoonBackups');
-    if (!await backupDir.exists()) return [];
-    final files = backupDir.listSync().whereType<File>().toList();
-    files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-    return files;
+  Future<List<FileSystemEntity>> getBackupFiles({int? limit = 10}) async {
+    try {
+      final baseDir = await _getBackupBaseDirectory();
+      final backupDir = Directory('${baseDir.path}/ZaitoonBackups');
+
+      if (!await backupDir.exists()) return [];
+
+      final files = backupDir.listSync().whereType<File>().toList();
+
+      // Sort by modification time (most recent first)
+      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+
+      // Return only the top 'limit' files
+      if (limit != null && limit > 0) {
+        return files.take(limit).toList();
+      }
+
+      return files; // Return all if limit is null or 0
+    } catch (e) {
+      throw Exception('Failed to load backups: $e');
+    }
   }
 
   ///Attendance ...............................................................

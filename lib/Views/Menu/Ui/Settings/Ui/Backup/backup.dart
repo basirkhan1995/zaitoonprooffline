@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zaitoonpro/Features/Other/cover.dart';
+import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Other/toast.dart';
 import 'package:zaitoonpro/Features/Widgets/no_data_widget.dart';
@@ -17,9 +18,9 @@ class BackupView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayout(
-      mobile: _Mobile(),
-      tablet: _Tablet(),
-      desktop: _Desktop(),
+      mobile: const _Mobile(),
+      tablet: const _Tablet(),
+      desktop: const _Desktop(),
     );
   }
 }
@@ -31,7 +32,7 @@ class _Mobile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: _BackupContent(),
+      child: const _BackupContent(),
     );
   }
 }
@@ -41,7 +42,7 @@ class _Tablet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _BackupContent();
+    return const _BackupContent();
   }
 }
 
@@ -55,321 +56,436 @@ class _Desktop extends StatefulWidget {
 class _DesktopState extends State<_Desktop> {
   @override
   void initState() {
-    context.read<BackupBloc>().add(LoadBackupsEvent());
     super.initState();
+    context.read<BackupBloc>().add(LoadBackupsEvent());
   }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
+    return const Padding(
+      padding: EdgeInsets.all(5.0),
       child: _BackupContent(),
     );
   }
 }
 
 class _BackupContent extends StatelessWidget {
+  const _BackupContent();
+
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
-    return Scaffold(
 
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ZCover(
-            radius: 4,
-            color: Theme.of(context).colorScheme.surface,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    tr.databaseBackup,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    tr.downloadBackupMsg,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.outline.withValues(alpha: .8),
-                        fontSize: 14
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  BlocConsumer<BackupBloc, BackupState>(
-                    listener: (context, state) {
-                      if (state is BackupDownloadSuccess) {
-                        ToastManager.show(
-                            title: tr.backupTitle,
-                            context: context, message: 'Backup downloaded to: ${state.filePath}', type: ToastType.success);
-                      }
-                    },
-                    builder: (context, state) {
-                      return Row(
-                        spacing: 8,
+          _buildHeader(context, tr),
+          const SizedBox(height: 10),
+          _buildRecentBackupHeader(context, tr),
+          Expanded(
+            child: _buildBackupList(context, tr),
+          ),
+        ],
+      ),
+    );
+  }
 
-                        children: [
-                          ZOutlineButton(
-                            height: 45,
-                            isActive: true,
-                            onPressed: state is BackupLoading
-                                ? null
-                                : () {
-                              context.read<BackupBloc>().add(DownloadBackupEvent());
-                            },
-                            icon: Icons.cloud_download_outlined,
-                            label: state is BackupLoading
-                                ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                                : Text(
-                              tr.downloadLatestBackup,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                          ZOutlineButton(
-                            height: 45,
-
-                            onPressed: state is BackupLoading
-                                ? null
-                                : () {
-                              _showBrowseRestoreDialog(context);
-                            },
-                            icon: Icons.folder_outlined,
-                            label: Text(
-                              tr.browse,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+  // ============================================================
+  // HEADER SECTION
+  // ============================================================
+  Widget _buildHeader(BuildContext context, AppLocalizations tr) {
+    return ZCover(
+      radius: 7,
+      color: Theme.of(context).colorScheme.primary.withAlpha(30),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              tr.databaseBackup,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              spacing: 10,
-              children: [
-                Icon(Icons.backup_rounded),
-                Text(
-                  tr.recentBackup,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            const SizedBox(height: 5),
+            Text(
+              tr.downloadBackupMsg,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.outline,
+                fontSize: context.scaledFont(0.010),
+              ),
             ),
-          ),
-          Expanded(
-            child: BlocConsumer<BackupBloc, BackupState>(
-              listener: (context, state) {
-                if (state is BackupDownloadSuccess) {
-                  context.read<BackupBloc>().add(LoadBackupsEvent());
-                }
-                if (state is BackupDeleteSuccess) {
-                  ToastManager.show(
-                      title: tr.deletedTitle,
-                      context: context, message: tr.deleteSuccessMessage, type: ToastType.success);
-                  context.read<BackupBloc>().add(LoadBackupsEvent());
-                }
-                if (state is BackupRenameSuccess) {
-                  ToastManager.show(
-                      title: tr.renameTitle,
-                      context: context, message: tr.successMessage, type: ToastType.success);
-                  context.read<BackupBloc>().add(LoadBackupsEvent());
-                }
-                if (state is BackupRestoreSuccess) {
-                  ToastManager.show(
-                      title: tr.restoreComplete,
-                      context: context,
-                      message: tr.restoreSuccessMessage,
-                      type: ToastType.success);
-                  context.read<BackupBloc>().add(LoadBackupsEvent());
-                }
-                if (state is BackupError) {
-                  ToastManager.show(
-                      title: tr.errorTitle,
-                      context: context,
-                      message: state.message,
-                      type: ToastType.error);
-                }
-              },
-              builder: (context, state) {
-                if (state is BackupsLoaded) {
-                  if (state.backups.isEmpty) {
-                    return Center(
-                      child: NoDataWidget(
-                        message: tr.noBackupFound,
-                        onRefresh: (){
-                          context.read<BackupBloc>().add(LoadBackupsEvent());
-                        },
-                      ),
-                    );
-                  }
+            const SizedBox(height: 15),
+            _buildActionButtons(context, tr),
+          ],
+        ),
+      ),
+    );
+  }
 
-                  return ListView.builder(
-                    itemCount: state.backups.length,
-                    itemBuilder: (context, index) {
-                      final file = state.backups[index];
-                      final fileStat = file.statSync();
+  // ============================================================
+  // ACTION BUTTONS (Download & Browse)
+  // ============================================================
+  Widget _buildActionButtons(BuildContext context, AppLocalizations tr) {
+    return BlocConsumer<BackupBloc, BackupState>(
+      listener: (context, state) {
+        if (state is BackupDownloadSuccess) {
+          ToastManager.show(
+            title: tr.backupTitle,
+            context: context,
+            message: 'Backup downloaded to: ${state.filePath}',
+            type: ToastType.success,
+          );
+        }
+        if (state is BackupError) {
+          ToastManager.show(
+            title: tr.errorTitle,
+            context: context,
+            message: state.message,
+            type: ToastType.error,
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is BackupLoading || state is BackupInProgress;
 
-                      final fileName = file.path.split(Platform.pathSeparator).last;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: ZCover(
-                          radius: 5,
-                          color: Theme.of(context).colorScheme.surface,
-                          child: ListTile(
-                            leading: Icon(Icons.storage_rounded),
-                            hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: .05),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                            title: Text(
-                              fileName,
-                              style: const TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Size: ${_formatBytes(fileStat.size)}',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                Text(
-                                  file.path,
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Theme.of(context).colorScheme.outline,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                            trailing: PopupMenuButton<String>(
-                              icon: Icon(Icons.more_vert),
-                              onSelected: (value) {
-                                switch (value) {
-                                  case 'restore':
-                                    _showRestoreDialog(context, file.path);
-                                    break;
-                                  case 'rename':
-                                    _showRenameDialog(context, file.path);
-                                    break;
-                                  case 'delete':
-                                    _showDeleteDialog(context, file.path);
-                                    break;
-                                  case 'folder':
-                                    _openFolder(context, file.path);
-                                    break;
-                                  case 'info':
-                                    _showFileInfo(context, file.path);
-                                    break;
-                                }
-                              },
-                              itemBuilder: (context) => [
-                                PopupMenuItem(
-                                  value: 'restore',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.restore, color: Colors.orange),
-                                      const SizedBox(width: 8),
-                                      Text(tr.restoreDatabase),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem(
-                                  value: 'rename',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.edit, color: Theme.of(context).colorScheme.primary),
-                                      const SizedBox(width: 8),
-                                      Text(tr.renameTitle),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem(
-                                  value: 'folder',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.folder_open, color: Theme.of(context).colorScheme.primary),
-                                      const SizedBox(width: 8),
-                                      Text(tr.showInFolder),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem(
-                                  value: 'info',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.info, color: Theme.of(context).colorScheme.primary),
-                                      const SizedBox(width: 8),
-                                      Text(tr.fileInfo),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem(
-                                  value: 'delete',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
-                                      const SizedBox(width: 8),
-                                      Text(tr.delete),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                } else if (state is BackupRestoreProgress) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text(
-                          state.message,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  );
-                } else if (state is BackupError) {
-                  return Center(
-                    child: Text(
-                      'Error: ${state.message}',
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
-                    ),
-                  );
-                } else if (state is BackupLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return const Center(child: Text('No data available'));
+        return Row(
+          spacing: 8,
+          children: [
+            ZOutlineButton(
+              height: 45,
+              isActive: true,
+              onPressed: isLoading ? null : () {
+                context.read<BackupBloc>().add(DownloadBackupEvent());
               },
+              icon: Icons.cloud_download_outlined,
+              label: isLoading
+                  ? SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+                  : Text(
+                tr.downloadLatestBackup,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            ZOutlineButton(
+              height: 45,
+              onPressed: isLoading ? null : () {
+                _showBrowseRestoreDialog(context);
+              },
+              icon: Icons.folder_outlined,
+              label: Text(
+                tr.browse,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // RECENT BACKUP HEADER
+  // ============================================================
+  Widget _buildRecentBackupHeader(BuildContext context, AppLocalizations tr) {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Row(
+        spacing: 10,
+        children: [
+          Icon(Icons.alarm, color: Theme.of(context).colorScheme.primary),
+          Text(
+            tr.recentBackup,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
       ),
     );
   }
+
+  // ============================================================
+  // BACKUP LIST
+  // ============================================================
+  Widget _buildBackupList(BuildContext context, AppLocalizations tr) {
+    return BlocConsumer<BackupBloc, BackupState>(
+      listener: (context, state) {
+        _handleStateChanges(context, state, tr);
+      },
+      builder: (context, state) {
+        // Show loading state
+        if (state is BackupLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        // Show backup in progress
+        if (state is BackupInProgress) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Creating backup before restore...'),
+              ],
+            ),
+          );
+        }
+
+        // Show restore after backup progress
+        if (state is RestoreAfterBackupProgress) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(
+                  state.message,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Show restore progress (legacy)
+        if (state is BackupRestoreProgress) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(
+                  state.message,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Show loaded backups
+        if (state is BackupsLoaded) {
+          if (state.backups.isEmpty) {
+            return Center(
+              child: NoDataWidget(
+                message: tr.noBackupFound,
+                onRefresh: () {
+                  context.read<BackupBloc>().add(LoadBackupsEvent());
+                },
+              ),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: state.backups.length,
+            itemBuilder: (context, index) {
+              final file = state.backups[index];
+              return _buildBackupItem(context, file, tr);
+            },
+          );
+        }
+
+        // Show error
+        if (state is BackupError) {
+          return Center(
+            child: Text(
+              'Error: ${state.message}',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          );
+        }
+
+        return const Center(child: Text('No data available'));
+      },
+    );
+  }
+
+  // ============================================================
+  // BACKUP ITEM
+  // ============================================================
+  Widget _buildBackupItem(BuildContext context, FileSystemEntity file, AppLocalizations tr) {
+    final fileStat = file.statSync();
+    final fileName = file.path.split(Platform.pathSeparator).last;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: ZCover(
+        radius: 5,
+        color: Theme.of(context).colorScheme.surface,
+        child: ListTile(
+          leading: ZCover(
+              color: Theme.of(context).colorScheme.primary.withAlpha(10),
+              padding: EdgeInsets.all(7),
+              radius: 5,
+              child: Icon(Icons.storage_rounded, color: Theme.of(context).colorScheme.primary)),
+          hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: .05),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+          title: Text(
+            fileName,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Size: ${_formatBytes(fileStat.size)}',
+                style: const TextStyle(fontSize: 12),
+              ),
+              Text(
+                file.path,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          trailing: PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.primary),
+            onSelected: (value) {
+              switch (value) {
+                case 'restore':
+                  _showRestoreDialog(context, file.path);
+                  break;
+                case 'rename':
+                  _showRenameDialog(context, file.path);
+                  break;
+                case 'delete':
+                  _showDeleteDialog(context, file.path);
+                  break;
+                case 'folder':
+                  _openFolder(context, file.path);
+                  break;
+                case 'info':
+                  _showFileInfo(context, file.path);
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'restore',
+                child: Row(
+                  children: [
+                    Icon(Icons.restore, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    Text(tr.restoreDatabase),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'rename',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(tr.renameTitle),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'folder',
+                child: Row(
+                  children: [
+                    Icon(Icons.folder_open, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(tr.showInFolder),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'info',
+                child: Row(
+                  children: [
+                    Icon(Icons.info, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(tr.fileInfo),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                    const SizedBox(width: 8),
+                    Text(tr.delete),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // STATE CHANGE HANDLER
+  // ============================================================
+  void _handleStateChanges(BuildContext context, BackupState state, AppLocalizations tr) {
+    if (state is BackupDownloadSuccess) {
+      context.read<BackupBloc>().add(LoadBackupsEvent());
+    }
+
+    if (state is BackupDeleteSuccess) {
+      ToastManager.show(
+        title: tr.deletedTitle,
+        context: context,
+        message: tr.deleteSuccessMessage,
+        type: ToastType.success,
+      );
+      context.read<BackupBloc>().add(LoadBackupsEvent());
+    }
+
+    if (state is BackupRenameSuccess) {
+      ToastManager.show(
+        title: tr.renameTitle,
+        context: context,
+        message: tr.successMessage,
+        type: ToastType.success,
+      );
+      context.read<BackupBloc>().add(LoadBackupsEvent());
+    }
+
+    if (state is BackupRestoreSuccess) {
+      ToastManager.show(
+        title: tr.restoreComplete,
+        context: context,
+        message: tr.restoreSuccessMessage,
+        type: ToastType.success,
+      );
+      context.read<BackupBloc>().add(LoadBackupsEvent());
+    }
+
+    if (state is BackupError) {
+      ToastManager.show(
+        title: tr.errorTitle,
+        context: context,
+        message: state.message,
+        type: ToastType.error,
+      );
+    }
+  }
+
+  // ============================================================
+  // BROWSE & RESTORE DIALOG
+  // ============================================================
   void _showBrowseRestoreDialog(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
 
@@ -377,12 +493,12 @@ class _BackupContent extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5)
+          borderRadius: BorderRadius.circular(5),
         ),
         title: Row(
           children: [
             Icon(Icons.folder_open, color: Theme.of(context).colorScheme.primary),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(tr.restoreDatabase),
           ],
         ),
@@ -392,9 +508,9 @@ class _BackupContent extends StatelessWidget {
           children: [
             Text(
               tr.sqlMessage,
-              style: TextStyle(fontSize: 15),
+              style: const TextStyle(fontSize: 15),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -402,14 +518,14 @@ class _BackupContent extends StatelessWidget {
                 border: Border.all(color: Colors.orange.withValues(alpha: .3)),
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(Icons.warning_amber, color: Colors.orange, size: 20),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      tr.restoreMessage  ,
-                      style: TextStyle(fontSize: 15, color: Colors.orange.shade800),
+                      'یک فایل پشتیبانی خودکار قبل از بازگردانی اطلاعات گرفته میشود.',
+                      style: TextStyle(fontSize: 15, color: Colors.orange),
                     ),
                   ),
                 ],
@@ -425,46 +541,41 @@ class _BackupContent extends StatelessWidget {
           ZOutlineButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              // Open file picker and restore
+              // ✅ Auto-backup happens in BLoC
               context.read<BackupBloc>().add(PickAndRestoreBackupEvent());
             },
-            icon: Icons.file_open,
+            isActive:true,
+            icon: Icons.folder_open,
             label: Text(tr.browse),
-
           ),
         ],
       ),
     );
   }
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1048576) return '${(bytes / 1024).toStringAsFixed(2)} KB';
-    return '${(bytes / 1048576).toStringAsFixed(2)} MB';
-  }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-  }
-
+  // ============================================================
+  // RESTORE DIALOG
+  // ============================================================
   void _showRestoreDialog(BuildContext context, String filePath) {
+    final tr = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5)
+          borderRadius: BorderRadius.circular(5),
         ),
         title: Row(
           children: [
             Icon(Icons.restore, color: Colors.orange),
-            SizedBox(width: 8),
-            Text(AppLocalizations.of(context)!.restoreDatabase),
+            const SizedBox(width: 8),
+            Text(tr.restoreDatabase),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Warning message
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -472,39 +583,33 @@ class _BackupContent extends StatelessWidget {
                 border: Border.all(color: Colors.orange.withValues(alpha: .3)),
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(Icons.warning_amber, color: Colors.orange, size: 20),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      AppLocalizations.of(context)!.restoreMessage,
-                      style: TextStyle(fontSize: 15, color: Colors.orange.shade800),
+                      'یک فایل پشتیبانی خودکار قبل از بازگردانی اطلاعات گرفته میشود.',
+                      style: TextStyle(fontSize: 15, color: Colors.orange),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16),
-
-            // File info
-            Container(
+            const SizedBox(height: 16),
+            ZCover(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(5),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Restoring from:',
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+                    'بازگردانی از دیتابیس',
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     filePath.split(Platform.pathSeparator).last,
-                    style: TextStyle(fontSize: 13),
+                    style: const TextStyle(fontSize: 13),
                   ),
                 ],
               ),
@@ -514,62 +619,70 @@ class _BackupContent extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(tr.cancel),
           ),
           ZOutlineButton(
             isActive: true,
             onPressed: () {
               Navigator.pop(dialogContext);
+              // ✅ Auto-backup happens in BLoC
               context.read<BackupBloc>().add(RestoreBackupEvent(filePath));
             },
             icon: Icons.restore,
-            label: Text(AppLocalizations.of(context)!.restoreTitle),
+            label: Text(tr.restoreTitle),
           ),
         ],
       ),
     );
   }
 
+  // ============================================================
+  // DELETE DIALOG
+  // ============================================================
   void _showDeleteDialog(BuildContext context, String filePath) {
+    final tr = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5)
+          borderRadius: BorderRadius.circular(5),
         ),
-        title: Text(AppLocalizations.of(context)!.delete),
-        content: Text(AppLocalizations.of(context)!.deleteMessage),
+        title: Text(tr.delete),
+        content: Text(tr.deleteMessage),
         actions: [
-          ZOutlineButton(
-            onPressed: () => Navigator.pop(context),
-            label: Text(AppLocalizations.of(context)!.cancel),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(tr.cancel),
           ),
           ZOutlineButton(
             isActive: true,
             backgroundHover: Theme.of(context).colorScheme.error,
             onPressed: () {
+              Navigator.pop(dialogContext);
               context.read<BackupBloc>().add(DeleteBackupEvent(filePath));
-              Navigator.pop(context);
             },
-            label: Text(AppLocalizations.of(context)!.delete),
+            label: Text(tr.delete),
           ),
         ],
       ),
     );
   }
 
+  // ============================================================
+  // RENAME DIALOG
+  // ============================================================
   void _showRenameDialog(BuildContext context, String filePath) {
     final file = File(filePath);
-    // ✅ Use Platform.pathSeparator for cross-platform compatibility
     final currentName = file.path.split(Platform.pathSeparator).last;
     final textController = TextEditingController(text: currentName);
     final tr = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5)
+          borderRadius: BorderRadius.circular(5),
         ),
         title: Text(tr.renameBackup),
         content: Column(
@@ -581,18 +694,18 @@ class _BackupContent extends StatelessWidget {
               onSubmit: (value) {
                 if (value.isNotEmpty && value != currentName) {
                   final parentDir = file.parent.path;
-                  final newPath = '$parentDir${Platform.pathSeparator}$value'; // ✅ Use Platform.pathSeparator
+                  final newPath = '$parentDir${Platform.pathSeparator}$value';
                   context.read<BackupBloc>().add(RenameBackupEvent(filePath, newPath));
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                 }
               },
             ),
           ],
         ),
         actions: [
-          ZOutlineButton(
-            onPressed: () => Navigator.pop(context),
-            label: Text(tr.cancel),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(tr.cancel),
           ),
           ZOutlineButton(
             isActive: true,
@@ -600,9 +713,9 @@ class _BackupContent extends StatelessWidget {
               final newName = textController.text.trim();
               if (newName.isNotEmpty && newName != currentName) {
                 final parentDir = file.parent.path;
-                final newPath = '$parentDir${Platform.pathSeparator}$newName'; // ✅ Use Platform.pathSeparator
+                final newPath = '$parentDir${Platform.pathSeparator}$newName';
                 context.read<BackupBloc>().add(RenameBackupEvent(filePath, newPath));
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
               }
             },
             label: Text(tr.renameTitle),
@@ -612,6 +725,9 @@ class _BackupContent extends StatelessWidget {
     );
   }
 
+  // ============================================================
+  // OPEN FOLDER
+  // ============================================================
   Future<void> _openFolder(BuildContext context, String filePath) async {
     final file = File(filePath);
     final directory = file.parent.path;
@@ -647,15 +763,19 @@ class _BackupContent extends StatelessWidget {
       }
     }
   }
+
+  // ============================================================
+  // FOLDER LOCATION DIALOG
+  // ============================================================
   void _showFolderLocation(BuildContext context, String filePath) {
     final file = File(filePath);
     final directory = file.parent.path;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5)
+          borderRadius: BorderRadius.circular(5),
         ),
         title: const Text('Folder Location'),
         content: Column(
@@ -672,7 +792,7 @@ class _BackupContent extends StatelessWidget {
               ),
               child: Text(
                 directory,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 12,
                 ),
@@ -692,13 +812,13 @@ class _BackupContent extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Close'),
           ),
           if (!Platform.isIOS) ...[
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 _openFolder(context, filePath);
               },
               child: const Text('Try Again'),
@@ -708,15 +828,19 @@ class _BackupContent extends StatelessWidget {
       ),
     );
   }
+
+  // ============================================================
+  // FILE INFO DIALOG
+  // ============================================================
   void _showFileInfo(BuildContext context, String filePath) {
     final file = File(filePath);
     final stat = file.statSync();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5)
+          borderRadius: BorderRadius.circular(5),
         ),
         title: const Text('File Information'),
         content: Column(
@@ -732,11 +856,24 @@ class _BackupContent extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Close'),
           ),
         ],
       ),
     );
+  }
+
+  // ============================================================
+  // HELPER METHODS
+  // ============================================================
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1048576) return '${(bytes / 1024).toStringAsFixed(2)} KB';
+    return '${(bytes / 1048576).toStringAsFixed(2)} MB';
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 }
