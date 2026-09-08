@@ -363,7 +363,6 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
       );
     }
 
-    @override
     final shortcuts = {
       const SingleActivator(LogicalKeyboardKey.f9): () => _onSalePrint(),
       const SingleActivator(LogicalKeyboardKey.f10): () => _onPrintStockPaper(),
@@ -881,6 +880,7 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
                                       _synchronizeFocusNodes(current.items.length);
                                       return ListView.builder(
                                         itemCount: current.items.length,
+
                                         itemBuilder: (context, index) {
                                           final item = current.items[index];
                                           final isLastRow = index == current.items.length - 1;
