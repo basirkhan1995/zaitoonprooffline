@@ -15,10 +15,12 @@ import 'package:zaitoonpro/Localizations/Bloc/localizations_bloc.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Company/CompanyProfile/bloc/company_profile_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Stakeholders/Ui/Accounts/bloc/accounts_bloc.dart';
+import 'package:zaitoonpro/Views/Menu/Ui/Stock/Ui/OrderScreen/NewSale/bloc/sale_invoice_bloc.dart';
 import '../../../../../../../Features/Date/z_generic_date.dart';
 import '../../../../../../../Features/Date/z_range_picker.dart';
 import '../../../../../../../Features/Generic/rounded_searchable_textfield.dart';
 import '../../../../../../../Features/Other/utils.dart';
+import '../../../../../../../Features/Other/znavigator.dart';
 import '../../../../../../../Features/PrintSettings/print_preview.dart';
 import '../../../../../../../Features/PrintSettings/report_model.dart';
 import '../../../../../../../Features/Widgets/share_helper.dart';
@@ -35,6 +37,7 @@ import '../../../../Journal/Ui/TxnByReference/bloc/txn_reference_bloc.dart';
 import '../../../../Journal/Ui/TxnByReference/txn_reference.dart';
 import '../../../../Settings/features/Visibility/bloc/settings_visible_bloc.dart';
 import '../../../../Stakeholders/Ui/Accounts/model/stk_acc_model.dart';
+import '../../../../Stock/Ui/OrderScreen/NewPurchase/bloc/purchase_invoice_bloc.dart';
 import '../../../../Stock/Ui/OrderScreen/NewPurchase/new_purchase.dart';
 import '../../../../Stock/Ui/OrderScreen/NewSale/new_sale.dart';
 import '../../TransactionRef/transaction_ref.dart';
@@ -608,18 +611,19 @@ class _DesktopState extends State<_Desktop> {
 
     // Handle SALE and PRCH directly - open invoice views without loading dialog
     if (txnType == 'SALE') {
-      Utils.goto(
-        context,
-        NewSaleView(orderId: reference),
-      );
+      context.read<SaleInvoiceBloc>().add(InitializeSaleInvoiceEvent());
+      // A tiny delay to ensure state is cleared before navigation
+      Future.delayed(const Duration(milliseconds: 50), () {
+        ZNavigator.goto(NewSaleView(orderId: reference));
+      });
       return;
     }
 
     if (txnType == 'PRCH') {
-      Utils.goto(
-        context,
-        NewPurchaseOrderView(orderId: reference),
-      );
+      context.read<PurchaseInvoiceBloc>().add(InitializePurchaseInvoiceEvent());
+      Future.delayed(const Duration(milliseconds: 50), () {
+        ZNavigator.goto(NewPurchaseOrderView(orderId: reference),);
+      });
       return;
     }
 

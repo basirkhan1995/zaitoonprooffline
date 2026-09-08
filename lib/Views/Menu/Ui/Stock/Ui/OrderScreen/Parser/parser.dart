@@ -227,8 +227,7 @@ class OrderParser {
   static Map<String, dynamic>? getSupplierAccount(List<Map<String, dynamic>> payments) {
     final excludedAccounts = [cashAccount, cogsAccount, extraChargesAccount, revenueAccount, discountAccount];
 
-    final supplierAccount = payments.firstWhere(
-          (p) {
+    final supplierAccount = payments.firstWhere((p) {
         final account = p['account'];
         return account >= stakeholderMin &&
             !excludedAccounts.contains(account) &&

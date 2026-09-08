@@ -220,7 +220,7 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
           toCurrency: toCurrency,
           cashCurrency: cashCurrency != event.baseCurrency ? cashCurrency : null,
           cashExchangeRate: exchangeRate,
-          xRef: parsed['reference'],
+          xRef: parsed['xReference'],
           reference: reference,
           remark: parsed['remarks'],
           ordName: parsed['orderType'],
@@ -231,6 +231,7 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
       emit(PurchaseInvoiceError('Failed to load invoice: $e'));
     }
   }
+
   String _extractExpenseNarration(String narration) {
     final rateMatch = RegExp(r'\s*@Rate:\s*[\d.]+').firstMatch(narration);
     if (rateMatch != null) {
@@ -1074,13 +1075,15 @@ class PurchaseInvoiceBloc extends Bloc<PurchaseInvoiceEvent, PurchaseInvoiceStat
         }
       }
 
-      final xRef = event.xRef ?? current.reference ?? '';
+      final xRef = event.xRef ?? '';
+      final ref = event.ref;
 
       // Use the orderId we determined at the start
       final response = await repo.updatePurchaseInvoice(
         usrName: event.usrName,
         perID: event.ordPersonal,
-        ref: xRef,
+        ref: ref,
+        xRef: xRef,
         orderId: orderIdToUse,
         orderName: "Purchase",
         remark: event.remark,

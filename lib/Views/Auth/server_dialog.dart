@@ -440,71 +440,27 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final locale = AppLocalizations.of(context)!;
-
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.45,
-        constraints: const BoxConstraints(maxWidth: 550, minWidth: 420),
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            _buildHeader(theme, locale),
-            const SizedBox(height: 16),
-
-            // Current Connection Status
-            _buildConnectionStatus(),
-            const SizedBox(height: 16),
-
-            // This device info
-            if (_myIP != null) _buildDeviceInfo(),
-            const SizedBox(height: 16),
-
-            // Manual IP Input with Connect button
-            _buildManualInput(),
-            const SizedBox(height: 16),
-
-            // Quick Connect Options
-            _buildConnectionOptions(),
-            const SizedBox(height: 16),
-
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(ThemeData theme, AppLocalizations locale) {
-    return Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: theme.primaryColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(Icons.dns, color: theme.primaryColor, size: 24),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            locale.connectToServer,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.close, size: 22),
-          onPressed: () => Navigator.pop(context, false),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
+
+        // Current Connection Status
+        _buildConnectionStatus(),
+        const SizedBox(height: 16),
+
+        // This device info
+        if (_myIP != null) _buildDeviceInfo(),
+        const SizedBox(height: 16),
+
+        // Manual IP Input with Connect button
+        _buildManualInput(),
+        const SizedBox(height: 16),
+
+        // Quick Connect Options
+        _buildConnectionOptions(),
+        const SizedBox(height: 16),
+
       ],
     );
   }

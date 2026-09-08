@@ -230,6 +230,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
     if (authState is AuthenticatedState) {
       baseCurrency = authState.loginData.company?.comLocalCcy;
     }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
@@ -417,7 +418,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                 _accountController.text = '${state.supplierAccount!.accNumber}';
               }
 
-              // Set reference and remark
+              // Set xReference
               _xRefController.text = state.xRef ?? '';
               _remark.text = state.remark ?? '';
 
@@ -788,6 +789,7 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                               child: ZTextFieldEntitled(
                                 controller: _xRefController,
                                 title: tr.invoiceNumber,
+                                hint: tr.invoiceNumber,
                               ),
                             ),
                             if (needsConversion) ...[
@@ -900,7 +902,12 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
     TextStyle? title = Theme.of(
       context,
     ).textTheme.titleSmall?.copyWith(color: color.surface);
-
+    // ✅ Get currency directly from state
+    final state = context.watch<PurchaseInvoiceBloc>().state;
+    String toCurrency = '';
+    if (state is PurchaseInvoiceLoaded) {
+      toCurrency = state.toCurrency ?? '';
+    }
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -921,23 +928,23 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
                   SizedBox(width: 100, child: Text(locale.qty)),
                   if(visibility.isWholeSale)...[
                     SizedBox(width: 100, child: Text(locale.batchTitle)),
-                    SizedBox(width: 100, child: Text(locale.totalQty)),
+                    SizedBox(width: 100, child: Text(locale.totalTitle)),
                   ],
                   SizedBox(
                     width: 150,
-                    child: Text("${locale.unitPrice} ($baseCurrency)"),
+                    child: Text("${locale.unitPrice} | $baseCurrency"),
                   ),
                   if (_needsLocalConversion(context))
                     SizedBox(
                       width: 150,
                       child: Text(
-                        "${locale.unitPrice} ($accountCcy)",
+                        "${locale.unitPrice} | $toCurrency",
                       ),
                     ),
                   SizedBox(width: 150, child: Text("${locale.salePrice} %")),
                   SizedBox(
                     width: 150,
-                    child: Text("${locale.landedPrice} ($baseCurrency)"),
+                    child: Text("${locale.landedPrice} | $baseCurrency"),
                   ),
                   SizedBox(width: 180, child: Text(locale.warehouse)),
                   SizedBox(width: 60, child: Text(locale.actions)),
@@ -1482,7 +1489,8 @@ class _DesktopPurchaseOrderViewState extends State<_DesktopPurchaseOrderView> {
         usrName: _userName ?? '',
         orderName: "Purchase",
         ordPersonal: state.supplier!.perId!,
-        xRef: _xRefController.text.isNotEmpty ? _xRefController.text : null,
+        xRef: _xRefController.text,
+        ref: state.reference,
         orderId: state.orderId,
         remark: _remark.text,
         completer: completer,
@@ -3786,12 +3794,12 @@ class _MobilePurchaseOrderViewState extends State<_MobilePurchaseOrderView> {
                           );
                         },
                       ),
-                      // const SizedBox(height: 8),
-                      // ZTextFieldEntitled(
-                      //   hint: tr.optional,
-                      //   controller: _xRefController,
-                      //   title: tr.invoiceNumber,
-                      // ),
+                      const SizedBox(height: 8),
+                      ZTextFieldEntitled(
+                        hint: tr.optional,
+                        controller: _xRefController,
+                        title: tr.invoiceNumber,
+                      ),
                     ],
                   ),
                 ),
@@ -4533,7 +4541,7 @@ class _MobilePurchaseOrderViewState extends State<_MobilePurchaseOrderView> {
         usrName: _userName ?? '',
         orderName: "Purchase",
         ordPersonal: state.supplier!.perId!,
-        xRef: _xRefController.text.isNotEmpty ? _xRefController.text : null,
+        xRef: _xRefController.text,
         completer: completer,
       ),
     );

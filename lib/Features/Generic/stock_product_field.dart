@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/extensions.dart';
 import 'package:zaitoonpro/Features/Widgets/section_title.dart';
 import 'package:zaitoonpro/Views/Auth/bloc/auth_bloc.dart';
@@ -625,6 +624,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                                   child: Row(
                                     children: [
                                       Expanded(child: Text(tr.productName, style: titleStyle?.copyWith(fontSize: 16))),
+                                      SizedBox(width: 80, child: Text(tr.storage, textAlign: TextAlign.center, style: titleStyle)),
                                       SizedBox(width: 80, child: Text(tr.unit, textAlign: TextAlign.center, style: titleStyle)),
                                       SizedBox(width: 120, child: Text(tr.available, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
                                       if(visibility.isWholeSale)
@@ -729,20 +729,6 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                             width: 380,
                             height: double.infinity,
                             margin: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: .05),
-                                  blurRadius: 8,
-                                  offset: const Offset(-2, 0),
-                                ),
-                              ],
-                            ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: _buildProductDetailsPanel(),
@@ -786,6 +772,14 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17,color: fontColor),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        SizedBox(
+          width: 80,
+          child: Text(
+            widget.getStorageName(product) ?? '0',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
         SizedBox(
@@ -847,14 +841,8 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        SizedBox(
           width: double.infinity,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: .03),
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHighest),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -863,15 +851,45 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       spacing: 3,
                       children: [
                         Text(
                           widget.getProductName(product) ?? '',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: context.scaledFont(0.03), fontWeight: FontWeight.bold),
                         ),
-                        Text(
-                          widget.getProductCode(product) ?? 'N/A',
-                          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.outline),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              widget.getProductCode(product) ?? 'N/A',
+                              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.outline),
+                            ),
+                            Container(
+                              margin: EdgeInsets.all(5),
+                              height: 15,
+                              width: 2,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.outline.withAlpha(60),
+                              ),
+                            ),
+                            Text(
+                              widget.getProductUnit?.call(product) ?? 'N/A',
+                              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.outline),
+                            ),
+                            Container(
+                              margin: EdgeInsets.all(5),
+                              height: 15,
+                              width: 2,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.outline.withAlpha(60),
+                              ),
+                            ),
+                            Text(
+                              widget.getProductId.call(product) ?? 'N/A',
+                              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.outline),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -900,21 +918,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
           _buildDetailItem(Icons.dark_mode, tr.landedPrice, widget.getLandedPrice(product).toAmount(decimal: 4), currency: baseCurrency),
           _buildDetailItem(Icons.attach_money, tr.sellPrice, widget.getSellPrice(product).toAmount(decimal: 4), color: Colors.green, isBold: true, currency: baseCurrency),
         ]),
-        const SizedBox(height: 16),
-        _buildDetailCard(tr.productSpecification, [
-          if (widget.getProductUnit != null)
-            _buildDetailItem(Icons.category, tr.unit, widget.getProductUnit!(product) ?? 'N/A'),
-          if (widget.getProductBrand != null)
-            _buildDetailItem(Icons.branding_watermark, tr.brandTitle, widget.getProductBrand!(product) ?? 'N/A'),
-          if (widget.getProductModel != null)
-            _buildDetailItem(Icons.model_training, tr.modelTitle, widget.getProductModel!(product) ?? 'N/A'),
-          if (widget.getProductMadeIn != null)
-            _buildDetailItem(Icons.location_on, tr.madeIn, widget.getProductMadeIn!(product) ?? 'N/A'),
-          if (widget.getProductGrade != null)
-            _buildDetailItem(Icons.star, tr.gradeTitle, widget.getProductGrade!(product) ?? 'N/A'),
-          if (widget.getProductColor != null)
-            _buildDetailItem(Icons.color_lens, 'Color', widget.getProductColor!(product) ?? 'N/A'),
-        ]),
+
         const SizedBox(height: 8),
         if (widget.getProductDetails != null && widget.getProductDetails!(product) != null && widget.getProductDetails!(product)!.isNotEmpty)
           _buildDetailCard(tr.productDetails, [
@@ -979,14 +983,14 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: .05),
+        color: Theme.of(context).colorScheme.outline.withValues(alpha: .01),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.withValues(alpha: .2)),
+        border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: .2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ZCover(radius: 3, padding: EdgeInsets.symmetric(horizontal: 3), child: SectionTitle(title: title)),
+          SectionTitle(title: title),
           const SizedBox(height: 5),
           ...children,
         ],
@@ -1292,7 +1296,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                           }
                         }
 
-                        _isSearching = false; // MARK: Reset search flag after processing
+                        _isSearching = false;
                       }
                     });
 

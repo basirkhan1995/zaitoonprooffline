@@ -16,11 +16,13 @@ import 'package:zaitoonpro/Views/Menu/Ui/Stock/Ui/OrderScreen/NewSale/new_sale.d
 import 'package:zaitoonpro/Views/Menu/Ui/Stock/Ui/Orders/Ui/orders.dart';
 import '../../../../Features/Generic/tab_bar.dart';
 import '../../../../Features/Other/toast.dart';
+import '../../../../Features/Other/znavigator.dart';
 import '../../../../Features/Widgets/outline_button.dart';
 import '../../../../Localizations/l10n/translations/app_localizations.dart';
 import '../../../Auth/bloc/auth_bloc.dart';
 import '../Report/Ui/Stock/Cardx/Ui/cardx.dart';
 import 'Ui/GoodsShift/goods_shift.dart';
+import 'Ui/OrderScreen/NewPurchase/bloc/purchase_invoice_bloc.dart';
 import 'Ui/Orders/bloc/orders_bloc.dart';
 import 'bloc/stock_tab_bloc.dart';
 
@@ -421,7 +423,13 @@ class _StockViewState extends State<StockView> {
                 icon: Icons.shopping_bag_outlined,
                 iconSize: 22,
                 width: double.infinity,
-                onPressed: () => Utils.goto(context, NewPurchaseOrderView()),
+                onPressed: (){
+                  context.read<PurchaseInvoiceBloc>().add(InitializePurchaseInvoiceEvent());
+                  // A tiny delay to ensure state is cleared before navigation
+                  Future.delayed(const Duration(milliseconds: 50), () {
+                    ZNavigator.goto(NewPurchaseOrderView());
+                  });
+                },
               ),
 
             if (login.hasPermission(57) ?? false)

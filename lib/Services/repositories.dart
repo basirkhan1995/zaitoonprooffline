@@ -1912,6 +1912,7 @@ class Repositories {
     required String usrName,
     required int perID,
     String? ref,
+    String? xRef,
     int? orderId,
     required String orderName, //Purchase or Sale
     String? remark,
@@ -1923,7 +1924,7 @@ class Repositories {
       "ordName": orderName,
       "ordPersonal": perID,
       "ordTrnRef": ref ?? "",
-      "ordxRef": ref ?? "",
+      "ordxRef": xRef ?? "",
       "ordID": orderId,
       "ordRemarks": remark,
       "payments": payment.map((e)=> e.toJson()).toList(),

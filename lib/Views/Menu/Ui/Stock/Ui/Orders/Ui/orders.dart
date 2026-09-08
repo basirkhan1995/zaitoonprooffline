@@ -18,7 +18,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../../Features/Generic/shimmer.dart';
 import '../../../../../../../Features/Widgets/outline_button.dart';
 import '../../../../../../../Features/Widgets/search_field.dart';
-import '../../../../../../../Features/Widgets/txn_status_widget.dart';
+import '../../../../../../../Features/Widgets/status_icon.dart';
 import '../../../../Settings/Ui/Company/CompanyProfile/bloc/company_profile_bloc.dart';
 import '../../../../Settings/features/Visibility/bloc/settings_visible_bloc.dart';
 import '../model/orders_model.dart';
@@ -537,8 +537,8 @@ class _TabletOrdersViewState extends State<_TabletOrdersView> {
                           return InkWell(
                             onTap: () {
                               Utils.goto(
-                                context,
-                                 ord.ordName == "Sale"? NewSaleView(orderId: ord.ordId) : NewPurchaseOrderView(orderId: ord.ordId)
+                                  context,
+                                  ord.ordName == "Sale"? NewSaleView(orderId: ord.ordId) : NewPurchaseOrderView(orderId: ord.ordId)
                               );
                             },
                             child: Container(
@@ -782,7 +782,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8)
+            borderRadius: BorderRadius.circular(8)
         ),
         title:   Text(AppLocalizations.of(context)!.areYouSure),
         content: Text(
@@ -1006,35 +1006,35 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                 color: color.outline.withValues(alpha: .08),
               ),
               child: Row(
-                children: [
-                  // Dynamic width based on selection mode
-                  SizedBox(
-                    width: _isSelectionMode ? 74 : 50, // 50 + 24 for checkbox
-                    child: Row(
-                      children: [
-                        if (_isSelectionMode)
-                          const SizedBox(width: 24), // Placeholder for checkbox
-                        const SizedBox(width: 4),
-                        Text("#", style: titleStyle),
-                      ],
+                  children: [
+                    // Dynamic width based on selection mode
+                    SizedBox(
+                      width: _isSelectionMode ? 74 : 50, // 50 + 24 for checkbox
+                      child: Row(
+                        children: [
+                          if (_isSelectionMode)
+                            const SizedBox(width: 24), // Placeholder for checkbox
+                          const SizedBox(width: 4),
+                          Text("#", style: titleStyle),
+                        ],
+                      ),
                     ),
-                  ),
                     SizedBox(width: 100, child: Text(tr.date,style: titleStyle)),
                     SizedBox(width: 215, child: Text(tr.referenceNumber,style: titleStyle)),
-                  SizedBox(width: 100, child: Text(tr.invoiceType,style: titleStyle)),
+                    SizedBox(width: 100, child: Text(tr.invoiceType,style: titleStyle)),
                     Expanded(child: Text(tr.party,style: titleStyle)),
 
                     SizedBox(
-                    width: 160,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: Text(
-                          textAlign: TextAlign.end,
-                          tr.totalInvoice,style: titleStyle),
+                      width: 160,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        child: Text(
+                            textAlign: TextAlign.end,
+                            tr.totalInvoice,style: titleStyle),
+                      ),
                     ),
-                  ),
-                    SizedBox(width: 115, child: Text(tr.status,style: titleStyle)),
-                ]
+                    SizedBox(width: 60, child: Text(tr.status,style: titleStyle)),
+                  ]
               ),
             ),
 
@@ -1085,7 +1085,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                         children: [
                           CircularProgressIndicator(),
                           SizedBox(height: 16),
-                          Text('Updating order status...'),
+                          Text('در حال بروزرسانی...'),
                         ],
                       ),
                     );
@@ -1163,7 +1163,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                             children: [
 
                               Text(
-                                '${_selectedOrderIds.length} of ${filteredList.length} selected',
+                                '${_selectedOrderIds.length} از ${filteredList.length} انتخاب شده ',
 
                                 style: TextStyle(
                                   color: color.primary,
@@ -1338,7 +1338,7 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
                                             child: Text(
                                               ord.ordId.toString(),
                                               style: TextStyle(
-                                                fontWeight: FontWeight.w600
+                                                  fontWeight: FontWeight.w600
 
                                               ),
                                             ),
@@ -1546,9 +1546,8 @@ class _DesktopOrdersViewState extends State<_DesktopOrdersView> {
 
                                     // STATUS
                                     SizedBox(
-                                      width: 115,
-
-                                      child: TransactionStatusBadge(
+                                      width: 60,
+                                      child: StatusIcon(
                                         status: ord.ordStatus ?? "",
                                       ),
                                     ),

@@ -113,6 +113,7 @@ class UpdatePurchaseInvoiceEvent extends PurchaseInvoiceEvent {
   final String orderName;
   final int ordPersonal;
   final String? xRef;
+  final String? ref;
   final int? orderId;
   final String? remark;
   final Completer<String> completer;
@@ -121,12 +122,13 @@ class UpdatePurchaseInvoiceEvent extends PurchaseInvoiceEvent {
     required this.ordPersonal,
     required this.orderName,
     this.xRef,
+    this.ref,
     this.orderId,
     this.remark,
     required this.completer,
   });
   @override
-  List<Object?> get props => [usrName, ordPersonal, orderName, xRef, orderId, remark, completer];
+  List<Object?> get props => [usrName, ordPersonal, orderName, xRef,ref, orderId, remark, completer];
 }
 
 class ClearSupplierAccountEvent extends PurchaseInvoiceEvent {

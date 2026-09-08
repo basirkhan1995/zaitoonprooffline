@@ -657,7 +657,7 @@ class _DesktopState extends State<_Desktop> {
                 onPressed: (){
                   showDialog(context: context, builder: (context)=> ZFormDialog(
                     backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                    width: MediaQuery.of(context).size.width *.45,
+                    width: MediaQuery.of(context).size.width *.4,
                     onAction: null,
                     isActionTrue: false,
                     icon: Icons.storage_rounded,

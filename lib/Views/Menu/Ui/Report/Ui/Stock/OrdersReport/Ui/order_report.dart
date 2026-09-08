@@ -11,7 +11,7 @@ import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Stock/OrdersReport/bloc/order
 import '../../../../../../../../Features/Date/z_generic_date.dart';
 import '../../../../../../../../Features/Date/z_range_picker.dart';
 import '../../../../../../../../Features/Generic/rounded_searchable_textfield.dart';
-import '../../../../../../../../Features/Other/utils.dart';
+import '../../../../../../../../Features/Other/znavigator.dart';
 import '../../../../../../../../Features/Widgets/outline_button.dart';
 import '../../../../../../../../Features/Widgets/z_dragable_sheet.dart';
 import '../../../../../../../../Localizations/Bloc/localizations_bloc.dart';
@@ -19,7 +19,9 @@ import '../../../../../../../../Localizations/l10n/translations/app_localization
 import '../../../../../Settings/Ui/Company/CompanyProfile/bloc/company_profile_bloc.dart';
 import '../../../../../Stakeholders/Ui/Individuals/bloc/individuals_bloc.dart';
 import '../../../../../Stakeholders/Ui/Individuals/model/individual_model.dart';
+import '../../../../../Stock/Ui/OrderScreen/NewPurchase/bloc/purchase_invoice_bloc.dart';
 import '../../../../../Stock/Ui/OrderScreen/NewPurchase/new_purchase.dart';
+import '../../../../../Stock/Ui/OrderScreen/NewSale/bloc/sale_invoice_bloc.dart';
 import '../../../../../Stock/Ui/OrderScreen/NewSale/new_sale.dart';
 
 class OrderReportView extends StatelessWidget {
@@ -1372,10 +1374,21 @@ class _DesktopState extends State<_Desktop> {
                        final ord = state.orders[index];
                     return InkWell(
                       onTap: (){
-                        Utils.goto(
-                            context,
-                            ord.ordName == "Sale"? NewSaleView(orderId: ord.ordId) : ord.ordName == "Purchase"? NewPurchaseOrderView(orderId: ord.ordId) : SizedBox()
-                        );
+                        if(ord.ordName == "Sale"){
+                          context.read<SaleInvoiceBloc>().add(InitializeSaleInvoiceEvent());
+                          // A tiny delay to ensure state is cleared before navigation
+                          Future.delayed(const Duration(milliseconds: 50), () {
+                            ZNavigator.goto(NewSaleView(orderId: ord.ordId));
+                          });
+                          return;
+                        }if(ord.ordName == "Purchase"){
+                          context.read<PurchaseInvoiceBloc>().add(InitializePurchaseInvoiceEvent());
+                          // A tiny delay to ensure state is cleared before navigation
+                          Future.delayed(const Duration(milliseconds: 50), () {
+                            ZNavigator.goto(NewPurchaseOrderView(orderId: ord.ordId));
+                          });
+                          return;
+                        }
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 15,vertical: 8),
