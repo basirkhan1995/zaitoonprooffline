@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zaitoonpro/Features/Other/cover.dart';
 import 'package:zaitoonpro/Features/Other/responsive.dart';
 import 'package:zaitoonpro/Features/Widgets/section_title.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/Finance/Accounts/accounts.dart';
@@ -229,16 +228,9 @@ class _DesktopState extends State<_Desktop> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ZCover(
-                    radius: 8,
-                    color: isHovered? color.primary : Colors.transparent,
-                    padding: EdgeInsets.all(5),
-                    borderColor: color.outline.withValues(alpha: .2),
-                    shadowColor: Colors.transparent,
-                    child: Icon(button['icon'], size: 35, color: isHovered
-                        ? color.surface
-                        : color.primary.withValues(alpha: .9),
-                    ),
+                  Icon(button['icon'], size: 35, color: isHovered
+                      ? color.surface
+                      : color.primary.withValues(alpha: .8),
                   ),
                   const SizedBox(height: 8),
                   Text(

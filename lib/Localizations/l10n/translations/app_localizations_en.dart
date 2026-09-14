@@ -1133,7 +1133,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fundTransferMultiTitle => 'Fund Transfer MA';
 
   @override
-  String get storage => 'Warehouse';
+  String get storage => 'Godown';
 
   @override
   String get storages => 'Storages';
@@ -3529,4 +3529,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noItemsTitle => 'Total Items';
+
+  @override
+  String get searchProduct => 'Search for the product you want';
+
+  @override
+  String get stockTitle => 'Stock';
 }

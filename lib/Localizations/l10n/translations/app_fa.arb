@@ -749,8 +749,8 @@
   "successMessage": "فرآیند با موفقیت به پایان رسید",
   "deleteSuccessMessage": "مورد شما موفقانه حذف گردید.",
   "expenseAccount": "نام حساب",
-  "averagePrice": "ق. اوسط",
-  "recentPrice": "ق. آخرین",
+  "averagePrice": "اوسط خرید",
+  "recentPrice": "آخرین خرید",
   "stockBalance": "مانده انبار",
   "productMovement": "گردش کالا",
   "accountStatus": "وضعیت حساب",
@@ -1165,5 +1165,7 @@
   "connectedTo": "اتصال به سرور محلی",
   "applyDiscount": "ثبت به عنوان تخفیف",
   "connectingTitle": "در حال اتصال...",
-  "noItemsTitle": "تعداد قلم"
+  "noItemsTitle": "تعداد قلم",
+  "searchProduct": "محصول مورد نظر خود را جستجو کنید",
+  "stockTitle": "موجودی کالا"
 }

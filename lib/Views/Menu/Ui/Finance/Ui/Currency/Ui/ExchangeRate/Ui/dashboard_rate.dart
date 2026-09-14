@@ -9,7 +9,6 @@ import 'package:zaitoonpro/Views/Auth/bloc/auth_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Finance/Ui/Currency/Ui/ExchangeRate/Ui/add_rate.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Finance/Ui/Currency/Ui/ExchangeRate/bloc/exchange_rate_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Company/CompanyProfile/bloc/company_profile_bloc.dart';
 import 'package:zaitoonpro/Views/Menu/bloc/menu_bloc.dart';
 import '../../../../../../../../../Features/Widgets/outline_button.dart';
 import '../../../../../bloc/financial_tab_bloc.dart';
@@ -307,11 +306,11 @@ class _DesktopState extends State<_Desktop> {
   }
 
   void onRefresh() {
-    final companyState = context.read<CompanyProfileBloc>().state;
-    if (companyState is CompanyProfileLoadedState) {
+    final auth = context.read<AuthBloc>().state;
+    if (auth is AuthenticatedState) {
       context.read<ExchangeRateBloc>().add(
         LoadExchangeRateEvent(
-         companyState.company.comLocalCcy ?? "",
+         auth.loginData.company?.comLocalCcy ?? "",
         ),
       );
     }

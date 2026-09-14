@@ -203,7 +203,7 @@ class _BackupContent extends StatelessWidget {
       child: Row(
         spacing: 10,
         children: [
-          Icon(Icons.alarm, color: Theme.of(context).colorScheme.primary),
+          Icon(Icons.access_time_rounded, color: Theme.of(context).colorScheme.primary),
           Text(
             tr.recentBackup,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -336,7 +336,7 @@ class _BackupContent extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
           title: Text(
             fileName,
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 14),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

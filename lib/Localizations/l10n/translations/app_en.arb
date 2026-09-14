@@ -383,7 +383,7 @@
   "transactionFailedTitle": "Transaction Failed",
   "fundTransferTitle": "Fund Transfer",
   "fundTransferMultiTitle": "Fund Transfer MA",
-  "storage": "Warehouse",
+  "storage": "Godown",
   "storages": "Storages",
   "location": "Location",
   "unlimited": "Unlimited",
@@ -1165,5 +1165,7 @@
   "connectedTo": "Connected to Local host",
   "applyDiscount": "Apply Discount",
   "connectingTitle": "Connecting...",
-  "noItemsTitle": "Total Items"
+  "noItemsTitle": "Total Items",
+  "searchProduct": "Search for the product you want",
+  "stockTitle": "Stock"
 }

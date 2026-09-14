@@ -138,8 +138,8 @@ class _BaseGeneralView extends StatelessWidget {
         } else {
           // Desktop/Tablet layout with side menu
           return GenericMenuWithScreen(
-            isExpanded: false,
-            menuWidth: 180,
+            isExpanded: true,
+            menuWidth: 220,
             padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 8),
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 4),
             selectedColor: colorScheme.primary.withValues(alpha: .09),

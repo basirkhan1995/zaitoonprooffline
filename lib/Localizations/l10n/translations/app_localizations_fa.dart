@@ -2251,10 +2251,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get expenseAccount => 'نام حساب';
 
   @override
-  String get averagePrice => 'ق. اوسط';
+  String get averagePrice => 'اوسط خرید';
 
   @override
-  String get recentPrice => 'ق. آخرین';
+  String get recentPrice => 'آخرین خرید';
 
   @override
   String get stockBalance => 'مانده انبار';
@@ -3517,4 +3517,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get noItemsTitle => 'تعداد قلم';
+
+  @override
+  String get searchProduct => 'محصول مورد نظر خود را جستجو کنید';
+
+  @override
+  String get stockTitle => 'موجودی کالا';
 }

@@ -626,7 +626,7 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                                       Expanded(child: Text(tr.productName, style: titleStyle?.copyWith(fontSize: 16))),
                                       SizedBox(width: 80, child: Text(tr.storage, textAlign: TextAlign.center, style: titleStyle)),
                                       SizedBox(width: 80, child: Text(tr.unit, textAlign: TextAlign.center, style: titleStyle)),
-                                      SizedBox(width: 120, child: Text(tr.available, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
+                                      SizedBox(width: 120, child: Text(tr.stockTitle, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
                                       if(visibility.isWholeSale)
                                         SizedBox(width: 100, child: Text(tr.batchTitle, textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
                                       SizedBox(width: 100, child: Text("${tr.unitPrice} | $baseCurrency", textAlign: isRTL ? TextAlign.center : TextAlign.center, style: titleStyle)),
@@ -655,15 +655,32 @@ class _ProductSearchFieldState<T, B extends BlocBase<S>, S> extends State<Produc
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Icon(Icons.search_off, size: 48,
-                                            color: Theme.of(context).colorScheme.outline.withValues(alpha: .5)),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          widget.noResultsText,
-                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            color: Theme.of(context).colorScheme.outline,
+                                        Padding(
+                                          padding: const EdgeInsets.all(24),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                widget.headerSearchController!.text.isEmpty
+                                                    ? Icons.add_shopping_cart_rounded
+                                                    : Icons.remove_shopping_cart_outlined,
+                                                size: 68,
+                                                color: Theme.of(context).colorScheme.outline.withValues(alpha: .5),
+                                              ),
+                                              const SizedBox(height: 12),
+                                              Text(
+                                                widget.headerSearchController!.text.isEmpty
+                                                    ? tr.searchProduct
+                                                    : widget.noResultsText,
+                                                textAlign: TextAlign.center,
+                                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                                  color: Theme.of(context).colorScheme.outline,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ),
+                                        )
                                       ],
                                     ),
                                   )

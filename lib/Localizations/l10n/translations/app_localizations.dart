@@ -2281,7 +2281,7 @@ abstract class AppLocalizations {
   /// No description provided for @storage.
   ///
   /// In en, this message translates to:
-  /// **'Warehouse'**
+  /// **'Godown'**
   String get storage;
 
   /// No description provided for @storages.
@@ -6975,6 +6975,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total Items'**
   String get noItemsTitle;
+
+  /// No description provided for @searchProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for the product you want'**
+  String get searchProduct;
+
+  /// No description provided for @stockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get stockTitle;
 }
 
 class _AppLocalizationsDelegate

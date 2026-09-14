@@ -974,11 +974,11 @@ class _DesktopNewSaleViewState extends State<_DesktopNewSaleView> {
           if(visibility.isWholeSale)
             SizedBox(width: 100, child: Text(locale.batchTitle)),
           SizedBox(width: 100, child: Text(locale.unit)),
-          SizedBox(width: 130, child: Text("${locale.unitPrice} ($baseCurrency)")),
+          SizedBox(width: 130, child: Text("${locale.unitPrice} | $baseCurrency")),
           if (needsLocalConv)
-            SizedBox(width: 130, child: Text("${locale.unitPrice} (${_getAccountCurrency(context)})")),
+            SizedBox(width: 130, child: Text("${locale.unitPrice} | ${_getAccountCurrency(context)}")),
           SizedBox(width: 140, child: Text(locale.discountTitle)),
-          SizedBox(width: 140, child: Text("${locale.totalTitle} ($baseCurrency)")),
+          SizedBox(width: 140, child: Text("${locale.totalTitle} | $baseCurrency")),
           SizedBox(width: 60, child: Text(locale.actions)),
         ].map((child) => DefaultTextStyle(style: title!, child: child)).toList(),
       ),

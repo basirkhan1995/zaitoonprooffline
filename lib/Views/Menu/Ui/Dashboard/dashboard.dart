@@ -9,6 +9,7 @@ import 'package:zaitoonpro/Views/Menu/Ui/Finance/Ui/Currency/Ui/ExchangeRate/Ui/
 import 'package:zaitoonpro/Views/Menu/Ui/Finance/Ui/Currency/Ui/ExchangeRate/Ui/exchange_rate.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/TotalDailyTxn/column_chart_view.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Report/Ui/TotalDailyTxn/total_daily_txn.dart';
+import 'package:zaitoonpro/Views/Menu/Ui/Settings/Ui/Backup/backup.dart';
 import '../../../Auth/bloc/auth_bloc.dart';
 import '../Reminder/reminder_widget.dart';
 import '../Report/Ui/Finance/ExchangeRate/chart.dart';
@@ -261,7 +262,6 @@ class _Desktop extends StatelessWidget {
                         SizedBox(height: 3),
                       ],
                     ],
-
                     //Exchange Rate Widget
                     if (login.hasPermission(7) ?? false) ...[
                       if (visibility.exchangeRate) ...[
@@ -271,8 +271,13 @@ class _Desktop extends StatelessWidget {
                     
                     //Reminder
                     if (login.hasPermission(9) ?? false) ...[
+                      SizedBox(height: 3),
                       DashboardAlertReminder(),
                     ],
+
+                    SizedBox(
+                        height: 1050,
+                        child: BackupView()),
                   ],
                 ),
               ),
