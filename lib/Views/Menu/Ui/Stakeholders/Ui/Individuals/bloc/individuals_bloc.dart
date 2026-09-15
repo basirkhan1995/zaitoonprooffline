@@ -14,6 +14,7 @@ class IndividualsBloc extends Bloc<IndividualsEvent, IndividualsState> {
     on<LoadIndividualsEvent>((event, emit)async {
       emit(IndividualLoadingState());
       try{
+         await Future.delayed(Duration(milliseconds: 500));
          final stk = await _repo.getStakeholders(indId: event.indId, query: event.search);
          emit(IndividualLoadedState(stk));
        }catch(e){

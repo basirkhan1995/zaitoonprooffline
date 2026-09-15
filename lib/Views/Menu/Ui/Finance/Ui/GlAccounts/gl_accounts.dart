@@ -401,11 +401,11 @@ class _DesktopState extends State<_Desktop> {
                   SizedBox(width: 55),
                   Expanded(child: Text(tr.accountName,style: textTheme.titleMedium?.copyWith(color: color.outline))),
                   SizedBox(
-                    width: 150,
+                    width: 200,
                     child: Text(tr.categoryTitle,style: textTheme.titleMedium?.copyWith(color: color.outline)),
                   ),
                   SizedBox(
-                    width: 185,
+                    width: 212,
                     child: Text(tr.subCategory,style: textTheme.titleMedium?.copyWith(color: color.outline)),
                   ),
 
@@ -464,14 +464,14 @@ class _DesktopState extends State<_Desktop> {
                                    myLocale == "en"? SizedBox(width: 50) : SizedBox(width: 20),
                                   Expanded(child: Text(gl.accName??"",style: Theme.of(context).textTheme.titleMedium)),
                                   SizedBox(
-                                    width: 150,
+                                    width: 200,
                                     child: Text(
                                         Utils.glCategories(category: gl.accCategory!,locale: tr),
                                         style: Theme.of(context).textTheme.titleMedium,
                                         textAlign: TextAlign.center),
                                   ),
                                   SizedBox(
-                                    width: 150,
+                                    width: 200,
                                     child: Text(
                                         gl.acgName??"",
                                         style: Theme.of(context).textTheme.titleMedium,

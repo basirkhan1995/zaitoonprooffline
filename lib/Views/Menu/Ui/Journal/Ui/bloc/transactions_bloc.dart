@@ -13,6 +13,7 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     on<LoadAllTransactionsEvent>((event, emit) async{
       emit(TxnLoadingState());
       try{
+        await Future.delayed(Duration(milliseconds: 500));
         final txn = await _repo.getTransactionsByStatus(status: event.status);
         emit(TransactionLoadedState(txn: txn));
       }catch(e){
@@ -21,9 +22,7 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     });
     on<OnCashTransactionEvent>((event, emit) async {
       final locale = localizationService.loc;
-
       emit(TxnLoadingState());
-
       try {
         final response = await _repo.cashFlowOperations(
           newTransaction: event.transaction,

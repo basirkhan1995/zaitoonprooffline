@@ -12,6 +12,7 @@ class CurrenciesBloc extends Bloc<CurrenciesEvent, CurrenciesState> {
     on<LoadCurrenciesEvent>((event, emit) async{
       emit(CurrenciesLoadingState());
      try{
+       await Future.delayed(Duration(milliseconds: 500));
       final ccy = await _repo.getCurrencies(status: event.status);
       emit(CurrenciesLoadedState(ccy));
      }catch(e){

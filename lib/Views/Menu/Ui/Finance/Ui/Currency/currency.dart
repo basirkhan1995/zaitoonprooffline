@@ -226,7 +226,7 @@ class _BaseCurrencyView extends StatelessWidget {
         builder: (context, state) {
           return GenericMenuWithScreen(
             menuWidth: 190,
-            isExpanded: false,
+            isExpanded: true,
             padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 8),
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
             selectedColor: colorScheme.primary.withValues(alpha: .09),

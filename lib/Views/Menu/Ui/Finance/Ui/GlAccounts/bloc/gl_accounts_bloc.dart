@@ -13,6 +13,7 @@ class GlAccountsBloc extends Bloc<GlAccountsEvent, GlAccountsState> {
     on<LoadGlAccountEvent>((event, emit) async{
       emit(GlAccountsLoadingState());
       try{
+        await Future.delayed(Duration(milliseconds: 500));
         final gl = await _repo.getGl(input: event.query);
         emit(GlAccountLoadedState(gl));
       }catch(e){

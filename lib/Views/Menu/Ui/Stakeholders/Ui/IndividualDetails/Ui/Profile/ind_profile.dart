@@ -5,12 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zaitoonpro/Features/Other/utils.dart';
 import 'package:zaitoonpro/Localizations/l10n/translations/app_localizations.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Stakeholders/Ui/IndividualByID/bloc/stakeholder_by_id_bloc.dart';
-import 'package:zaitoonpro/Views/Menu/Ui/Stakeholders/Ui/IndividualDetails/profile.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Stakeholders/Ui/Individuals/Ui/add_edit.dart';
 import 'package:zaitoonpro/Views/Menu/Ui/Stakeholders/Ui/Individuals/bloc/individuals_bloc.dart';
 import '../../../../../../../../Features/Generic/shimmer.dart';
 import '../../../../../../../../Features/Other/image_helper.dart';
 import '../../../Individuals/model/individual_model.dart';
+import '../Accounts/stk_accounts.dart';
 
 class IndividualProfileView extends StatelessWidget {
   final IndividualsModel ind;
@@ -63,7 +63,7 @@ class _DesktopState extends State<_Desktop> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: Text(locale.profileOverview, style: Theme.of(context).textTheme.titleMedium),
+        title: Text(locale.profileOverview),
       ),
       body: BlocListener<IndividualsBloc, IndividualsState>(
         listener: (context, state) {
@@ -90,7 +90,7 @@ class _DesktopState extends State<_Desktop> {
                       children: [
                         Expanded(
                           child: ZCover(
-                            radius: 16,
+                            radius: 8,
                             padding: const EdgeInsets.all(24),
                             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
                             child: state is StakeholderByIdLoadingState
@@ -116,20 +116,14 @@ class _DesktopState extends State<_Desktop> {
 
                   // RIGHT SIDE - TABS (Full height)
                   Expanded(
-                    child: ZCover(
-                      padding: const EdgeInsets.all(5),
-                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
-                      radius: 16,
-                      child: state is StakeholderByIdLoadingState
-                          ? UniversalShimmer.dataList(
-                        itemCount: 5,
-                        numberOfColumns: 4,
-                        showAvatar: false,
-                        showCheckbox: false,
-                        showActions: true,
-                      )
-                          : IndividualsDetailsTabView(ind: widget.ind),
-                    ),
+                    child: state is StakeholderByIdLoadingState
+                        ? UniversalShimmer.dataList(
+                      itemCount: 5,
+                      numberOfColumns: 4,
+                      showAvatar: false,
+                      showCheckbox: false,
+                      showActions: true,
+                    ) : AccountsByPerIdView(ind: widget.ind),
                   ),
                 ],
               ),

@@ -107,6 +107,7 @@ class _BackupContent extends StatelessWidget {
             Text(
               tr.databaseBackup,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontSize: context.scaledFont(0.015),
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
               ),
@@ -116,7 +117,7 @@ class _BackupContent extends StatelessWidget {
               tr.downloadBackupMsg,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.outline,
-                fontSize: context.scaledFont(0.010),
+                fontSize: context.scaledFont(0.009),
               ),
             ),
             const SizedBox(height: 15),
@@ -174,7 +175,7 @@ class _BackupContent extends StatelessWidget {
               )
                   : Text(
                 tr.downloadLatestBackup,
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 14),
               ),
             ),
             ZOutlineButton(
@@ -185,7 +186,7 @@ class _BackupContent extends StatelessWidget {
               icon: Icons.folder_outlined,
               label: Text(
                 tr.browse,
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 14),
               ),
             ),
           ],
@@ -331,7 +332,7 @@ class _BackupContent extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary.withAlpha(10),
               padding: EdgeInsets.all(7),
               radius: 5,
-              child: Icon(Icons.storage_rounded, color: Theme.of(context).colorScheme.primary)),
+              child: Icon(Icons.dns_rounded, color: Theme.of(context).colorScheme.primary)),
           hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: .05),
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
           title: Text(

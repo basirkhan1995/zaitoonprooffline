@@ -623,7 +623,8 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
             hint: _currentServerIP ?? _myIP,
             controller: ipController,
             isEnabled: !loading,
-            onChanged: (_) => setState(() {}),
+            showClearButton: true,
+            isRequired: true,
             onSubmit: (e) {
               if (!loading && ipController.text.trim().isNotEmpty) {
                 connect();
@@ -635,7 +636,6 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
         Expanded(
           flex: 1,
           child: ZOutlineButton(
-            icon: Icons.settings_remote,
             isActive: true,
             height: 49,
             onPressed: (loading || ipController.text.trim().isEmpty) ? null : connect,
@@ -752,14 +752,14 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
   }) {
     return InkWell(
       onTap: isLoading ? null : onTap,
-      borderRadius: BorderRadius.circular(5),
+      borderRadius: BorderRadius.circular(4),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isActive
               ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
               : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(4),
           border: Border.all(
             color: isActive
                 ? Theme.of(context).primaryColor

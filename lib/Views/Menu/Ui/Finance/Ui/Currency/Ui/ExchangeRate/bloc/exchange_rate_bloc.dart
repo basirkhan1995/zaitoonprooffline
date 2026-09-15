@@ -8,9 +8,9 @@ part 'exchange_rate_state.dart';
 
 class ExchangeRateBloc extends Bloc<ExchangeRateEvent, ExchangeRateState> {
   final Repositories _repo;
+  int _requestId = 0;
 
   ExchangeRateBloc(this._repo) : super(ExchangeRateInitial()) {
-
     on<LoadExchangeRateEvent>((event, emit) async {
       // Preserve existing data
       List<ExchangeRateModel>? currentRates;
@@ -27,11 +27,18 @@ class ExchangeRateBloc extends Bloc<ExchangeRateEvent, ExchangeRateState> {
 
       try {
         final rates = await _repo.getExchangeRate(ccyCode: event.ccyCode);
-        emit(ExchangeRateLoadedState(rates: rates));
+        emit(ExchangeRateLoadedState(
+          rates: rates,
+          requestId: ++_requestId,
+        ));
       } catch (e) {
         // On error, keep previous data if exists
         if (currentRates != null) {
-          emit(ExchangeRateLoadedState(rates: currentRates, rate: currentSingleRate));
+          emit(ExchangeRateLoadedState(
+            rates: currentRates,
+            rate: currentSingleRate,
+            requestId: ++_requestId,
+          ));
         } else {
           emit(ExchangeRateErrorState(e.toString()));
         }
@@ -40,7 +47,10 @@ class ExchangeRateBloc extends Bloc<ExchangeRateEvent, ExchangeRateState> {
 
     on<GetExchangeRateEvent>((event, emit) async {
       try {
-        final rate = await _repo.getSingleRate(fromCcy: event.fromCcy, toCcy: event.toCcy);
+        final rate = await _repo.getSingleRate(
+          fromCcy: event.fromCcy,
+          toCcy: event.toCcy,
+        );
 
         // Preserve existing rates
         List<ExchangeRateModel>? currentRates;
@@ -48,7 +58,13 @@ class ExchangeRateBloc extends Bloc<ExchangeRateEvent, ExchangeRateState> {
           currentRates = (state as ExchangeRateLoadedState).rates;
         }
 
-        emit(ExchangeRateLoadedState(rates: currentRates ?? [], rate: rate));
+        emit(ExchangeRateLoadedState(
+          rates: currentRates ?? [],
+          rate: rate,
+          fromCcy: event.fromCcy,
+          toCcy: event.toCcy,
+          requestId: ++_requestId,
+        ));
       } catch (e) {
         emit(ExchangeRateErrorState(e.toString()));
       }

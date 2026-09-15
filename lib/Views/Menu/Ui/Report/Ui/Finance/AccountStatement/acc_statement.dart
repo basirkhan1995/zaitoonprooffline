@@ -47,20 +47,22 @@ import 'bloc/acc_statement_bloc.dart';
 import 'model/stmt_model.dart';
 import 'package:flutter/services.dart';
 class AccountStatementView extends StatelessWidget {
-  const AccountStatementView({super.key});
+  final int? initialAccountNumber;
+  const AccountStatementView({super.key,this.initialAccountNumber});
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayout(
-      mobile: _Mobile(),
-      tablet: _Mobile(),
-      desktop: _Desktop(),
+      mobile: _Mobile(initialAccountNumber),
+      tablet: _Mobile(initialAccountNumber),
+      desktop: _Desktop(initialAccountNumber),
     );
   }
 }
 
 class _Mobile extends StatefulWidget {
-  const _Mobile();
+  final int? initialAccountNumber;
+  const _Mobile(this.initialAccountNumber);
 
   @override
   State<_Mobile> createState() => _MobileState();
@@ -81,8 +83,25 @@ class _MobileState extends State<_Mobile> {
   @override
   void initState() {
     myLocale = context.read<LocalizationBloc>().state.languageCode;
-    WidgetsBinding.instance.addPostFrameCallback((_) {});
     context.read<AccStatementBloc>().add(ResetAccStmtEvent());
+
+    final preset = widget.initialAccountNumber;
+    if (preset != null) {
+      accNumber = preset;
+      accountController.text = preset.toString();
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        context.read<AccStatementBloc>().add(
+          LoadAccountStatementEvent(
+            accountNumber: preset,
+            fromDate: fromDate,
+            toDate: toDate,
+          ),
+        );
+      });
+    }
+
     super.initState();
   }
 
@@ -525,7 +544,8 @@ class _MobileState extends State<_Mobile> {
 }
 
 class _Desktop extends StatefulWidget {
-  const _Desktop();
+  final int? initialAccountNumber;
+  const _Desktop(this.initialAccountNumber);
 
   @override
   State<_Desktop> createState() => _DesktopState();
@@ -574,8 +594,26 @@ class _DesktopState extends State<_Desktop> {
     fromDate = startOfMonth.toApiStartDate();
     toDate = todayOfMonth.toApiEndDate();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {});
     context.read<AccStatementBloc>().add(ResetAccStmtEvent());
+
+    // Auto-trigger statement load when opened with a preselected account.
+    final preset = widget.initialAccountNumber;
+    if (preset != null) {
+      accNumber = preset;
+      accountController.text = preset.toString();
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        context.read<AccStatementBloc>().add(
+          LoadAccountStatementEvent(
+            accountNumber: preset,
+            fromDate: fromDate,
+            toDate: toDate,
+          ),
+        );
+      });
+    }
+
     super.initState();
   }
 

@@ -292,59 +292,37 @@ class AccountStatementPrintSettings extends PrintServices {
               horizontalDivider(width: 200),
               pw.SizedBox(height: 1),
               buildSummary(
-                color: pw.PdfColors.grey800,
                 distance: 75,
                 label: tr(
                   text: 'accountName',
                   tr: language,
                 ),
-                value: statement.accName??"",
-              ),
-              pw.SizedBox(height: 1),
-              buildSummary(
-                distance: 75,
-                color: pw.PdfColors.grey800,
-                label: tr(
-                  text: 'accountNumber',
-                  tr: language,
-                ),
-                value: statement.accNumber.toString(),
+                value: "${statement.accNumber} | ${statement.accName}",
               ),
 
               pw.SizedBox(height: 1),
               buildSummary(
-                color: pw.PdfColors.grey800,
                 distance: 75,
                 label: tr(text: 'signatory', tr: language),
                 value: "${statement.signatory}",
               ),
               pw.SizedBox(height: 1),
               buildSummary(
-                color: pw.PdfColors.grey800,
                 distance: 75,
                 label: tr(text: 'currency', tr: language),
                 value: "${statement.actCurrency}",
               ),
               pw.SizedBox(height: 1),
               buildSummary(
-                color: pw.PdfColors.grey800,
                 distance: 75,
                 label: tr(text: 'mobile', tr: language),
                 value: "${statement.perPhone}",
               ),
               pw.SizedBox(height: 1),
               buildSummary(
-                color: pw.PdfColors.grey800,
-                distance: 75,
-                label: tr(text: 'email', tr: language),
-                value: statement.perEmail??"",
-              ),
-              pw.SizedBox(height: 1),
-              buildSummary(
-                color: pw.PdfColors.grey800,
                 distance: 75,
                 label: tr(text: 'address', tr: language),
-                value: "${statement.address}",
+                value: statement.address??"",
               ),
             ],
           ),
@@ -493,7 +471,7 @@ class AccountStatementPrintSettings extends PrintServices {
                         ? pw.TextAlign.left
                         : pw.TextAlign.right,
                     text: isGre? items.records![i].trnEntryDate!.toFormattedDate() : items.records![i].trnEntryDate!.shamsiDateString,
-                    fontSize: language == "en"? 8 : 9,
+                    fontSize: language == "en"? 9 : 10,
                   ),
                 ),
                 pw.SizedBox(
@@ -519,7 +497,7 @@ class AccountStatementPrintSettings extends PrintServices {
                         text: 'openingBalance',
                         tr: language,
                       ) : items.records![i].trdNarration ?? "",
-                      fontSize: 7
+                      fontSize: 8
                     ),
                   ),
                 ),
@@ -529,7 +507,7 @@ class AccountStatementPrintSettings extends PrintServices {
                   child: zText(
                     textAlign: language == "en" ? pw.TextAlign.right : pw.TextAlign.left,
                     text: items.records![i].debit?.toAmount()??"",
-                    fontSize: 8,
+                    fontSize: 9,
                   ),
                 ),
                 pw.SizedBox(
@@ -537,7 +515,7 @@ class AccountStatementPrintSettings extends PrintServices {
                   child: zText(
                     textAlign: language == "en" ? pw.TextAlign.right : pw.TextAlign.left,
                     text: items.records![i].credit?.toAmount() ??"",
-                    fontSize: 8,
+                    fontSize: 9,
                   ),
                 ),
 
@@ -551,7 +529,7 @@ class AccountStatementPrintSettings extends PrintServices {
                         items.records![i].total,
                         items.records![i].trdNarration
                     ),
-                    fontSize: 8,
+                    fontSize: 9,
                   ),
                 ),
               ],
