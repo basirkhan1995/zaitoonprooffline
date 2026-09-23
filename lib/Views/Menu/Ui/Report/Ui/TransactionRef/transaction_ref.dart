@@ -955,6 +955,19 @@ class _DesktopState extends State<_Desktop> {
   }
 
   @override
+  void dispose() {
+    ref.dispose();
+    super.dispose();
+  }
+
+  void onSubmit() {
+    if (ref.text.trim().isEmpty) return;
+    context
+        .read<TxnRefReportBloc>()
+        .add(LoadTxnReportByReferenceEvent(ref.text.trim()));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
     final color = Theme.of(context).colorScheme;
@@ -969,9 +982,9 @@ class _DesktopState extends State<_Desktop> {
         title: Text(tr.transactionDetails),
         titleSpacing: 0,
       ),
-
       body: Column(
         children: [
+          // Search Bar
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -1005,9 +1018,7 @@ class _DesktopState extends State<_Desktop> {
             child: BlocBuilder<TxnRefReportBloc, TxnRefReportState>(
               builder: (context, state) {
                 if (state is TxnRefReportLoadingState) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 if (state is TxnRefReportErrorState) {
@@ -1032,17 +1043,17 @@ class _DesktopState extends State<_Desktop> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Row(
-                              spacing:5,
+                              spacing: 5,
                               children: [
                                 Icon(Icons.qr_code_2_outlined),
                                 Text(
                                   tr.transactionDetails,
-                                  style: textTheme.titleMedium
+                                  style: textTheme.titleMedium,
                                 ),
                               ],
                             ),
                             const SizedBox(height: 5),
-                            Divider(),
+                            const Divider(),
                             const SizedBox(height: 16),
                             Wrap(
                               spacing: 32,
@@ -1084,66 +1095,79 @@ class _DesktopState extends State<_Desktop> {
                                   color,
                                   isStatus: true,
                                 ),
-
                               ],
                             ),
                           ],
                         ),
                       ),
 
+                      const SizedBox(height: 8),
+
                       // Records Table Header
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
-                          vertical: 5,
+                          vertical: 10,
                         ),
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
                         decoration: BoxDecoration(
                           color: color.primary.withValues(alpha: .9),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
+                          ),
                         ),
                         child: Row(
                           children: [
                             SizedBox(
-                              width: 170,
+                              width: 40,
+                              child: Text(
+                                "#",
+                                style: titleStyle,
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 150,
                               child: Text(
                                 tr.date,
-                                  style: titleStyle
+                                style: titleStyle,
                               ),
                             ),
                             SizedBox(
                               width: 100,
                               child: Text(
                                 tr.accounts,
-                                  style: titleStyle
+                                style: titleStyle,
                               ),
                             ),
                             SizedBox(
-                             width: 150,
+                              width: 180,
                               child: Text(
                                 tr.accountName,
-                                  style: titleStyle
+                                style: titleStyle,
                               ),
                             ),
                             Expanded(
                               child: Text(
                                 tr.narration,
-                                style: titleStyle
+                                style: titleStyle,
                               ),
                             ),
                             SizedBox(
-                              width: 100,
+                              width: 140,
                               child: Text(
-                                "CR/DR",
-                                  style: titleStyle
+                                tr.debitTitle,
+                                style: titleStyle,
+                                textAlign: TextAlign.end,
                               ),
                             ),
                             SizedBox(
-                              width: 150,
+                              width: 140,
                               child: Text(
-                                tr.amount,
-                                  style: titleStyle
+                                tr.creditTitle,
+                                style: titleStyle,
+                                textAlign: TextAlign.end,
                               ),
                             ),
                           ],
@@ -1152,82 +1176,186 @@ class _DesktopState extends State<_Desktop> {
 
                       // Records List
                       Expanded(
-                        child: ListView.separated(
-                          itemCount: records.length,
-                          separatorBuilder: (context, index) => Divider(
-                            height: 1,
-                            color: color.outline.withValues(alpha: .1),
-                          ),
-                          itemBuilder: (context, index) {
-                            final record = records[index];
-
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 8,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              left: BorderSide(
+                                color: color.outline.withValues(alpha: .2),
                               ),
-                              margin: EdgeInsets.symmetric(horizontal: 10),
-                              color: index.isOdd
-                                  ? color.primary.withValues(alpha: .05)
-                                  : Colors.transparent,
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 170,
-                                    child: Text(
-                                      record.trdEntryDate?.toDateTime ?? "-",
-                                      style: textTheme.bodyMedium,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 100,
-                                    child: Text(
-                                      record.trdAccount?.toString() ?? "-",
-                                        style: textTheme.titleSmall
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 150,
-                                    child: Text(
-                                      record.accName ?? "-",
-                                      style: textTheme.bodyMedium,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Tooltip(
-                                      message: record.trdNarration ?? "",
+                              right: BorderSide(
+                                color: color.outline.withValues(alpha: .2),
+                              ),
+                              bottom: BorderSide(
+                                color: color.outline.withValues(alpha: .2),
+                              ),
+                            ),
+                          ),
+                          child: ListView.separated(
+                            itemCount: records.length,
+                            separatorBuilder: (context, index) => Divider(
+                              height: 1,
+                              color: color.outline.withValues(alpha: .1),
+                            ),
+                            itemBuilder: (context, index) {
+                              final record = records[index];
+                              final isDebit = record.debitCredit?.toLowerCase() == 'debit';
+                              final isCredit = record.debitCredit?.toLowerCase() == 'credit';
+                              final amount = double.tryParse(record.trdAmount ?? '0') ?? 0;
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 10,
+                                ),
+                                color: index.isOdd
+                                    ? color.primary.withValues(alpha: .03)
+                                    : Colors.transparent,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Row Number
+                                    SizedBox(
+                                      width: 40,
                                       child: Text(
-                                        record.trdNarration ?? "-",
-                                        style: textTheme.bodyMedium,
+                                        "${index + 1}",
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: color.outline,
+                                        ),
+                                        textAlign: TextAlign.start,
+                                      ),
+                                    ),
+                                    // Date
+                                    SizedBox(
+                                      width: 150,
+                                      child: Text(
+                                        record.trdEntryDate?.toDateTime ?? "-",
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                    // Account Number
+                                    SizedBox(
+                                      width: 100,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        child: Text(
+                                          record.trdAccount?.toString() ?? "-",
+                                          style: textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: color.primary,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    // Account Name
+                                    SizedBox(
+                                      width: 180,
+                                      child: Text(
+                                        record.accName ?? "-",
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14,
+                                        ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 100,
-                                    child: Text(
-                                      record.debitCredit?.toString() ?? "-",
-                                      style: textTheme.bodyMedium,
+                                    // Narration
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(right: 8),
+                                        child: Tooltip(
+                                          message: record.trdNarration ?? "",
+                                          child: Text(
+                                            record.trdNarration ?? "-",
+                                            style: textTheme.bodySmall?.copyWith(
+                                              color: color.outline,
+                                              fontSize: 13,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 150,
-                                    child: Text(
-                                      "${record.trdAmount?.toAmount() ?? "0.00"} ${record.trdCcy ?? ""}",
-                                      style: textTheme.titleMedium
+                                    // Debit Amount
+                                    SizedBox(
+                                      width: 140,
+                                      child: isDebit
+                                          ? Padding(
+                                        padding: const EdgeInsets.only(right: 4),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              amount.toAmount(),
+                                              style: textTheme.bodyMedium?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 15,
+                                              ),
+                                              textAlign: TextAlign.end,
+                                            ),
+                                            Text(
+                                              record.trdCcy ?? "",
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                          : const SizedBox(),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                                    // Credit Amount
+                                    SizedBox(
+                                      width: 140,
+                                      child: isCredit
+                                          ? Padding(
+                                        padding: const EdgeInsets.only(right: 4),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              amount.toAmount(),
+                                              style: textTheme.bodyMedium?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 15,
+                                              ),
+                                              textAlign: TextAlign.end,
+                                            ),
+                                            Text(
+                                              record.trdCcy ?? "",
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                          : const SizedBox(),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
+
+
+
+                      const SizedBox(height: 10),
                     ],
                   );
                 }
-
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1242,6 +1370,13 @@ class _DesktopState extends State<_Desktop> {
                         tr.transactionSummary,
                         style: textTheme.bodyLarge?.copyWith(
                           color: color.outline.withValues(alpha: .6),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Enter reference to View",
+                        style: textTheme.bodySmall?.copyWith(
+                          color: color.outline.withValues(alpha: .4),
                         ),
                       ),
                     ],
@@ -1279,17 +1414,15 @@ class _DesktopState extends State<_Desktop> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
+              color: isStatus
+                  ? (value.toLowerCase() == 'authorized' || value.toLowerCase() == 'approved'
+                  ? Colors.green
+                  : color.error)
+                  : null,
             ),
           ),
         ),
       ],
     );
-  }
-
-  void onSubmit() {
-    if (ref.text.trim().isEmpty) return;
-    context
-        .read<TxnRefReportBloc>()
-        .add(LoadTxnReportByReferenceEvent(ref.text.trim()));
   }
 }

@@ -231,9 +231,6 @@ class InvoicePrintService extends PrintServices {
                       width: 45,
                       height: 45,
                     ),
-
-                  pw.SizedBox(height: 3),
-
                   zText(
                     text: company.comName??"",
                     fontSize: 13,
@@ -1255,17 +1252,18 @@ class InvoicePrintService extends PrintServices {
 
     return pw.Table(
       border: pw.TableBorder(
-        bottom: pw.BorderSide(color: pw.PdfColors.grey400, width: 1),
-        horizontalInside: pw.BorderSide(color: pw.PdfColors.grey400, width: 0.5),
+        //bottom: pw.BorderSide(color: pw.PdfColors.grey400, width: 1),
+        //horizontalInside: pw.BorderSide(color: pw.PdfColors.grey400, width: 0.5),
       ),
       columnWidths: columnWidths,
       children: [
         pw.TableRow(
           verticalAlignment: pw.TableCellVerticalAlignment.middle,
-          decoration: pw.BoxDecoration(color: pw.PdfColors.blue50),
+          decoration: pw.BoxDecoration(
+              color: pw.PdfColors.blue50),
           children: headers.map((header) {
             return pw.Padding(
-              padding: pw.EdgeInsets.all(4),
+              padding: pw.EdgeInsets.symmetric(vertical: 2),
               child: zText(
                 text: header,
                 fontSize: headerFontSize,
@@ -1407,15 +1405,15 @@ class InvoicePrintService extends PrintServices {
     return [
       pw.Table(
         border: pw.TableBorder(
-          bottom: pw.BorderSide(color: pw.PdfColors.grey400, width: 1),
-          horizontalInside: pw.BorderSide(color: pw.PdfColors.grey400, width: 0.5),
+          bottom: pw.BorderSide(color: pw.PdfColors.grey100, width: 0.5),
+          horizontalInside: pw.BorderSide(color: pw.PdfColors.grey100, width: 0.5),
         ),
         columnWidths: columnWidths,
         children: [
           // Data Rows only (no header row here)
           for (int i = 0; i < items.length; i++)
             pw.TableRow(
-              decoration: i.isOdd ? pw.BoxDecoration(color: pw.PdfColors.grey50) : null,
+              decoration: i.isOdd ? pw.BoxDecoration(color: pw.PdfColors.grey100) : null,
               verticalAlignment: pw.TableCellVerticalAlignment.middle,
               children: isRtl
                   ? _buildRtlRow(items[i], i, showLocalAmount, safeLocalCurrency, safeExchangeRate, report)

@@ -625,11 +625,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
             isEnabled: !loading,
             showClearButton: true,
             isRequired: true,
-            onSubmit: (e) {
-              if (!loading && ipController.text.trim().isNotEmpty) {
-                connect();
-              }
-            },
+            onSubmit: (e) => connect(),
           ),
         ),
         const SizedBox(width: 5),
@@ -638,7 +634,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
           child: ZOutlineButton(
             isActive: true,
             height: 49,
-            onPressed: (loading || ipController.text.trim().isEmpty) ? null : connect,
+            onPressed: connect,
             label: loading
                 ? const SizedBox(
               width: 20,

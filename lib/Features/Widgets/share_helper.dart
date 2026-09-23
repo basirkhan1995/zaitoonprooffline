@@ -466,12 +466,14 @@ class _EditMessageDialogState extends State<_EditMessageDialog>
               child: SlideTransition(
                 position: _slideAnimation,
                 child: Material(
-                  shadowColor: Colors.black.withValues(alpha: 0.3),
+                  elevation: 0,
+                  shadowColor: Colors.black.withValues(alpha: 0.15),
                   color: colorScheme.surface,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    bottomLeft: Radius.circular(10),
+                    topLeft: Radius.circular(2),
+                    bottomLeft: Radius.circular(2),
                   ),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
                       // Header
@@ -483,7 +485,7 @@ class _EditMessageDialogState extends State<_EditMessageDialog>
                         decoration: BoxDecoration(
                           color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                           borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(10),
+                            topLeft: Radius.circular(2),
                           ),
                           border: Border(
                             bottom: BorderSide(

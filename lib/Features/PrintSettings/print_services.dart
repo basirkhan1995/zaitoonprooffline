@@ -141,27 +141,21 @@ abstract class PrintServices {
     final phoneIcon = pw.MemoryImage(
       (await rootBundle.load('assets/images/phone.png')).buffer.asUint8List(),
     );
-
     final whatsappIcon = pw.MemoryImage(
       (await rootBundle.load('assets/images/whatsapp.png')).buffer.asUint8List(),
     );
-
     final emailIcon = pw.MemoryImage(
       (await rootBundle.load('assets/images/email.png')).buffer.asUint8List(),
     );
-
     final websiteIcon = pw.MemoryImage(
       (await rootBundle.load('assets/images/internet.png')).buffer.asUint8List(),
     );
-
     final instagramIcon = pw.MemoryImage(
       (await rootBundle.load('assets/images/instagram.png')).buffer.asUint8List(),
     );
-
     final facebookIcon = pw.MemoryImage(
       (await rootBundle.load('assets/images/facebook.png')).buffer.asUint8List(),
     );
-
     final addressIcon = pw.MemoryImage(
       (await rootBundle.load('assets/images/location.png')).buffer.asUint8List(),
     );
@@ -176,175 +170,508 @@ abstract class PrintServices {
       logoImage = pw.MemoryImage(report.comLogo!);
     }
 
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+    /// 🎨 Theme Colors
+    final primaryColor = pw.PdfColor.fromHex('#1E407C'); // deep blue
+    final accentColor  = pw.PdfColor.fromHex('#00A8E8'); // light blue
+    final softBg = pw.PdfColor.fromHex('#EFF4FA'); // light
+    final iconBg       = pw.PdfColor.fromHex('#E6F0FA'); // icon circle bg
+
+    /// 🧩 Ultra-compact contact row (icon on RIGHT)
+    pw.Widget contactRow({
+      required pw.ImageProvider icon,
+      required String text,
+      pw.FontWeight weight = pw.FontWeight.normal,
+    }) {
+      return pw.Padding(
+        padding: const pw.EdgeInsets.only(bottom: 0.5),
+        child: pw.Row(
+          mainAxisSize: pw.MainAxisSize.min,
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
           children: [
-            /// 🔸 LEFT SIDE (Logo + Company Info)
-            pw.Expanded(
-              flex: 3,
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  /// ✅ Logo ABOVE name
-                  if (logoImage != null)
-                    pw.Container(
-                      width: 60,
-                      height: 60,
-                      child: pw.Image(logoImage, fit: pw.BoxFit.contain),
-                    ),
-
-                  /// Company Name
-                  zText(
-                    text: report.comName ?? "",
-                    fontSize: 20,
-                    tightBounds: true,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-
-                  /// Slogan
-                  if (report.slogan != null && report.slogan!.isNotEmpty)
-                    zText(
-                      text: report.slogan!,
-                      fontSize: 11,
-                      color: pw.PdfColors.blueGrey,
-                    ),
-
-                  /// Address
-                  if (report.comAddress != null && report.comAddress!.isNotEmpty)...[
-                    pw.Row(
-                      children: [
-                        pw.Image(addressIcon, width: 10, height: 10),
-                        pw.SizedBox(width: 2),
-                        zText(
-                          text: report.comAddress!,
-                          fontSize: 10,
-                          color: pw.PdfColors.grey900,
-                        ),
-                      ]
-                    )
-                  ],
-
-                ],
-              ),
+            zText(
+              text: text,
+              fontSize: 8.5,                    // ↓ smaller
+              fontWeight: weight,
+              color: pw.PdfColors.grey900,
             ),
-
-            /// 🔸 RIGHT SIDE (Contacts with icons on RIGHT)
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.end,
-              children: [
-                if (report.compPhone != null && report.compPhone!.isNotEmpty) ...[
-
-                  /// 📞 Phone (icon on RIGHT)
-                  pw.Row(
-                    mainAxisSize: pw.MainAxisSize.min,
-                    children: [
-                      zText(
-                        text: report.compPhone??"",
-                        fontSize: 9,
-                        fontWeight: pw.FontWeight.bold,
-                        color: pw.PdfColors.grey900,
-                      ),
-                      pw.SizedBox(width: 4),
-                      pw.Image(phoneIcon, width: 11, height: 11),
-                    ],
-                  ),
-
-                 if (report.comWhatsApp != null && report.comWhatsApp!.isNotEmpty) ...[
-                  pw.SizedBox(height: 3),
-
-                  /// 💬 WhatsApp
-                  pw.Row(
-                    mainAxisSize: pw.MainAxisSize.min,
-                    children: [
-                      zText(
-                        text: report.comWhatsApp??"",
-                        fontSize: 9,
-                        color: pw.PdfColors.grey900,
-                      ),
-                      pw.SizedBox(width: 4),
-                      pw.Image(whatsappIcon, width: 11, height: 11),
-                    ],
-                  ),
-                ],
-                ],
-                /// Facebook
-                if (report.comFacebook != null && report.comFacebook!.isNotEmpty)...[
-                  pw.SizedBox(height: 3),
-                  pw.Row(
-                      children: [
-                        zText(
-                          text: report.comFacebook!,
-                          fontSize: 10,
-                          color: pw.PdfColors.grey900,
-                        ),
-                        pw.SizedBox(width: 4),
-                        pw.Image(facebookIcon, width: 10, height: 10),
-                      ]
-                  )
-                ],
-
-                /// Instagram
-                if (report.comInstagram != null && report.comInstagram!.isNotEmpty)...[
-                  pw.SizedBox(height: 3),
-                  pw.Row(
-                      children: [
-                        zText(
-                          text: report.comInstagram!,
-                          fontSize: 10,
-                          color: pw.PdfColors.grey900,
-                        ),
-                        pw.SizedBox(width: 4),
-                        pw.Image(instagramIcon, width: 10, height: 10),
-                      ]
-                  )
-                ],
-
-
-                /// Website
-                if (report.comWebsite != null && report.comWebsite!.isNotEmpty)...[
-                  pw.SizedBox(height: 3),
-                  pw.Row(
-                      children: [
-                        zText(
-                          text: report.comWebsite!,
-                          fontSize: 10,
-                          color: pw.PdfColors.grey900,
-                        ),
-                        pw.SizedBox(width: 4),
-                        pw.Image(websiteIcon, width: 10, height: 10),
-                      ]
-                  )
-                ],
-
-                if (report.comEmail != null && report.comEmail!.isNotEmpty) ...[
-                  pw.SizedBox(height: 3),
-                  /// ✉️ Email
-                  pw.Row(
-                    mainAxisSize: pw.MainAxisSize.min,
-                    children: [
-                      zText(
-                        text: report.comEmail!,
-                        fontSize: 9,
-                        color: pw.PdfColors.grey900,
-                      ),
-                      pw.SizedBox(width: 3),
-                      pw.Image(emailIcon, width: 11, height: 11),
-                    ],
-                  ),
-                ],
-              ],
+            pw.SizedBox(width: 3),
+            pw.Container(
+              width: 11,                        // ↓ from 12
+              height: 11,
+              alignment: pw.Alignment.center,
+              decoration: pw.BoxDecoration(
+                color: iconBg,
+                borderRadius: pw.BorderRadius.circular(5.5),
+              ),
+              child: pw.Image(icon, width: 6.5, height: 6.5), // ↓ from 7
             ),
           ],
         ),
-        pw.SizedBox(height: 5),
-        pw.Divider(height: 0),
+      );
+    }
+
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        /// 🎯 HEADER STACK
+        pw.Stack(
+          children: [
+            /// Top-right big soft circle
+            pw.Positioned(
+              top: -50,
+              right: -50,
+              child: pw.Container(
+                width: 125,                     // ↓ from 150
+                height: 128,
+                decoration: pw.BoxDecoration(
+                  color: softBg,
+                  shape: pw.BoxShape.circle,
+                ),
+              ),
+            ),
+
+            /// Bottom-left soft circle
+            pw.Positioned(
+              bottom: -55,
+              left: -55,
+              child: pw.Container(
+                width: 125,                     // ↓ from 130
+                height: 135,
+                decoration: pw.BoxDecoration(
+                  color: softBg,
+                  shape: pw.BoxShape.circle,
+                ),
+              ),
+            ),
+
+            /// ---- Content ----
+            pw.Container(
+              padding: const pw.EdgeInsets.fromLTRB(18, 10, 18, 8), // ↓ tighter
+              child: pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  /// 🔸 LEFT SIDE (Logo + Company Info)
+                  pw.Expanded(
+                    flex: 5,
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        /// ✅ Logo — smaller
+                        if (logoImage != null)
+                          pw.Container(
+                            width: 50,          // ↓ from 62
+                            height: 50,
+                            child: pw.Image(logoImage, fit: pw.BoxFit.contain),
+                          ),
+
+                        /// Company Name — smaller
+                        zText(
+                          text: report.comName ?? "",
+                          fontSize: 17,         // ↓ from 20
+                          tightBounds: true,
+                          fontWeight: pw.FontWeight.bold,
+                          color: primaryColor,
+                        ),
+
+                        /// Slogan
+                        if (report.slogan != null &&
+                            report.slogan!.isNotEmpty) ...[
+                          pw.SizedBox(height: 1),
+                          zText(
+                            text: report.slogan!,
+                            fontSize: 10,       // ↓ from 11
+                            color: pw.PdfColors.grey700,
+                          ),
+                        ],
+
+                        /// Address
+                        if (report.comAddress != null && report.comAddress!.isNotEmpty) ...[
+                          pw.SizedBox(height: 3), // ↓ from 6
+                          pw.Row(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Container(
+                                width: 17,      // ↓ from 14
+                                height: 17,
+                                alignment: pw.Alignment.center,
+                                decoration: pw.BoxDecoration(
+                                  color: iconBg,
+                                  borderRadius: pw.BorderRadius.circular(2),
+                                ),
+                                child: pw.Image(addressIcon,
+                                    width: 12, height: 12), // ↓ from 8
+                              ),
+                              pw.SizedBox(width: 4),
+                              zText(
+                                text: report.comAddress!,
+                                fontSize: 9.5,  // ↓ from 10
+                                color: pw.PdfColors.grey900,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  pw.SizedBox(width: 8),
+
+                  /// 🔸 RIGHT SIDE — Contacts (compact, no card)
+                  pw.Expanded(
+                    flex: 2,
+                    child: pw.Padding(
+                      padding: const pw.EdgeInsets.only(top: 1, right: 2),
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.end,
+                        children: [
+                          if (report.compPhone != null &&
+                              report.compPhone!.isNotEmpty)
+                            contactRow(
+                              icon: phoneIcon,
+                              text: report.compPhone!,
+                              weight: pw.FontWeight.bold,
+                            ),
+
+                          if (report.comWhatsApp != null &&
+                              report.comWhatsApp!.isNotEmpty)
+                            contactRow(
+                              icon: whatsappIcon,
+                              text: report.comWhatsApp!,
+                            ),
+
+                          if (report.comEmail != null &&
+                              report.comEmail!.isNotEmpty)
+                            contactRow(icon: emailIcon, text: report.comEmail!),
+
+                          if (report.comWebsite != null &&
+                              report.comWebsite!.isNotEmpty)
+                            contactRow(
+                              icon: websiteIcon,
+                              text: report.comWebsite!,
+                            ),
+
+                          if (report.comFacebook != null &&
+                              report.comFacebook!.isNotEmpty)
+                            contactRow(
+                              icon: facebookIcon,
+                              text: report.comFacebook!,
+                            ),
+
+                          if (report.comInstagram != null &&
+                              report.comInstagram!.isNotEmpty)
+                            contactRow(
+                              icon: instagramIcon,
+                              text: report.comInstagram!,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        /// 🟦 Accent bar (slightly thinner)
+        pw.Container(
+          height: 3,                            // ↓ from 4
+          decoration: pw.BoxDecoration(
+            gradient: pw.LinearGradient(
+              colors: [primaryColor, accentColor],
+            ),
+          ),
+        ),
       ],
     );
   }
+
+  // Future<pw.Widget> header({required ReportModel report}) async {
+  //   /// 🔹 Load Icons
+  //   final phoneIcon = pw.MemoryImage(
+  //     (await rootBundle.load('assets/images/phone.png')).buffer.asUint8List(),
+  //   );
+  //   final whatsappIcon = pw.MemoryImage(
+  //     (await rootBundle.load('assets/images/whatsapp.png')).buffer.asUint8List(),
+  //   );
+  //   final emailIcon = pw.MemoryImage(
+  //     (await rootBundle.load('assets/images/email.png')).buffer.asUint8List(),
+  //   );
+  //   final websiteIcon = pw.MemoryImage(
+  //     (await rootBundle.load('assets/images/internet.png')).buffer.asUint8List(),
+  //   );
+  //   final instagramIcon = pw.MemoryImage(
+  //     (await rootBundle.load('assets/images/instagram.png')).buffer.asUint8List(),
+  //   );
+  //   final facebookIcon = pw.MemoryImage(
+  //     (await rootBundle.load('assets/images/facebook.png')).buffer.asUint8List(),
+  //   );
+  //   final addressIcon = pw.MemoryImage(
+  //     (await rootBundle.load('assets/images/location.png')).buffer.asUint8List(),
+  //   );
+  //
+  //   /// 🔹 Check Logo
+  //   final bool hasCompanyLogo = report.comLogo != null &&
+  //       report.comLogo is Uint8List &&
+  //       report.comLogo!.isNotEmpty;
+  //
+  //   pw.ImageProvider? logoImage;
+  //   if (hasCompanyLogo) {
+  //     logoImage = pw.MemoryImage(report.comLogo!);
+  //   }
+  //
+  //   /// 🎨 Theme Colors (hex → no 0-255 crash)
+  //   final primaryColor = pw.PdfColor.fromHex('#1E407C'); // deep blue
+  //   final accentColor  = pw.PdfColor.fromHex('#00A8E8'); // light blue
+  //   final softBg       = pw.PdfColor.fromHex('#F5F8FC'); // very light blue
+  //   final iconBg       = pw.PdfColor.fromHex('#E6F0FA'); // icon circle bg
+  //   final borderCol    = pw.PdfColor.fromHex('#DCE6F0'); // subtle border
+  //   final cardBord     = pw.PdfColor.fromHex('#E1EBF5'); // card border
+  //
+  //   /// 🧩 Helper: contact row (icon on RIGHT, as in your original)
+  //   pw.Widget contactRow({
+  //     required pw.ImageProvider icon,
+  //     required String text,
+  //     pw.FontWeight weight = pw.FontWeight.normal,
+  //   }) {
+  //     return pw.Padding(
+  //       padding: const pw.EdgeInsets.only(bottom: 3),
+  //       child: pw.Row(
+  //         mainAxisSize: pw.MainAxisSize.min,
+  //         crossAxisAlignment: pw.CrossAxisAlignment.center,
+  //         children: [
+  //           zText(
+  //             text: text,
+  //             fontSize: 9,
+  //             fontWeight: weight,
+  //             color: pw.PdfColors.grey900,
+  //           ),
+  //           pw.SizedBox(width: 5),
+  //           pw.Container(
+  //             width: 14,
+  //             height: 14,
+  //             alignment: pw.Alignment.center,
+  //             decoration: pw.BoxDecoration(
+  //               color: iconBg,
+  //               borderRadius: pw.BorderRadius.circular(7),
+  //             ),
+  //             child: pw.Image(icon, width: 8, height: 8),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   }
+  //
+  //   return pw.Column(
+  //     crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //     children: [
+  //       /// 🎯 HEADER STACK — content + decorative shapes
+  //       pw.Stack(
+  //         children: [
+  //           /// ---- Decorative shapes (behind content) ----
+  //           pw.Positioned(
+  //             top: -45,
+  //             right: -45,
+  //             child: pw.Container(
+  //               width: 150,
+  //               height: 150,
+  //               decoration: pw.BoxDecoration(
+  //                 color: accentColor,
+  //                 shape: pw.BoxShape.circle,
+  //               ),
+  //             ),
+  //           ),
+  //           pw.Positioned(
+  //             top: -25,
+  //             right: 40,
+  //             child: pw.Container(
+  //               width: 65,
+  //               height: 65,
+  //               decoration: pw.BoxDecoration(
+  //                 color: primaryColor,
+  //                 shape: pw.BoxShape.circle,
+  //               ),
+  //             ),
+  //           ),
+  //           pw.Positioned(
+  //             bottom: -60,
+  //             left: -60,
+  //             child: pw.Container(
+  //               width: 130,
+  //               height: 130,
+  //               decoration: pw.BoxDecoration(
+  //                 color: softBg,
+  //                 shape: pw.BoxShape.circle,
+  //               ),
+  //             ),
+  //           ),
+  //
+  //           /// ---- Actual header content ----
+  //           pw.Container(
+  //             padding: const pw.EdgeInsets.fromLTRB(20, 18, 20, 18),
+  //             child: pw.Row(
+  //               crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 /// 🔸 LEFT SIDE (Logo + Company Info)
+  //                 pw.Expanded(
+  //                   flex: 3,
+  //                   child: pw.Column(
+  //                     crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //                     children: [
+  //                       /// ✅ Logo with subtle white card
+  //                       if (logoImage != null)
+  //                         pw.Container(
+  //                           width: 62,
+  //                           height: 62,
+  //                           padding: const pw.EdgeInsets.all(4),
+  //                           decoration: pw.BoxDecoration(
+  //                             color: pw.PdfColors.white,
+  //                             borderRadius: pw.BorderRadius.circular(8),
+  //                             border: pw.Border.all(
+  //                               color: borderCol,
+  //                               width: 0.7,
+  //                             ),
+  //                           ),
+  //                           child: pw.Image(logoImage, fit: pw.BoxFit.contain),
+  //                         ),
+  //
+  //                       pw.SizedBox(height: 6),
+  //
+  //                       /// Company Name
+  //                       zText(
+  //                         text: report.comName ?? "",
+  //                         fontSize: 20,
+  //                         tightBounds: true,
+  //                         fontWeight: pw.FontWeight.bold,
+  //                         color: primaryColor,
+  //                       ),
+  //
+  //                       /// Slogan
+  //                       if (report.slogan != null && report.slogan!.isNotEmpty) ...[
+  //                         pw.SizedBox(height: 2),
+  //                         zText(
+  //                           text: report.slogan!,
+  //                           fontSize: 11,
+  //                           color: pw.PdfColors.grey700,
+  //                         ),
+  //                       ],
+  //
+  //                       /// Address
+  //                       if (report.comAddress != null &&
+  //                           report.comAddress!.isNotEmpty) ...[
+  //                         pw.SizedBox(height: 6),
+  //                         pw.Row(
+  //                           crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //                           children: [
+  //                             pw.Container(
+  //                               width: 14,
+  //                               height: 14,
+  //                               alignment: pw.Alignment.center,
+  //                               decoration: pw.BoxDecoration(
+  //                                 color: iconBg,
+  //                                 borderRadius: pw.BorderRadius.circular(7),
+  //                               ),
+  //                               child: pw.Image(addressIcon, width: 8, height: 8),
+  //                             ),
+  //                             pw.SizedBox(width: 6),
+  //                             pw.Expanded(
+  //                               child: zText(
+  //                                 text: report.comAddress!,
+  //                                 fontSize: 10,
+  //                                 color: pw.PdfColors.grey900,
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ],
+  //                     ],
+  //                   ),
+  //                 ),
+  //
+  //                 pw.SizedBox(width: 12),
+  //
+  //                 /// 🔸 RIGHT SIDE — Contacts card (icons on RIGHT)
+  //                 pw.Expanded(
+  //                   flex: 2,
+  //                   child: pw.Container(
+  //                     padding: const pw.EdgeInsets.symmetric(
+  //                       horizontal: 10,
+  //                       vertical: 8,
+  //                     ),
+  //                     decoration: pw.BoxDecoration(
+  //                       color: pw.PdfColors.white,
+  //                       borderRadius: pw.BorderRadius.circular(8),
+  //                       border: pw.Border.all(
+  //                         color: cardBord,
+  //                         width: 0.8,
+  //                       ),
+  //                     ),
+  //                     child: pw.Column(
+  //                       crossAxisAlignment: pw.CrossAxisAlignment.end,
+  //                       children: [
+  //                         if (report.compPhone != null &&
+  //                             report.compPhone!.isNotEmpty)
+  //                           contactRow(
+  //                             icon: phoneIcon,
+  //                             text: report.compPhone!,
+  //                             weight: pw.FontWeight.bold,
+  //                           ),
+  //
+  //                         if (report.comWhatsApp != null &&
+  //                             report.comWhatsApp!.isNotEmpty)
+  //                           contactRow(
+  //                             icon: whatsappIcon,
+  //                             text: report.comWhatsApp!,
+  //                           ),
+  //
+  //                         if (report.comEmail != null &&
+  //                             report.comEmail!.isNotEmpty)
+  //                           contactRow(icon: emailIcon, text: report.comEmail!),
+  //
+  //                         if (report.comWebsite != null &&
+  //                             report.comWebsite!.isNotEmpty)
+  //                           contactRow(
+  //                             icon: websiteIcon,
+  //                             text: report.comWebsite!,
+  //                           ),
+  //
+  //                         if (report.comFacebook != null &&
+  //                             report.comFacebook!.isNotEmpty)
+  //                           contactRow(
+  //                             icon: facebookIcon,
+  //                             text: report.comFacebook!,
+  //                           ),
+  //
+  //                         if (report.comInstagram != null &&
+  //                             report.comInstagram!.isNotEmpty)
+  //                           contactRow(
+  //                             icon: instagramIcon,
+  //                             text: report.comInstagram!,
+  //                           ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //
+  //       /// 🟦 Two-color accent bar (replaces plain Divider)
+  //       pw.Container(
+  //         height: 4,
+  //         decoration: pw.BoxDecoration(
+  //           gradient: pw.LinearGradient(
+  //             colors: [primaryColor, accentColor],
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
     pw.Widget pageNumber({required pw.Context context,required String language}){
     return buildPage(context.pageNumber, context.pagesCount, language);

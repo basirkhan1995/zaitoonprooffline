@@ -918,7 +918,7 @@ class _DesktopState extends State<_Desktop> {
                   ),
                 ),
                 const Spacer(),
-                if (anyMissingRate)
+                if(anyMissingRate)
                   Tooltip(
                     message:
                     'Fetching or enter rate(s) to complete the total',

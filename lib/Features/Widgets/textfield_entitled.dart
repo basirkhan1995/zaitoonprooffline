@@ -81,6 +81,7 @@ class ZTextFieldEntitled extends StatelessWidget {
             autofocus: autoFocus,
             enabled: isEnabled,
             validator: validator,
+            textInputAction: inputAction ?? TextInputAction.done,
             onChanged: onChanged,
             onFieldSubmitted: onSubmit,
             obscureText: securePassword,
