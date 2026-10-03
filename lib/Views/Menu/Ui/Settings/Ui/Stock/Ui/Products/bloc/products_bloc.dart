@@ -54,8 +54,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         switch(msg) {
           case "success":
             emit(ProductsSuccessState());
-            // Don't call add(LoadProductsEvent()) here as it might interfere
-            // with the dialog closing
             return;
           case "exist":
             emit(ProductsErrorState(tr.productAlreadyExist));

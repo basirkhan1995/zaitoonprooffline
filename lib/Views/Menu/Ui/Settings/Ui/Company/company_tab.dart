@@ -76,8 +76,8 @@ class _CompanyTabsViewState extends State<CompanyTabsView> {
         } else {
           // Desktop/Tablet layout with side menu
           return GenericMenuWithScreen(
-            isExpanded: false,
-            menuWidth: 160,
+            isExpanded: true,
+            menuWidth: 190,
             padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 8),
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
             selectedColor:
