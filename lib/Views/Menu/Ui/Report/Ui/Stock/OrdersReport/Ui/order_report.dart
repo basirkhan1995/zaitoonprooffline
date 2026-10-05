@@ -741,10 +741,6 @@ class _TabletState extends State<_Tablet> {
               onPressed: _clearFilters,
             ),
           IconButton(
-            icon: const Icon(Icons.print),
-            onPressed: () {},
-          ),
-          IconButton(
             icon: const Icon(Icons.check),
             onPressed: () {
               context.read<OrderReportBloc>().add(LoadOrderReportEvent(
@@ -1172,12 +1168,6 @@ class _DesktopState extends State<_Desktop> {
             SizedBox(width: 8),
           ],
           ZOutlineButton(
-            onPressed: () {},
-            icon: Icons.print,
-            label: Text(tr.print),
-          ),
-          SizedBox(width: 8),
-          ZOutlineButton(
             onPressed: () {
               if(widget.orderName !=null){
                 context.read<OrderReportBloc>().add(LoadOrderReportEvent(
@@ -1199,13 +1189,12 @@ class _DesktopState extends State<_Desktop> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
             child: Row(
               spacing: 8,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Expanded(
-                  flex: 3,
                   child: GenericTextField<IndividualsModel, IndividualsBloc, IndividualsState>(
                     key: const ValueKey('person_field'),
                     controller: _personController,
@@ -1253,7 +1242,6 @@ class _DesktopState extends State<_Desktop> {
                   ),
                 ),
                 Expanded(
-                  flex: 2,
                   child: BranchDropdown(
                       showAllOption: true,
                       title: tr.branch,
@@ -1267,7 +1255,7 @@ class _DesktopState extends State<_Desktop> {
                   child: ZTextFieldEntitled(
                       controller: orderId,
                       title: tr.orderId,
-                      hint: "#",
+                      hint: tr.orderId,
                       inputFormat: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ),
@@ -1316,12 +1304,12 @@ class _DesktopState extends State<_Desktop> {
             child: Row(
               children: [
                 SizedBox(
-                    width: 50,
-                    child: Text(tr.id,style: titleStyle)),
+                    width: 100,
+                    child: Text(tr.date,style: titleStyle)),
 
                 SizedBox(
                     width: 100,
-                    child: Text(tr.date,style: titleStyle)),
+                    child: Text(tr.orderId,style: titleStyle)),
 
                 if(widget.orderName != "Estimate")
                 SizedBox(
@@ -1332,9 +1320,6 @@ class _DesktopState extends State<_Desktop> {
                     child: Text(tr.party,style: titleStyle)),
                 Expanded(
                     child: Text(tr.narration,style: titleStyle)),
-                SizedBox(
-                    width: 150,
-                    child: Text(tr.branch,style: titleStyle,)),
                 SizedBox(
                     width: 150,
                     child: Text(tr.totalTitle,style: titleStyle,textAlign: TextAlign.end)),
@@ -1399,11 +1384,12 @@ class _DesktopState extends State<_Desktop> {
                         child: Row(
                           children: [
                             SizedBox(
-                                width: 50,
-                                child: Text(ord.ordId.toString(),style: Theme.of(context).textTheme.titleSmall)),
-                            SizedBox(
                                 width: 100,
                                 child: Text(ord.timing.toFormattedDate())),
+                            SizedBox(
+                                width: 100,
+                                child: Text(ord.ordId.toString(),style: Theme.of(context).textTheme.titleSmall)),
+
                             if(widget.orderName != "Estimate")
                             SizedBox(
                                 width: 180,
@@ -1413,9 +1399,7 @@ class _DesktopState extends State<_Desktop> {
                                 child: Text(ord.fullName??"")),
                             Expanded(
                                 child: Text(ord.narration??"")),
-                            SizedBox(
-                                width: 150,
-                                child: Text(ord.ordBranchName ??"")),
+
                             SizedBox(
                                 width: 150,
                                 child: Text("${ord.totalBill.toAmount()} $baseCcy",style: Theme.of(context).textTheme.titleMedium,textAlign: TextAlign.end,)),
