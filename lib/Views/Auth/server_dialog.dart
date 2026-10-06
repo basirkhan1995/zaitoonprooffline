@@ -1,4 +1,3 @@
-// server_connect_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,7 +69,6 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
           _isServer = isServer;
           _connectedToLocalhost = isLocalhost;
 
-          // If we have a saved IP, we're connected to a remote server
           if (!isLocalhost && savedIP != null && savedIP.isNotEmpty) {
             _currentServerIP = savedIP;
           } else if (isLocalhost) {
@@ -78,7 +76,6 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
           }
         });
 
-        // Set text field
         if (isLocalhost) {
           ipController.text = '';
         } else if (_currentServerIP != null && _currentServerIP!.isNotEmpty) {
@@ -86,7 +83,8 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
         }
       }
 
-      debugPrint('Dialog initialized - isLocalhost: $isLocalhost, savedIP: $savedIP, currentServerIP: $_currentServerIP');
+      debugPrint(
+          'Dialog initialized - isLocalhost: $isLocalhost, savedIP: $savedIP, currentServerIP: $_currentServerIP');
     } catch (e) {
       debugPrint('Error initializing server dialog: $e');
     } finally {
@@ -193,7 +191,8 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
               port: '80',
             );
 
-            debugPrint('Connected! IP: $ip, isLocal: $isLocalConnection, savedIP will be: ${isLocalConnection ? "localhost" : ip}');
+            debugPrint(
+                'Connected! IP: $ip, isLocal: $isLocalConnection, savedIP will be: ${isLocalConnection ? "localhost" : ip}');
 
             if (mounted) {
               setState(() {
@@ -205,7 +204,9 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
               ToastManager.show(
                 context: context,
                 title: "Connected",
-                message: isLocalConnection ? "Connected to localhost" : "Connected to $ip",
+                message: isLocalConnection
+                    ? "Connected to localhost"
+                    : "Connected to $ip",
                 type: ToastType.success,
               );
 
@@ -228,7 +229,7 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
   Future<void> _connectToLocalhost() async {
     setState(() {
       loading = true;
-      _scanStatus = AppLocalizations.of(context)!.connecting;
+      _scanStatus = AppLocalizations.of(context)!.connectingTitle;
     });
 
     try {
@@ -438,180 +439,235 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
     }
   }
 
+  // ================================================================
+  //                    DESKTOP UI (redesigned)
+  // ================================================================
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-
-        // Current Connection Status
+        // 1. Big status banner
         _buildConnectionStatus(),
-        const SizedBox(height: 16),
 
-        // This device info
-        if (_myIP != null) _buildDeviceInfo(),
-        const SizedBox(height: 16),
+        // 2. Device info strip
+        if (_myIP != null) ...[
+          const SizedBox(height: 14),
+          _buildDeviceInfo(),
+        ],
 
-        // Manual IP Input with Connect button
+        const SizedBox(height: 22),
+
+        // 3. Manual IP input + Connect
         _buildManualInput(),
-        const SizedBox(height: 16),
 
-        // Quick Connect Options
+        const SizedBox(height: 24),
+
+        // 4. Quick actions
         _buildConnectionOptions(),
-        const SizedBox(height: 16),
 
+        // 5. Live scan status
+        if (_scanStatus != null) ...[
+          const SizedBox(height: 14),
+          _buildScanStatus(),
+        ],
       ],
     );
   }
 
+  // ---------- CONNECTION STATUS ----------
   Widget _buildConnectionStatus() {
-    // Check if connected to a remote server
-    if (!_connectedToLocalhost && _currentServerIP != null && _currentServerIP!.isNotEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.green.withValues(alpha: 0.1),  // Green for active connection
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.link, size: 25, color: Colors.green.shade700),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.connected,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.green.shade700,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    '$_currentServerIP',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.green.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            TextButton(
-              onPressed: loading ? null : _disconnect,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.disconnect,
-                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
-              ),
-            ),
-          ],
-        ),
-      );
+    final theme = Theme.of(context);
+    final locale = AppLocalizations.of(context)!;
+
+    final bool isRemote = !_connectedToLocalhost &&
+        _currentServerIP != null &&
+        _currentServerIP!.isNotEmpty;
+    final bool isLocal = _connectedToLocalhost && _isServer;
+
+    final Color accent;
+    final IconData icon;
+    final String title;
+    final String subtitle;
+
+    if (isRemote) {
+      accent = const Color(0xFF10B981);
+      icon = Icons.link_rounded;
+      title = locale.connected;
+      subtitle = _currentServerIP!;
+    } else if (isLocal) {
+      accent = const Color(0xFF10B981);
+      icon = Icons.check_circle_rounded;
+      title = locale.connectedTo;
+      subtitle = 'localhost';
+    } else {
+      accent = Colors.grey.shade500;
+      icon = Icons.link_off_rounded;
+      title = locale.notConnected;
+      subtitle = 'No active server connection';
     }
 
-    // Connected to localhost (server device)
-    if (_connectedToLocalhost && _isServer) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.green.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.check_circle, size: 20, color: Colors.green.shade700),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                AppLocalizations.of(context)!.connectedTo,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.green.shade700,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Not connected
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.1),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            accent.withValues(alpha: 0.14),
+            accent.withValues(alpha: 0.04),
+          ],
+        ),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: accent.withValues(alpha: 0.28),
+          width: 1.5,
+        ),
       ),
       child: Row(
         children: [
-          Icon(Icons.link_off, size: 18, color: Colors.grey.shade600),
-          const SizedBox(width: 10),
-          Text(
-            AppLocalizations.of(context)!.notConnected,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.18),
+              shape: BoxShape.circle,
             ),
+            child: Icon(icon, color: accent, size: 23),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeviceInfo() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.blue.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${AppLocalizations.of(context)!.deviceIp} | $_myIP',
+                  title,
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue.shade700,
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w700,
+                    color: accent,
+                    letterSpacing: -0.2,
                   ),
                 ),
-                const SizedBox(height: 5),
-                if (_isServer)
-                  Text(
-                    AppLocalizations.of(context)!.serverIp,
-                    style: TextStyle(fontSize: 13, color: Colors.blue.shade600),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: accent.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w500,
                   ),
+                ),
               ],
             ),
           ),
-          Icon(Icons.computer_rounded, size: 25, color: Colors.blue.shade700),
-          const SizedBox(width: 10),
+          if (isRemote)
+            TextButton.icon(
+              onPressed: loading ? null : _disconnect,
+              icon: const Icon(Icons.link_off_rounded, size: 16),
+              label: Text(locale.disconnect),
+              style: TextButton.styleFrom(
+                foregroundColor: theme.colorScheme.error,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
+  // ---------- DEVICE INFO ----------
+  Widget _buildDeviceInfo() {
+    final theme = Theme.of(context);
+    final locale = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: theme.dividerColor.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.computer_rounded,
+              size: 17,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            locale.deviceIp,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _myIP!,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+          if (_isServer)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.dns_rounded,
+                    size: 11,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    locale.serverIp.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ---------- MANUAL INPUT ----------
   Widget _buildManualInput() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -623,18 +679,24 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
             hint: _currentServerIP ?? _myIP,
             controller: ipController,
             isEnabled: !loading,
-            showClearButton: true,
-            isRequired: true,
-            onSubmit: (e) => connect(),
+            onChanged: (_) => setState(() {}),
+            onSubmit: (e) {
+              if (!loading && ipController.text.trim().isNotEmpty) {
+                connect();
+              }
+            },
           ),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 10),
         Expanded(
           flex: 1,
           child: ZOutlineButton(
+            icon: Icons.wifi,
             isActive: true,
             height: 49,
-            onPressed: connect,
+            onPressed: (loading || ipController.text.trim().isEmpty)
+                ? null
+                : connect,
             label: loading
                 ? const SizedBox(
               width: 20,
@@ -646,9 +708,9 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
             )
                 : Text(
               AppLocalizations.of(context)!.connect,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -657,84 +719,94 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
     );
   }
 
+  // ---------- QUICK ACTIONS ----------
   Widget _buildConnectionOptions() {
+    final theme = Theme.of(context);
+    final locale = AppLocalizations.of(context)!;
+
+    final actions = <Widget>[];
+
+    if (_isServer) {
+      actions.add(_buildActionChip(
+        icon: Icons.computer_rounded,
+
+        label: _connectedToLocalhost
+            ? '${locale.localhost} ✓'
+            : locale.localhost,
+        onTap: _connectToLocalhost,
+        isLoading: loading && !autoFinding,
+        isActive: _connectedToLocalhost,
+      ));
+    }
+
+    actions.add(_buildActionChip(
+      icon: Icons.wifi_find_rounded,
+      label: autoFinding ? locale.searching : locale.autoFind,
+      onTap: _quickConnect,
+      isLoading: autoFinding,
+      isActive: false,
+    ));
+
+    if (_myIP != null) {
+      actions.add(_buildActionChip(
+        icon: Icons.smartphone_rounded,
+        label: locale.connectToDevice,
+        onTap: () {
+          if (_myIP != null) {
+            ipController.text = _myIP!;
+            setState(() {});
+          }
+        },
+        isLoading: false,
+        isActive: false,
+      ));
+    }
+
+    actions.add(_buildActionChip(
+      icon: Icons.bookmark_rounded,
+      label: 'Saved IP',
+      onTap: () async {
+        final savedIP = await ApiServices().getSavedServerIP();
+        if (savedIP != null && savedIP.isNotEmpty) {
+          ipController.text = savedIP;
+          setState(() {});
+        }
+      },
+      isLoading: false,
+      isActive: false,
+    ));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)!.quickConnect,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
+        Row(
           children: [
-            // Localhost button
-            if (_isServer)
-              _buildActionChip(
-                icon: Icons.computer,
-                label: _connectedToLocalhost ? '${AppLocalizations.of(context)!.localhost} ✓' : AppLocalizations.of(context)!.localhost,
-                onTap: _connectToLocalhost,
-                isLoading: loading,
-                isActive: _connectedToLocalhost,
-              ),
-
-            // Auto Find button
-            _buildActionChip(
-              icon: Icons.wifi_find,
-              label: autoFinding ? AppLocalizations.of(context)!.searching : AppLocalizations.of(context)!.autoFind,
-              onTap: _quickConnect,
-              isLoading: loading || autoFinding,
-              isActive: false,
+            Icon(
+              Icons.bolt_rounded,
+              size: 16,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-
-            // This Device button
-            if (_myIP != null)
-              _buildActionChip(
-                icon: Icons.phone_android,
-                label: AppLocalizations.of(context)!.connectToDevice,
-                onTap: () {
-                  if (_myIP != null) {
-                    ipController.text = _myIP!;
-                    setState(() {});
-                  }
-                },
-                isLoading: false,
-                isActive: false,
+            const SizedBox(width: 6),
+            Text(
+              locale.quickConnect.toUpperCase(),
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.8,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
+            ),
           ],
         ),
-        if (_scanStatus != null) ...[
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    _scanStatus!,
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            for (int i = 0; i < actions.length; i++) ...[
+              if (i > 0) const SizedBox(width: 10),
+              Expanded(child: actions[i]),
+            ],
+          ],
+        ),
       ],
     );
   }
@@ -746,49 +818,119 @@ class _DesktopServerConnectState extends State<_DesktopServerConnect> {
     required bool isLoading,
     required bool isActive,
   }) {
-    return InkWell(
-      onTap: isLoading ? null : onTap,
-      borderRadius: BorderRadius.circular(4),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive
-              ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-              : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: isActive
-                ? Theme.of(context).primaryColor
-                : Colors.grey.shade300,
-            width: isActive ? 1 : 1.5,
+    final theme = Theme.of(context);
+
+    return Material(
+      color: isActive
+          ? theme.colorScheme.primary.withValues(alpha: 0.1)
+          : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: isLoading ? null : onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isActive
+                  ? theme.colorScheme.primary
+                  : theme.dividerColor.withValues(alpha: 0.55),
+              width: isActive ? 1.5 : 1,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 46,
+                width: 46,
+                child: isLoading
+                    ? Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: theme.colorScheme.primary,
+                  ),
+                )
+                    : Container(
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? theme.colorScheme.primary
+                        .withValues(alpha: 0.15)
+                        : theme.colorScheme.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 25,
+                    color: isActive
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: isActive
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface,
+                ),
+              ),
+            ],
           ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isLoading)
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else
-              Icon(
-                icon,
-                size: 16,
-                color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade600,
-              ),
-            const SizedBox(width: 6),
-            Text(
-              label,
+      ),
+    );
+  }
+
+  // ---------- SCAN STATUS ----------
+  Widget _buildScanStatus() {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.22),
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _scanStatus!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: isActive ? Theme.of(context).primaryColor : Colors.grey.shade700,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurfaceVariant,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
